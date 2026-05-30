@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockView B3 — v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;800&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  /* ===== THEME VARIABLES ===== */
+  :root,[data-theme="dark"]{
+    --bg:#0a0c10;--surface:#111318;--surface2:#181c24;--surface3:#1f2330;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+    --text:#e8eaf0;--muted:#6b7280;--muted2:#9ca3af;
+    --accent:#00e5b4;--red:#ff4444;--yellow:#f5a623;--blue:#6699ff;
+    --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;
+    --shadow:rgba(0,0,0,0.4);
+  }
+  [data-theme="light"]{
+    --bg:#f4f6fa;--surface:#ffffff;--surface2:#eef0f6;--surface3:#e4e8f2;
+    --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.15);
+    --text:#1a1d26;--muted:#6b7280;--muted2:#4b5563;
+    --accent:#009e7d;--red:#d93030;--yellow:#c47d00;--blue:#3355cc;
+    --shadow:rgba(0,0,0,0.1);
+  }
+
+  body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding:1.5rem 1rem;transition:background 0.25s,color 0.25s;}
+  .container{max-width:1200px;margin:0 auto;}
+
+  /* HEADER */
+  header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;border-bottom:1px solid var(--border2);padding-bottom:1.25rem;flex-wrap:wrap;}
+  .logo{font-family:var(--display);font-weight:800;font-size:1.4rem;color:var(--accent);letter-spacing:-0.02em;}
+  .subtitle{font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;flex:1;}
+  .header-right{display:flex;align-items:center;gap:0.6rem;margin-left:auto;}
+
+  /* THEME TOGGLE */
+  .theme-toggle{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:0.25rem;display:flex;gap:0.15rem;cursor:pointer;}
+  .theme-btn{background:none;border:none;cursor:pointer;width:28px;height:22px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;transition:all 0.2s;color:var(--muted);}
+  .theme-btn.active{background:var(--accent);color:#000;}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:1px solid var(--border2);}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.55rem 1.1rem;cursor:pointer;transition:all 0.15s;margin-bottom:-1px;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* PASTE AREA */
+  .info-box{background:rgba(0,229,180,0.04);border:1px solid rgba(0,229,180,0.18);border-radius:10px;padding:1.1rem;margin-bottom:1.25rem;font-size:0.76rem;line-height:1.75;color:var(--text);}
+  [data-theme="light"] .info-box{background:rgba(0,158,125,0.06);}
+  .info-box strong{color:var(--accent);}
+  .info-box code{background:rgba(0,229,180,0.08);border:1px solid rgba(0,229,180,0.18);border-radius:4px;padding:0.1rem 0.4rem;font-size:0.72rem;color:var(--accent);}
+  textarea#pasteArea{width:100%;background:var(--surface);border:1px dashed var(--border2);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:0.74rem;padding:1rem;min-height:130px;resize:vertical;outline:none;transition:border-color 0.2s;line-height:1.6;margin-bottom:0.75rem;}
+  textarea#pasteArea:focus{border-color:var(--accent);border-style:solid;}
+  textarea#pasteArea::placeholder{color:var(--muted);}
+  .action-row{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;}
+
+  /* MANUAL FORM */
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.65rem;margin-bottom:0.75rem;}
+  .fg{display:flex;flex-direction:column;gap:0.3rem;}
+  .fg label{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+  .fg input,.fg select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.82rem;padding:0.45rem 0.65rem;border-radius:6px;outline:none;transition:border-color 0.2s;width:100%;}
+  .fg input:focus,.fg select:focus{border-color:var(--accent);}
+  .fg input::placeholder{color:var(--muted);}
+  .fg select option{background:var(--surface2);}
+  .sec-title{font-size:0.6rem;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin:1.2rem 0 0.6rem;padding-bottom:0.35rem;border-bottom:1px solid rgba(0,229,180,0.13);}
+  .ticker-row{display:flex;gap:0.65rem;align-items:flex-end;margin-bottom:0.75rem;}
+  .ticker-row .fg:first-child{flex:0 0 150px;}
+  .ticker-row .fg:last-child{flex:1;}
+  .ticker-row input{font-size:1.1rem;font-weight:700;letter-spacing:0.06em;color:var(--accent);text-transform:uppercase;}
+
+  /* BUTTONS */
+  .btn-p{background:var(--accent);color:#000;border:none;font-family:var(--mono);font-weight:700;font-size:0.8rem;padding:0.65rem 1.3rem;border-radius:7px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;transition:opacity 0.2s,transform 0.1s;white-space:nowrap;}
+  .btn-p:hover{opacity:0.85;} .btn-p:active{transform:scale(0.97);} .btn-p:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border2);font-family:var(--mono);font-size:0.75rem;font-weight:600;padding:0.55rem 0.9rem;border-radius:6px;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;transition:all 0.15s;}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ERROR */
+  .err{display:none;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.3);border-radius:8px;padding:0.85rem 1rem;color:var(--red);font-size:0.78rem;margin:0.75rem 0;}
+
+  /* LOADING */
+  .loading{display:none;align-items:center;gap:0.65rem;color:var(--muted);font-size:0.78rem;margin:0.75rem 0;}
+  .loading.active{display:flex;}
+  .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* INPUT PANEL COLLAPSIBLE */
+  .input-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:0.75rem 1.1rem;cursor:pointer;margin-bottom:0.75rem;transition:border-color 0.2s;user-select:none;}
+  .input-toggle:hover{border-color:var(--accent);}
+  .input-toggle-left{display:flex;align-items:center;gap:0.65rem;}
+  .input-toggle-icon{font-size:1rem;}
+  .input-toggle-label{font-size:0.72rem;color:var(--text);letter-spacing:0.06em;text-transform:uppercase;font-weight:600;}
+  .input-toggle-hint{font-size:0.65rem;color:var(--muted);}
+  .input-toggle-arrow{font-size:0.75rem;color:var(--muted);transition:transform 0.25s;}
+  .input-toggle-arrow.open{transform:rotate(180deg);}
+  .input-panel{overflow:hidden;max-height:0;transition:max-height 0.35s ease;}
+  .input-panel.open{max-height:900px;}
+  .input-panel-inner{background:var(--surface);border:1px solid var(--border2);border-top:none;border-radius:0 0 10px 10px;padding:1.1rem;}
+
+  /* ASSET SEARCH */
+  .asset-search-wrap{position:relative;flex:1;min-width:160px;}
+  .asset-search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:0.4rem 0.7rem 0.4rem 2rem;border-radius:6px;outline:none;transition:border-color 0.2s;}
+  .asset-search-wrap input:focus{border-color:var(--accent);}
+  .asset-search-wrap::before{content:'⌕';position:absolute;left:0.55rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem;pointer-events:none;}
+  .asset-search-wrap input::placeholder{color:var(--muted);}
+
+  /* AI BADGE */
+  .ai-badge{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.25);border-radius:4px;font-size:0.62rem;color:var(--blue);padding:0.2rem 0.5rem;letter-spacing:0.06em;}
+  .dot-ai{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 1.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+  /* ===== KPI PANEL ===== */
+  #kpiPanel{display:none;margin-bottom:1.5rem;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0.65rem;margin-bottom:1rem;}
+  .kpi-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.1rem;position:relative;overflow:hidden;transition:border-color 0.2s;}
+  .kpi-card:hover{border-color:var(--accent);}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;}
+  .kpi-card.highlight::before{opacity:1;}
+  .kpi-card.kpi-red::before{background:var(--red);opacity:1;}
+  .kpi-card.kpi-yellow::before{background:var(--yellow);opacity:1;}
+  .kpi-lbl{font-size:0.57rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.4rem;}
+  .kpi-val{font-size:1rem;font-weight:700;font-family:var(--mono);line-height:1.2;}
+  .kpi-sub{font-size:0.65rem;color:var(--muted);margin-top:0.3rem;}
+  .kpi-ticker{font-size:0.7rem;color:var(--accent);font-weight:700;margin-top:0.2rem;}
+
+  /* ===== CHARTS SECTION ===== */
+  #chartsSection{display:none;margin-bottom:1.5rem;}
+  .charts-nav{display:flex;gap:0.4rem;margin-bottom:1rem;flex-wrap:wrap;}
+  .chart-tab-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:0.65rem;padding:0.35rem 0.75rem;border-radius:5px;cursor:pointer;text-transform:uppercase;letter-spacing:0.07em;transition:all 0.15s;}
+  .chart-tab-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,180,0.06);}
+  .chart-panel{display:none;}
+  .chart-panel.active{display:block;}
+  .chart-container{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1.25rem;}
+  .chart-title{font-size:0.63rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;}
+
+  /* HEATMAP */
+  .heatmap-wrap{overflow-x:auto;}
+  .heatmap-table{width:100%;border-collapse:separate;border-spacing:3px;min-width:500px;}
+  .heatmap-table th{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.4rem;font-weight:500;}
+  .hm-cell{border-radius:6px;padding:0.5rem 0.4rem;text-align:center;cursor:pointer;transition:transform 0.12s,box-shadow 0.12s;min-width:70px;}
+  .hm-cell:hover{transform:scale(1.04);box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+  .hm-ticker{font-size:0.65rem;font-weight:700;letter-spacing:0.04em;margin-bottom:0.15rem;}
+  .hm-val{font-size:0.72rem;font-weight:700;}
+
+  /* RESULTS TABLE */
+  #resultWrap{margin-top:2rem;display:none;}
+  .res-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;}
+  .res-title{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--accent);}
+  .res-meta{font-size:0.68rem;color:var(--muted);}
+  .filter-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+  .filter-row input{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:0.4rem 0.7rem;border-radius:6px;outline:none;width:180px;transition:border-color 0.2s;}
+  .filter-row input:focus{border-color:var(--accent);}
+  .filter-row select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:0.4rem 0.6rem;border-radius:6px;outline:none;cursor:pointer;}
+  .tbl-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+  thead tr{border-bottom:1px solid var(--border2);}
+  th{color:var(--muted);font-weight:500;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.5rem 0.6rem;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;}
+  th:first-child{text-align:left;}
+  th:hover{color:var(--text);}
+  th.sorted{color:var(--accent);}
+  td{padding:0.5rem 0.6rem;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td:first-child{text-align:left;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  [data-theme="light"] tr:hover td{background:rgba(0,0,0,0.02);}
+  .ativo-cell{color:var(--accent);font-weight:700;cursor:pointer;}
+  .ativo-cell:hover{text-decoration:underline;}
+  .pos{color:var(--accent);} .neg{color:var(--red);} .neu{color:var(--yellow);}
+  .setor-badge{font-size:0.6rem;color:var(--muted);margin-left:0.4rem;letter-spacing:0.04em;}
+  .bar-cell{display:flex;align-items:center;gap:0.4rem;justify-content:flex-end;}
+  .bar-bg{width:60px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;flex-shrink:0;}
+  .bar-fill{height:100%;border-radius:3px;}
+  .sinal-pill{display:inline-block;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;letter-spacing:0.07em;}
+  .sinal-alta{background:rgba(0,229,180,0.12);color:var(--accent);border:1px solid rgba(0,229,180,0.25);}
+  .sinal-baixa{background:rgba(255,68,68,0.12);color:var(--red);border:1px solid rgba(255,68,68,0.25);}
+  .sinal-neutro{background:rgba(245,166,35,0.12);color:var(--yellow);border:1px solid rgba(245,166,35,0.25);}
+
+  /* DETAIL CARD */
+  #detailCard{display:none;margin-top:1.5rem;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.5rem;}
+  .dc-header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+  .dc-ticker{font-family:var(--display);font-weight:800;font-size:1.8rem;color:var(--accent);}
+  .dc-nome{font-size:0.75rem;color:var(--muted);margin-bottom:1.25rem;}
+  .dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.65rem;margin-bottom:1.25rem;}
+  .dc-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.85rem;}
+  .dc-card.hl{border-color:rgba(0,229,180,0.25);}
+  .dc-lbl{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;}
+  .dc-val{font-size:1.15rem;font-weight:700;}
+  .dc-sub{font-size:0.67rem;color:var(--muted);margin-top:0.25rem;}
+  .gauge-wrap{text-align:center;margin:0.75rem 0 1.25rem;}
+  .gauge-lbl{font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem;}
+  .gauge-svg{width:200px;}
+  .analysis-box{background:var(--bg);border:1px solid var(--border2);border-left:3px solid var(--accent);border-radius:8px;padding:1.1rem;margin-bottom:0.75rem;}
+  .analysis-box h4{font-size:0.62rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem;}
+  .analysis-box p{font-size:0.8rem;line-height:1.75;color:var(--text);}
+  .points-list{list-style:none;margin-top:0.5rem;}
+  .points-list li{font-size:0.78rem;color:var(--text);padding:0.3rem 0;border-bottom:1px solid var(--border);}
+  .points-list li:last-child{border:none;}
+  .disc{font-size:0.65rem;color:var(--muted);border-top:1px solid var(--border);padding-top:0.85rem;margin-top:1rem;line-height:1.6;}
+  .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:0.75rem 0;}
+  @media(max-width:600px){.charts-row{grid-template-columns:1fr;}}
+  .chart-box{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:1rem;}
+  .chart-box h4{font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem;}
+  .chart-box canvas{display:block;width:100%!important;}
+  .close-btn{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:0.68rem;padding:0.3rem 0.7rem;border-radius:5px;cursor:pointer;transition:all 0.15s;}
+  .close-btn:hover{border-color:var(--red);color:var(--red);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div>
+      <div class="logo">StockView</div>
+    </div>
+    <div class="subtitle">Análise de Ações B3 — Profit / Python / Planilha</div>
+    <div class="header-right">
+      <div class="theme-toggle" title="Alternar tema">
+        <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Escuro">🌙</button>
+        <button class="theme-btn" id="btnLight" onclick="setTheme('light')" title="Claro">☀️</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- INPUT PANEL -->
+  <div class="input-toggle" onclick="toggleInputPanel()" id="inputToggle">
+    <div class="input-toggle-left">
+      <span class="input-toggle-icon">📥</span>
+      <div>
+        <div class="input-toggle-label">Importar Dados</div>
+        <div class="input-toggle-hint" id="toggleHint">Colar do Profit, do script Python, ou inserir manualmente</div>
+      </div>
+    </div>
+    <span class="input-toggle-arrow" id="toggleArrow">▼</span>
+  </div>
+
+  <div class="input-panel" id="inputPanel">
+    <div class="input-panel-inner">
+      <div class="tabs" style="margin-bottom:1rem;">
+        <button class="tab active" onclick="switchTab('paste',this)">📋 Colar do Profit / Python</button>
+        <button class="tab" onclick="switchTab('manual',this)">✏️ Inserir Manualmente</button>
+      </div>
+
+      <!-- PASTE TAB -->
+      <div id="tab-paste" class="tab-panel active">
+        <div class="info-box">
+          <strong>Cole diretamente da planilha, do Profit ou do script Python.</strong><br>
+          Selecione as linhas (incluindo cabeçalho), copie com <code>Ctrl+C</code> e cole abaixo.<br>
+          Colunas reconhecidas: <code>Ativo · Último · Variação · Máx · Mín · Fechamento Ant. · Abertura · Volume · Negócios · Var(pts) · Vol. Histórica · IFR · Semana · Mês · Ano</code><br>
+          Linhas de categoria (ex: <strong>BANCÕES</strong>, <strong>FINANCEIRO</strong>) são detectadas automaticamente como setor.
+        </div>
+        <textarea id="pasteArea" placeholder="Cole aqui os dados copiados da planilha, do Profit ou do script Python..."></textarea>
+        <div class="action-row">
+          <button class="btn-p" onclick="runPaste()">▶ Carregar e Analisar</button>
+          <button class="btn-s" onclick="document.getElementById('pasteArea').value=''">Limpar</button>
+        </div>
+        <div class="err" id="err-paste"></div>
+      </div>
+
+      <!-- MANUAL TAB -->
+      <div id="tab-manual" class="tab-panel">
+        <div class="ticker-row">
+          <div class="fg"><label>Ativo (Ticker)</label><input type="text" id="m_ativo" placeholder="ITUB4" maxlength="8"></div>
+          <div class="fg"><label>Setor</label><input type="text" id="m_setor" placeholder="ex: Bancões"></div>
+        </div>
+        <div class="sec-title">Preços & Variação</div>
+        <div class="form-grid">
+          <div class="fg"><label>Último (R$)</label><input type="number" id="m_ultimo" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Abertura (R$)</label><input type="number" id="m_abertura" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Máximo (R$)</label><input type="number" id="m_maximo" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Mínimo (R$)</label><input type="number" id="m_minimo" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Fechamento Ant. (R$)</label><input type="number" id="m_fech_ant" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Variação (%)</label><input type="number" id="m_var" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Variação (pts)</label><input type="number" id="m_var_pts" placeholder="0.00" step="0.01"></div>
+        </div>
+        <div class="sec-title">Volume & Book</div>
+        <div class="form-grid">
+          <div class="fg"><label>Volume (R$)</label><input type="number" id="m_vol" placeholder="0" step="1"></div>
+          <div class="fg"><label>Negócios</label><input type="number" id="m_neg" placeholder="0" step="1"></div>
+          <div class="fg"><label>Of. Compra (R$)</label><input type="number" id="m_ofc" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Of. Venda (R$)</label><input type="number" id="m_ofv" placeholder="0.00" step="0.01"></div>
+        </div>
+        <div class="sec-title">Indicadores Técnicos</div>
+        <div class="form-grid">
+          <div class="fg"><label>Vol. Histórica (%)</label><input type="number" id="m_volh" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>IFR / RSI</label><input type="number" id="m_ifr" placeholder="50" step="0.1" min="0" max="100"></div>
+          <div class="fg"><label>Semana (%)</label><input type="number" id="m_sem" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Mês (%)</label><input type="number" id="m_mes" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Ano (%)</label><input type="number" id="m_ano" placeholder="0.00" step="0.01"></div>
+          <div class="fg"><label>Estado</label><select id="m_estado"><option>Fechado</option><option>Aberto</option><option>Leilão</option></select></div>
+        </div>
+        <div class="action-row" style="margin-top:1rem;">
+          <button class="btn-p" onclick="addManual()">▶ Adicionar à Tabela</button>
+          <button class="btn-s" onclick="clearManual()">↺ Limpar</button>
+        </div>
+        <div class="err" id="err-manual"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KPI PANEL ===== -->
+  <div id="kpiPanel">
+    <div class="kpi-grid" id="kpiGrid"></div>
+  </div>
+
+  <!-- ===== CHARTS SECTION ===== -->
+  <div id="chartsSection">
+    <div class="charts-nav">
+      <button class="chart-tab-btn active" onclick="switchChartTab('heatmap',this)">🔥 Heatmap de Performance</button>
+      <button class="chart-tab-btn" onclick="switchChartTab('setor',this)">🥧 Distribuição por Setor</button>
+      <button class="chart-tab-btn" onclick="switchChartTab('ranking',this)">📊 Top Ativos</button>
+    </div>
+
+    <!-- HEATMAP -->
+    <div id="chart-heatmap" class="chart-panel active">
+      <div class="chart-container">
+        <div class="chart-title">Heatmap de Performance — Clique num ativo para ver detalhes</div>
+        <div class="heatmap-wrap">
+          <table class="heatmap-table" id="hmTable">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Ativo</th>
+                <th>Dia</th>
+                <th>Semana</th>
+                <th>Mês</th>
+                <th>Ano</th>
+                <th>RSI</th>
+              </tr>
+            </thead>
+            <tbody id="hmBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETOR CHART -->
+    <div id="chart-setor" class="chart-panel">
+      <div class="chart-container" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="chart-title">Distribuição de ativos por setor</div>
+          <canvas id="canvasSetor" height="260"></canvas>
+        </div>
+        <div>
+          <div class="chart-title">Volume financeiro por setor (R$)</div>
+          <canvas id="canvasSetorVol" height="260"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANKING CHART -->
+    <div id="chart-ranking" class="chart-panel">
+      <div class="chart-container">
+        <div class="chart-title">Top 10 ativos — Variação no dia (%)</div>
+        <canvas id="canvasRanking" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultWrap">
+    <div class="res-header">
+      <div>
+        <div class="res-title" id="resTitle">Ativos carregados</div>
+        <div class="res-meta" id="resMeta"></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn-s" onclick="runAIOnAll()" id="btnAI">⚡ Análise IA (todos)</button>
+        <button class="btn-s" onclick="clearAll()">✕ Limpar</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:0.75rem;">
+      <button class="btn-s" id="btnToggleTable" onclick="toggleTable()" style="display:flex;align-items:center;gap:0.4rem;">
+        <span id="tblToggleIcon">▶</span> <span id="tblToggleLabel">Ver lista de ativos</span>
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <div class="asset-search-wrap">
+        <input type="text" id="filterInput" placeholder="Buscar ativo ou setor..." oninput="renderTable()" autocomplete="off">
+      </div>
+      <select id="filterSetor" onchange="renderTable()"><option value="">Todos os setores</option></select>
+      <select id="filterSinal" onchange="renderTable()">
+        <option value="">Todos os sinais</option>
+        <option value="ALTA">Alta</option>
+        <option value="BAIXA">Baixa</option>
+        <option value="NEUTRO">Neutro</option>
+      </select>
+    </div>
+
+    <div id="tableSection" style="display:none;">
+      <div class="tbl-wrap">
+        <table id="mainTable">
+          <thead>
+            <tr>
+              <th onclick="sortBy('ativo')">Ativo</th>
+              <th onclick="sortBy('ultimo')">Último</th>
+              <th onclick="sortBy('variacao')">Var%</th>
+              <th onclick="sortBy('variacao_pts')">Var pts</th>
+              <th onclick="sortBy('abertura')">Abertura</th>
+              <th onclick="sortBy('maximo')">Máx</th>
+              <th onclick="sortBy('minimo')">Mín</th>
+              <th onclick="sortBy('fech_ant')">Fech.Ant</th>
+              <th onclick="sortBy('volume')">Volume</th>
+              <th onclick="sortBy('negocios')">Negócios</th>
+              <th onclick="sortBy('vol_hist')">Vol.Hist%</th>
+              <th onclick="sortBy('ifr')">RSI</th>
+              <th onclick="sortBy('semana')">Semana%</th>
+              <th onclick="sortBy('mes')">Mês%</th>
+              <th onclick="sortBy('ano')">Ano%</th>
+              <th>Sinal IA</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DETAIL CARD -->
+    <div id="detailCard">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;">Detalhes & Análise IA</div>
+        <button class="close-btn" onclick="document.getElementById('detailCard').style.display='none'">✕ Fechar</button>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <div class="loading" id="loadingGlobal"><div class="spinner"></div><span id="loadingMsg">Analisando com IA...</span></div>
+  <div class="err" id="err-global"></div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let rows = [];
+let sortCol = 'variacao';
+let sortAsc = false;
+let sectorChartInst = null;
+let sectorVolChartInst = null;
+let rankingChartInst = null;
+
+// ============================================================
+// THEME
+// ============================================================
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('btnDark').classList.toggle('active', t === 'dark');
+  document.getElementById('btnLight').classList.toggle('active', t === 'light');
+  localStorage.setItem('sv-theme', t);
+  if (rows.length) { renderSectorChart(); renderRankingChart(); }
+}
+(function(){
+  const saved = localStorage.getItem('sv-theme') || 'dark';
+  setTheme(saved);
+})();
+
+// ============================================================
+// TOGGLE TABLE
+// ============================================================
+function toggleTable() {
+  const sec = document.getElementById('tableSection');
+  const icon = document.getElementById('tblToggleIcon');
+  const label = document.getElementById('tblToggleLabel');
+  const isHidden = sec.style.display === 'none';
+  sec.style.display = isHidden ? 'block' : 'none';
+  icon.textContent = isHidden ? '▼' : '▶';
+  label.textContent = isHidden ? 'Ocultar lista' : 'Ver lista de ativos';
+}
+
+// ============================================================
+// COLLAPSIBLE INPUT
+// ============================================================
+function toggleInputPanel() {
+  const panel = document.getElementById('inputPanel');
+  const arrow = document.getElementById('toggleArrow');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+// ============================================================
+// TABS (input)
+// ============================================================
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ============================================================
+// CHART TABS
+// ============================================================
+function switchChartTab(name, el) {
+  document.querySelectorAll('.chart-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.chart-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('chart-' + name).classList.add('active');
+  if (name === 'setor') renderSectorChart();
+  if (name === 'ranking') renderRankingChart();
+}
+
+// ============================================================
+// PARSE — formato Profit / planilha
+// ============================================================
+function parseProfit(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const result = [];
+  let currentSetor = '';
+
+  const n = v => {
+    if (!v) return 0;
+    const s = String(v).replace(',', '.').replace(/[^\d.\-eE]/g, '');
+    return parseFloat(s) || 0;
+  };
+
+  const headerLine = lines.find(l => /ativo/i.test(l) && /último|ultimo/i.test(l));
+  let colMap = null;
+
+  if (headerLine) {
+    const hCols = headerLine.split('\t').map(h => h.trim().toLowerCase());
+    colMap = {};
+    hCols.forEach((h, i) => {
+      if (/^ativo$|^ticker$/.test(h)) colMap.ativo = i;
+      else if (/^último$|^ultimo$/.test(h)) colMap.ultimo = i;
+      else if (/^variação$|^variacao$/.test(h) && !/pts|teor/.test(h)) colMap.variacao = i;
+      else if (/variação\(pts\)|variacao.pts/.test(h)) colMap.variacao_pts = i;
+      else if (/^máximo$|^maximo$/.test(h)) colMap.maximo = i;
+      else if (/^mínimo$|^minimo$/.test(h)) colMap.minimo = i;
+      else if (/fechamento ant/i.test(h)) colMap.fech_ant = i;
+      else if (/^abertura$/.test(h)) colMap.abertura = i;
+      else if (/^volume$/.test(h)) colMap.volume = i;
+      else if (/negócios|negocios/i.test(h)) colMap.negocios = i;
+      else if (/volatilidade hist|vol\. hist/i.test(h) || h === 'volatilidade histórica') colMap.vol_hist = i;
+      else if (/ifr|rsi/i.test(h)) colMap.ifr = i;
+      else if (/^semana$/.test(h)) colMap.semana = i;
+      else if (/^mês$|^mes$/.test(h)) colMap.mes = i;
+      else if (/^ano$/.test(h)) colMap.ano = i;
+      else if (/of\. compra|of.compra/i.test(h)) colMap.of_compra = i;
+      else if (/of\. venda|of.venda/i.test(h)) colMap.of_venda = i;
+      else if (/estado/i.test(h)) colMap.estado = i;
+    });
+  }
+
+  for (const line of lines) {
+    const cols = line.split('\t');
+    if (headerLine && line === headerLine) continue;
+
+    const nonEmpty = cols.filter(c => c.trim() !== '');
+    if (nonEmpty.length === 1 && /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÔ\s\/]+$/.test(nonEmpty[0])) {
+      currentSetor = nonEmpty[0].trim();
+      continue;
+    }
+    if (cols.length <= 2 && /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÔ\s\/]+$/.test(cols[cols.length - 1])) {
+      currentSetor = cols[cols.length - 1].trim();
+      continue;
+    }
+    if (cols.length < 4) continue;
+
+    let r = { setor: currentSetor, sinal: null, analise: null };
+
+    if (colMap) {
+      r.ativo        = (cols[colMap.ativo] || '').trim().toUpperCase();
+      r.ultimo       = n(cols[colMap.ultimo]);
+      r.variacao     = n(cols[colMap.variacao]);
+      r.variacao_pts = colMap.variacao_pts !== undefined ? n(cols[colMap.variacao_pts]) : 0;
+      r.maximo       = n(cols[colMap.maximo]);
+      r.minimo       = n(cols[colMap.minimo]);
+      r.fech_ant     = n(cols[colMap.fech_ant]);
+      r.abertura     = n(cols[colMap.abertura]);
+      r.volume       = n(cols[colMap.volume]);
+      r.negocios     = n(cols[colMap.negocios]);
+      r.vol_hist     = n(cols[colMap.vol_hist]);
+      r.ifr          = n(cols[colMap.ifr]);
+      r.semana       = n(cols[colMap.semana]);
+      r.mes          = n(cols[colMap.mes]);
+      r.ano          = n(cols[colMap.ano]);
+      r.of_compra    = colMap.of_compra !== undefined ? n(cols[colMap.of_compra]) : 0;
+      r.of_venda     = colMap.of_venda !== undefined ? n(cols[colMap.of_venda]) : 0;
+      r.estado       = colMap.estado !== undefined ? (cols[colMap.estado]||'').trim() : '';
+    } else {
+      r.ativo        = (cols[1]||'').trim().toUpperCase();
+      r.ultimo       = n(cols[3]);
+      r.variacao     = n(cols[4]);
+      r.of_compra    = n(cols[7]);
+      r.of_venda     = n(cols[8]);
+      r.maximo       = n(cols[12]);
+      r.minimo       = n(cols[13]);
+      r.fech_ant     = n(cols[14]);
+      r.abertura     = n(cols[15]);
+      r.volume       = n(cols[16]);
+      r.negocios     = n(cols[18]);
+      r.variacao_pts = n(cols[19]);
+      r.vol_hist     = n(cols[20]);
+      r.ifr          = n(cols[21]);
+      r.semana       = n(cols[22]);
+      r.mes          = n(cols[23]);
+      r.ano          = n(cols[24]);
+      r.estado       = (cols[25]||'').trim();
+    }
+
+    if (!r.ativo || r.ativo.length < 4 || !/^[A-Z]/.test(r.ativo)) continue;
+    if (r.ultimo === 0 && r.variacao === 0 && r.maximo === 0) continue;
+
+    r.sinal = autoSignal(r);
+    r.score = autoScore(r);
+    result.push(r);
+  }
+
+  return result;
+}
+
+// ============================================================
+// AUTO SIGNAL
+// ============================================================
+function autoSignal(r) {
+  let pts = 0;
+  if (r.variacao > 0.5)  pts += 2; else if (r.variacao < -0.5) pts -= 2;
+  if (r.ifr > 0) {
+    if (r.ifr < 35)      pts += 2; else if (r.ifr > 65) pts -= 2;
+    else if (r.ifr > 55) pts -= 1; else if (r.ifr < 45) pts += 1;
+  }
+  if (r.semana > 0) pts += 1; else if (r.semana < 0) pts -= 1;
+  if (r.mes > 0)    pts += 1; else if (r.mes < 0)    pts -= 1;
+  if (r.ultimo > 0 && r.fech_ant > 0) {
+    if (r.ultimo > r.fech_ant) pts += 1; else pts -= 1;
+  }
+  if (pts >= 3) return 'ALTA'; else if (pts <= -3) return 'BAIXA'; else return 'NEUTRO';
+}
+
+function autoScore(r) {
+  let s = 50;
+  s += (r.variacao || 0) * 3;
+  if (r.ifr > 0) s += (r.ifr - 50) * 0.5;
+  s += (r.semana || 0) * 1;
+  s += (r.mes || 0) * 0.5;
+  return Math.min(100, Math.max(0, Math.round(s)));
+}
+
+function autoAnalise(r) {
+  const varDir = r.variacao >= 0 ? 'alta' : 'baixa';
+  const ifrMom = r.ifr > 70 ? 'sobrecomprado (RSI acima de 70)' : r.ifr < 30 ? 'sobrevendido (RSI abaixo de 30)' : `neutro (RSI ${r.ifr.toFixed(0)})`;
+  const volComment = r.vol_hist > 50 ? 'alta volatilidade histórica' : r.vol_hist > 25 ? 'volatilidade moderada' : 'baixa volatilidade histórica';
+  const semDir = r.semana >= 0 ? `positiva (+${r.semana.toFixed(2)}%)` : `negativa (${r.semana.toFixed(2)}%)`;
+  const mesDir = r.mes >= 0 ? `+${r.mes.toFixed(2)}%` : `${r.mes.toFixed(2)}%`;
+  const anoDir = r.ano >= 0 ? `+${r.ano.toFixed(2)}%` : `${r.ano.toFixed(2)}%`;
+  const amp = r.maximo > 0 && r.minimo > 0 ? ((r.maximo - r.minimo) / r.minimo * 100).toFixed(2) : null;
+
+  let txt = `${r.ativo} opera com variação de ${r.variacao >= 0 ? '+' : ''}${r.variacao.toFixed(2)}% no dia, `;
+  txt += `precificado a R$ ${r.ultimo.toFixed(2)} (mín: R$ ${r.minimo.toFixed(2)} / máx: R$ ${r.maximo.toFixed(2)}`;
+  if (amp) txt += `, amplitude de ${amp}%`;
+  txt += `). `;
+  txt += `O momento técnico é ${ifrMom}, com ${volComment}. `;
+  txt += `Na semana o desempenho foi ${semDir}; no mês ${mesDir} e no acumulado do ano ${anoDir}. `;
+  if (r.volume > 0) txt += `Volume financeiro de R$ ${fmtVol(r.volume)}, com ${r.negocios.toLocaleString('pt-BR')} negócios realizados.`;
+  return txt;
+}
+
+function autoPoints(r) {
+  const pts = [];
+  if (r.ifr > 70) pts.push('RSI acima de 70 — zona de sobrecompra, atenção a realizações.');
+  if (r.ifr < 30) pts.push('RSI abaixo de 30 — zona de sobrevenda, possível oportunidade de entrada.');
+  if (r.vol_hist > 60) pts.push(`Volatilidade histórica elevada (${r.vol_hist.toFixed(1)}%) — risco acima da média.`);
+  if (r.ano < -15) pts.push(`Queda acumulada no ano de ${r.ano.toFixed(2)}% — pressão vendedora persistente.`);
+  if (r.ano > 20) pts.push(`Alta acumulada no ano de +${r.ano.toFixed(2)}% — ativo com forte momentum.`);
+  if (r.mes < -8) pts.push(`Mês negativo (${r.mes.toFixed(2)}%) — tendência de curto prazo desfavorável.`);
+  if (r.of_compra > 0 && r.of_venda > 0) {
+    const spread = r.of_venda - r.of_compra;
+    if (spread / r.ultimo > 0.005) pts.push(`Spread bid/ask relativamente alto (R$ ${spread.toFixed(2)}) — liquidez moderada.`);
+  }
+  if (pts.length === 0) pts.push('Sem alertas técnicos relevantes nos indicadores disponíveis.');
+  return pts;
+}
+
+// ============================================================
+// FORMAT HELPERS
+// ============================================================
+function fmtVol(v) {
+  if (v >= 1e9) return (v/1e9).toFixed(2)+'B';
+  if (v >= 1e6) return (v/1e6).toFixed(1)+'M';
+  if (v >= 1e3) return (v/1e3).toFixed(0)+'K';
+  return v.toFixed(0);
+}
+function fmt2(v) { return typeof v === 'number' ? v.toFixed(2) : '—'; }
+function fmtPct(v, d=2) {
+  if (typeof v !== 'number') return '—';
+  return (v >= 0 ? '+' : '') + v.toFixed(d) + '%';
+}
+
+// ============================================================
+// PASTE
+// ============================================================
+function runPaste() {
+  const text = document.getElementById('pasteArea').value.trim();
+  if (!text) { showErr('err-paste','Cole os dados antes de carregar.'); return; }
+  hideErr('err-paste');
+  const parsed = parseProfit(text);
+  if (!parsed.length) { showErr('err-paste','Nenhum ativo reconhecido. Verifique se copiou com o cabeçalho.'); return; }
+  rows = parsed;
+  afterLoad();
+}
+
+// ============================================================
+// MANUAL
+// ============================================================
+function addManual() {
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+  const n = id => parseFloat(g(id)) || 0;
+  const ativo = g('m_ativo').toUpperCase();
+  if (!ativo || ativo.length < 4) { showErr('err-manual','Informe um ticker válido (mín. 4 letras).'); return; }
+  hideErr('err-manual');
+  const r = {
+    ativo, setor: g('m_setor'),
+    ultimo: n('m_ultimo'), variacao: n('m_var'), variacao_pts: n('m_var_pts'),
+    maximo: n('m_maximo'), minimo: n('m_minimo'), fech_ant: n('m_fech_ant'),
+    abertura: n('m_abertura'), volume: n('m_vol'), negocios: n('m_neg'),
+    of_compra: n('m_ofc'), of_venda: n('m_ofv'),
+    vol_hist: n('m_volh'), ifr: n('m_ifr'),
+    semana: n('m_sem'), mes: n('m_mes'), ano: n('m_ano'),
+    estado: g('m_estado'), sinal: null, score: 0, analise: null
+  };
+  r.sinal = autoSignal(r); r.score = autoScore(r);
+  rows = rows.filter(x => x.ativo !== r.ativo);
+  rows.push(r);
+  afterLoad(); clearManual();
+  switchTab('paste', document.querySelectorAll('.tab')[0]);
+  document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function clearManual() {
+  ['m_ativo','m_setor','m_ultimo','m_abertura','m_maximo','m_minimo','m_fech_ant',
+   'm_var','m_var_pts','m_vol','m_neg','m_ofc','m_ofv','m_volh','m_ifr','m_sem','m_mes','m_ano']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
+  document.getElementById('m_estado').value = 'Fechado';
+}
+
+// ============================================================
+// AFTER LOAD
+// ============================================================
+function afterLoad() {
+  const setores = [...new Set(rows.map(r => r.setor).filter(Boolean))];
+  const sel = document.getElementById('filterSetor');
+  sel.innerHTML = '<option value="">Todos os setores</option>' +
+    setores.map(s => `<option value="${s}">${s}</option>`).join('');
+
+  const panel = document.getElementById('inputPanel');
+  const arrow = document.getElementById('toggleArrow');
+  panel.classList.remove('open');
+  arrow.classList.remove('open');
+  document.getElementById('toggleHint').textContent =
+    `${rows.length} ativo${rows.length !== 1 ? 's' : ''} carregado${rows.length !== 1 ? 's' : ''} — clique para editar`;
+
+  document.getElementById('resultWrap').style.display = 'block';
+  document.getElementById('resTitle').textContent = `${rows.length} ativo${rows.length !== 1 ? 's' : ''} carregado${rows.length !== 1 ? 's' : ''}`;
+  document.getElementById('resMeta').textContent = new Date().toLocaleString('pt-BR');
+  document.getElementById('detailCard').style.display = 'none';
+
+  renderKPIs();
+  renderHeatmap();
+  renderSectorChart();
+  renderRankingChart();
+  renderTable();
+
+  document.getElementById('kpiPanel').style.display = 'block';
+  document.getElementById('chartsSection').style.display = 'block';
+
+  document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function clearAll() {
+  rows = [];
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('detailCard').style.display = 'none';
+  document.getElementById('kpiPanel').style.display = 'none';
+  document.getElementById('chartsSection').style.display = 'none';
+  document.getElementById('pasteArea').value = '';
+  document.getElementById('toggleHint').textContent = 'Colar do Profit, do script Python, ou inserir manualmente';
+}
+
+// ============================================================
+// KPI PANEL
+// ============================================================
+function renderKPIs() {
+  if (!rows.length) return;
+
+  const sorted = [...rows].sort((a,b) => b.variacao - a.variacao);
+  const topAlta = sorted[0];
+  const topBaixa = sorted[sorted.length - 1];
+  const totalVol = rows.reduce((s,r) => s + r.volume, 0);
+  const avgRSI = rows.filter(r => r.ifr > 0).reduce((s,r,_,a) => s + r.ifr/a.length, 0);
+  const altaCount = rows.filter(r => r.sinal === 'ALTA').length;
+  const baixaCount = rows.filter(r => r.sinal === 'BAIXA').length;
+  const neutroCount = rows.filter(r => r.sinal === 'NEUTRO').length;
+  const sobrecompra = rows.filter(r => r.ifr > 70).length;
+  const sobrevenda = rows.filter(r => r.ifr < 30 && r.ifr > 0).length;
+  const avgVar = rows.reduce((s,r) => s + r.variacao, 0) / rows.length;
+  const topVolume = [...rows].sort((a,b) => b.volume - a.volume)[0];
+
+  const kpiData = [
+    {
+      lbl: 'Maior Alta do Dia',
+      val: fmtPct(topAlta.variacao),
+      sub: `R$ ${fmt2(topAlta.ultimo)}`,
+      ticker: topAlta.ativo,
+      cls: 'highlight'
+    },
+    {
+      lbl: 'Maior Queda do Dia',
+      val: fmtPct(topBaixa.variacao),
+      sub: `R$ ${fmt2(topBaixa.ultimo)}`,
+      ticker: topBaixa.ativo,
+      cls: 'kpi-red'
+    },
+    {
+      lbl: 'Volume Total',
+      val: 'R$ ' + fmtVol(totalVol),
+      sub: `${rows.length} ativos`,
+      ticker: `Maior: ${topVolume.ativo} (R$ ${fmtVol(topVolume.volume)})`
+    },
+    {
+      lbl: 'RSI Médio',
+      val: avgRSI.toFixed(1),
+      sub: avgRSI > 60 ? '⚠ Mercado aquecido' : avgRSI < 40 ? '📉 Mercado sobrevendido' : '✓ Zona neutra',
+      cls: avgRSI > 70 ? 'kpi-red' : avgRSI < 30 ? 'highlight' : ''
+    },
+    {
+      lbl: 'Variação Média',
+      val: fmtPct(avgVar),
+      sub: `↑ ${altaCount} alta · ${neutroCount} neutro · ${baixaCount} baixa`,
+      cls: avgVar >= 0 ? 'highlight' : 'kpi-red'
+    },
+    {
+      lbl: 'Alertas RSI',
+      val: `${sobrecompra + sobrevenda}`,
+      sub: `${sobrecompra} sobrecomprado · ${sobrevenda} sobrevendido`,
+      cls: sobrecompra + sobrevenda > 0 ? 'kpi-yellow' : ''
+    }
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = kpiData.map(k => `
+    <div class="kpi-card ${k.cls||''}" ${k.ticker && rows.find(r=>r.ativo===k.ticker) ? `onclick="showDetail('${k.ticker}')" style="cursor:pointer;"` : ''}>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val" style="color:${k.cls==='kpi-red'?'var(--red)':k.cls==='highlight'?'var(--accent)':k.cls==='kpi-yellow'?'var(--yellow)':'var(--text)'}">${k.val}</div>
+      ${k.ticker && rows.find(r=>r.ativo===k.ticker) ? `<div class="kpi-ticker">${k.ticker} ↗</div>` : ''}
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// HEATMAP
+// ============================================================
+function hmColor(val, min, max) {
+  if (val === null || val === undefined) return '#333';
+  const dark = document.documentElement.getAttribute('data-theme') !== 'light';
+  if (val > 0) {
+    const t = Math.min(val / Math.max(Math.abs(max), 0.01), 1);
+    const g = dark ? Math.round(100 + t * 129) : Math.round(60 + t * 100);
+    const r = dark ? Math.round(20 - t * 10) : Math.round(200 - t * 140);
+    const b = dark ? Math.round(80 + t * 50) : Math.round(140 - t * 80);
+    return `rgb(${r},${g},${b})`;
+  } else if (val < 0) {
+    const t = Math.min(Math.abs(val) / Math.max(Math.abs(min), 0.01), 1);
+    const r = dark ? Math.round(150 + t * 100) : Math.round(180 + t * 75);
+    const g = dark ? Math.round(30 + t * 14) : Math.round(80 - t * 50);
+    const b = dark ? Math.round(30 + t * 14) : Math.round(80 - t * 50);
+    return `rgb(${r},${g},${b})`;
+  }
+  return dark ? '#1f2330' : '#dde0ec';
+}
+
+function hmTextColor(bg) {
+  return '#fff';
+}
+
+function renderHeatmap() {
+  if (!rows.length) return;
+  const dVals = rows.map(r => r.variacao);
+  const sVals = rows.map(r => r.semana);
+  const mVals = rows.map(r => r.mes);
+  const aVals = rows.map(r => r.ano);
+
+  const minMax = arr => [Math.min(...arr), Math.max(...arr)];
+  const [dMin, dMax] = minMax(dVals);
+  const [sMin, sMax] = minMax(sVals);
+  const [mMin, mMax] = minMax(mVals);
+  const [aMin, aMax] = minMax(aVals);
+
+  const sorted = [...rows].sort((a,b) => b.variacao - a.variacao);
+
+  document.getElementById('hmBody').innerHTML = sorted.map(r => {
+    const dBg = hmColor(r.variacao, dMin, dMax);
+    const sBg = hmColor(r.semana, sMin, sMax);
+    const mBg = hmColor(r.mes, mMin, mMax);
+    const aBg = hmColor(r.ano, aMin, aMax);
+    const rsiC = r.ifr > 70 ? 'rgba(255,68,68,0.8)' : r.ifr < 30 ? 'rgba(0,229,180,0.8)' : 'rgba(100,100,120,0.4)';
+
+    return `<tr>
+      <td style="text-align:left;padding:0.3rem 0.5rem;font-weight:700;font-size:0.75rem;color:var(--accent);cursor:pointer;" onclick="showDetail('${r.ativo}')">${r.ativo}${r.setor?`<span style="font-size:0.55rem;color:var(--muted);margin-left:0.3rem;">${r.setor}</span>`:''}</td>
+      <td style="padding:2px;"><div class="hm-cell" style="background:${dBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.variacao)}</div></div></td>
+      <td style="padding:2px;"><div class="hm-cell" style="background:${sBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.semana)}</div></div></td>
+      <td style="padding:2px;"><div class="hm-cell" style="background:${mBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.mes)}</div></div></td>
+      <td style="padding:2px;"><div class="hm-cell" style="background:${aBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.ano)}</div></div></td>
+      <td style="padding:2px;"><div class="hm-cell" style="background:${rsiC};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${r.ifr > 0 ? r.ifr.toFixed(0) : '—'}</div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// SECTOR CHARTS
+// ============================================================
+function getChartColors(n) {
+  const palette = ['#00e5b4','#6699ff','#f5a623','#ff4444','#cc44ff','#44ccff','#ff88aa','#88ff44','#ffcc00','#00bbff','#ff6622','#88aaff'];
+  const arr = [];
+  for (let i = 0; i < n; i++) arr.push(palette[i % palette.length]);
+  return arr;
+}
+
+function renderSectorChart() {
+  if (!rows.length) return;
+
+  // Destroy old
+  if (sectorChartInst) { sectorChartInst.destroy(); sectorChartInst = null; }
+  if (sectorVolChartInst) { sectorVolChartInst.destroy(); sectorVolChartInst = null; }
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#6b7280' : '#4b5563';
+
+  // Group by setor
+  const setorMap = {};
+  rows.forEach(r => {
+    const s = r.setor || 'Sem setor';
+    if (!setorMap[s]) setorMap[s] = { count: 0, volume: 0 };
+    setorMap[s].count++;
+    setorMap[s].volume += r.volume;
+  });
+
+  const labels = Object.keys(setorMap);
+  const counts = labels.map(l => setorMap[l].count);
+  const volumes = labels.map(l => setorMap[l].volume);
+  const colors = getChartColors(labels.length);
+
+  const chartOpts = {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: textColor, font: { size: 10, family: 'JetBrains Mono' }, padding: 8, boxWidth: 12 } }
+    }
+  };
+
+  sectorChartInst = new Chart(document.getElementById('canvasSetor').getContext('2d'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 1, borderColor: isDark ? '#0a0c10' : '#f4f6fa' }] },
+    options: { ...chartOpts, plugins: { ...chartOpts.plugins, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw} ativos` } } } }
+  });
+
+  sectorVolChartInst = new Chart(document.getElementById('canvasSetorVol').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: volumes, backgroundColor: colors, borderRadius: 5, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` R$ ${fmtVol(c.raw)}` } }
+      },
+      scales: {
+        x: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' }, callback: v => fmtVol(v) }, grid: { color: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)' } },
+        y: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// RANKING CHART
+// ============================================================
+function renderRankingChart() {
+  if (!rows.length) return;
+  if (rankingChartInst) { rankingChartInst.destroy(); rankingChartInst = null; }
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#6b7280' : '#4b5563';
+
+  const sorted = [...rows].sort((a,b) => b.variacao - a.variacao);
+  const top = sorted.slice(0, 5);
+  const bot = sorted.slice(-5).reverse();
+  const combined = [...top, ...bot];
+  const labels = combined.map(r => r.ativo);
+  const values = combined.map(r => r.variacao);
+  const colors = values.map(v => v >= 0 ? 'rgba(0,229,180,0.75)' : 'rgba(255,68,68,0.75)');
+
+  rankingChartInst = new Chart(document.getElementById('canvasRanking').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${fmtPct(c.raw)}` } }
+      },
+      scales: {
+        x: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' } }, grid: { display: false } },
+        y: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' }, callback: v => v.toFixed(1)+'%' }, grid: { color: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)' } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// TABLE
+// ============================================================
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = col === 'ativo'; }
+  renderTable();
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+  event.target.classList.add('sorted');
+}
+
+function renderTable() {
+  const filter = document.getElementById('filterInput').value.toLowerCase();
+  const fSetor = document.getElementById('filterSetor').value;
+  const fSinal = document.getElementById('filterSinal').value;
+
+  let data = rows.filter(r => {
+    if (filter && !r.ativo.toLowerCase().includes(filter) && !(r.setor||'').toLowerCase().includes(filter)) return false;
+    if (fSetor && r.setor !== fSetor) return false;
+    if (fSinal && r.sinal !== fSinal) return false;
+    return true;
+  });
+
+  data.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map(r => {
+    const vc = r.variacao >= 0 ? 'pos' : 'neg';
+    const sc = r.semana >= 0 ? 'pos' : 'neg';
+    const mc = r.mes >= 0 ? 'pos' : 'neg';
+    const ac = r.ano >= 0 ? 'pos' : 'neg';
+    const ifrC = r.ifr > 70 ? 'neg' : r.ifr < 30 ? 'pos' : 'neu';
+    const sinalClass = r.sinal === 'ALTA' ? 'sinal-alta' : r.sinal === 'BAIXA' ? 'sinal-baixa' : 'sinal-neutro';
+    const scoreColor = r.score >= 60 ? 'var(--accent)' : r.score <= 40 ? 'var(--red)' : 'var(--yellow)';
+    return `<tr>
+      <td><span class="ativo-cell" onclick="showDetail('${r.ativo}')">${r.ativo}</span>${r.setor ? `<span class="setor-badge">${r.setor}</span>` : ''}</td>
+      <td>R$ ${fmt2(r.ultimo)}</td>
+      <td class="${vc}">${fmtPct(r.variacao)}</td>
+      <td class="${vc}">${r.variacao_pts >= 0 ? '+' : ''}${fmt2(r.variacao_pts)}</td>
+      <td>R$ ${fmt2(r.abertura)}</td>
+      <td>R$ ${fmt2(r.maximo)}</td>
+      <td>R$ ${fmt2(r.minimo)}</td>
+      <td>R$ ${fmt2(r.fech_ant)}</td>
+      <td>${fmtVol(r.volume)}</td>
+      <td>${r.negocios > 0 ? r.negocios.toLocaleString('pt-BR') : '—'}</td>
+      <td>${r.vol_hist > 0 ? r.vol_hist.toFixed(1)+'%' : '—'}</td>
+      <td class="${ifrC}">${r.ifr > 0 ? r.ifr.toFixed(0) : '—'}</td>
+      <td class="${sc}">${fmtPct(r.semana)}</td>
+      <td class="${mc}">${fmtPct(r.mes)}</td>
+      <td class="${ac}">${fmtPct(r.ano)}</td>
+      <td>
+        ${r.sinal ? `<div class="bar-cell">
+          <span class="sinal-pill ${sinalClass}">${r.sinal}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${r.score}%;background:${scoreColor};"></div></div>
+          <span style="color:${scoreColor};font-size:0.65rem;width:22px;text-align:right;">${r.score}</span>
+        </div>` : '<span style="color:var(--muted);font-size:0.7rem;">—</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// DETAIL CARD
+// ============================================================
+function showDetail(ticker) {
+  const r = rows.find(x => x.ativo === ticker);
+  if (!r) return;
+
+  const analise = r.analise || autoAnalise(r);
+  const points = autoPoints(r);
+  const score = r.score;
+  const sinalColor = r.sinal === 'ALTA' ? 'var(--accent)' : r.sinal === 'BAIXA' ? 'var(--red)' : 'var(--yellow)';
+  const sinalClass = r.sinal === 'ALTA' ? 'sinal-alta' : r.sinal === 'BAIXA' ? 'sinal-baixa' : 'sinal-neutro';
+
+  const angle = -135 + (score / 100) * 270;
+  const rad = angle * Math.PI / 180;
+  const nx = (80 + 55 * Math.cos(rad)).toFixed(1);
+  const ny = (80 + 55 * Math.sin(rad)).toFixed(1);
+
+  const aiNote = r.analise
+    ? `<span class="ai-badge"><span class="dot-ai"></span>Análise IA</span>`
+    : `<span style="font-size:0.62rem;color:var(--muted);">Análise automática (local)</span>`;
+
+  const tvTicker = 'BMFBOVESPA:' + r.ativo;
+  const tvUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tvTicker)}`;
+
+  const html = `
+    <div class="dc-header">
+      <span class="dc-ticker">${r.ativo}</span>
+      <span class="sinal-pill ${sinalClass}">${r.sinal || '—'}</span>
+      ${r.setor ? `<span style="font-size:0.65rem;color:var(--blue);background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2);border-radius:4px;padding:0.15rem 0.5rem;">${r.setor}</span>` : ''}
+      ${aiNote}
+      <a href="${tvUrl}" target="_blank" rel="noopener"
+         style="margin-left:auto;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:#2196F3;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
+         onmouseover="this.style.background='rgba(33,150,243,0.2)'" onmouseout="this.style.background='rgba(33,150,243,0.1)'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 4-6 4 4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9h4v4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        TradingView
+      </a>
+    </div>
+    <div class="dc-nome">${r.estado ? 'Estado: '+r.estado+' · ' : ''}${new Date().toLocaleDateString('pt-BR')}</div>
+
+    <div class="gauge-wrap">
+      <div class="gauge-lbl">Score (0 = baixista · 100 = altista)</div>
+      <svg class="gauge-svg" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 15 85 A 65 65 0 0 1 145 85" fill="none" stroke="#1e2230" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 15 85 A 65 65 0 0 1 145 85" fill="none" stroke="url(#g1)" stroke-width="12" stroke-linecap="round"/>
+        <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff4444"/><stop offset="50%" stop-color="#f5a623"/><stop offset="100%" stop-color="#00e5b4"/>
+        </linearGradient></defs>
+        <line x1="80" y1="80" x2="${nx}" y2="${ny}" stroke="${r.sinal==='ALTA'?'#00e5b4':r.sinal==='BAIXA'?'#ff4444':'#f5a623'}" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="80" cy="80" r="4" fill="${r.sinal==='ALTA'?'#00e5b4':r.sinal==='BAIXA'?'#ff4444':'#f5a623'}"/>
+        <text x="80" y="60" text-anchor="middle" fill="${r.sinal==='ALTA'?'#00e5b4':r.sinal==='BAIXA'?'#ff4444':'#f5a623'}" font-size="16" font-family="JetBrains Mono,monospace" font-weight="700">${score}</text>
+        <text x="18" y="98" fill="#6b7280" font-size="8" font-family="JetBrains Mono,monospace">BAIXA</text>
+        <text x="114" y="98" fill="#6b7280" font-size="8" font-family="JetBrains Mono,monospace">ALTA</text>
+      </svg>
+    </div>
+
+    <div class="dc-grid">
+      <div class="dc-card hl"><div class="dc-lbl">Último</div><div class="dc-val">R$ ${fmt2(r.ultimo)}</div>
+        <div class="dc-sub ${r.variacao>=0?'pos':'neg'}">${fmtPct(r.variacao)} (${r.variacao_pts>=0?'+':''}${fmt2(r.variacao_pts)} pts)</div></div>
+      <div class="dc-card"><div class="dc-lbl">Abertura</div><div class="dc-val">R$ ${fmt2(r.abertura)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Máximo</div><div class="dc-val pos">R$ ${fmt2(r.maximo)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Mínimo</div><div class="dc-val neg">R$ ${fmt2(r.minimo)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Fech. Anterior</div><div class="dc-val">R$ ${fmt2(r.fech_ant)}</div></div>
+      ${r.of_compra > 0 ? `<div class="dc-card"><div class="dc-lbl">Of. Compra</div><div class="dc-val">R$ ${fmt2(r.of_compra)}</div></div>` : ''}
+      ${r.of_venda > 0 ? `<div class="dc-card"><div class="dc-lbl">Of. Venda</div><div class="dc-val">R$ ${fmt2(r.of_venda)}</div></div>` : ''}
+      <div class="dc-card"><div class="dc-lbl">Volume</div><div class="dc-val">R$ ${fmtVol(r.volume)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Negócios</div><div class="dc-val">${r.negocios > 0 ? r.negocios.toLocaleString('pt-BR') : '—'}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Vol. Histórica</div><div class="dc-val">${r.vol_hist > 0 ? r.vol_hist.toFixed(1)+'%' : '—'}</div></div>
+      <div class="dc-card"><div class="dc-lbl">RSI / IFR</div>
+        <div class="dc-val ${r.ifr>70?'neg':r.ifr<30?'pos':'neu'}">${r.ifr > 0 ? r.ifr.toFixed(1) : '—'}</div>
+        <div class="dc-sub">${r.ifr>70?'Sobrecomprado':r.ifr<30?'Sobrevendido':r.ifr>0?'Neutro':''}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Semana</div><div class="dc-val ${r.semana>=0?'pos':'neg'}">${fmtPct(r.semana)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Mês</div><div class="dc-val ${r.mes>=0?'pos':'neg'}">${fmtPct(r.mes)}</div></div>
+      <div class="dc-card"><div class="dc-lbl">Ano</div><div class="dc-val ${r.ano>=0?'pos':'neg'}">${fmtPct(r.ano)}</div></div>
+    </div>
+
+    <div class="analysis-box">
+      <h4>▲ Análise técnica</h4>
+      <p>${analise}</p>
+    </div>
+    <div class="analysis-box" style="border-left-color:var(--yellow);">
+      <h4 style="color:var(--yellow);">⚠ Pontos de atenção</h4>
+      <ul class="points-list">${points.map(p => `<li>▸ ${p}</li>`).join('')}</ul>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-box">
+        <h4>📈 Cotação do Dia</h4>
+        <canvas id="chartCotacao" height="160"></canvas>
+      </div>
+      <div class="chart-box">
+        <h4>📊 Performance & Indicadores</h4>
+        <canvas id="chartVolat" height="160"></canvas>
+      </div>
+    </div>
+
+    <button class="btn-p" onclick="runAIOnOne('${r.ativo}')" style="margin-top:0.5rem;" id="btn-ai-${r.ativo}">⚡ Aprofundar análise com IA</button>
+    <div class="disc">⚠ Análise automática baseada nos indicadores fornecidos. Não constitui recomendação de investimento.</div>
+  `;
+
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailCard').style.display = 'block';
+  document.getElementById('detailCard').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  ['chartCotacao','chartVolat'].forEach(id => {
+    const existing = Chart.getChart(id);
+    if (existing) existing.destroy();
+  });
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+  const tickColor = isDark ? '#6b7280' : '#4b5563';
+
+  const ctxC = document.getElementById('chartCotacao').getContext('2d');
+  const priceValues = [r.abertura, r.minimo, r.fech_ant, r.ultimo, r.maximo];
+  const lineColor = r.variacao >= 0 ? '#00e5b4' : '#ff4444';
+  const priceMin = Math.min(...priceValues) * 0.997;
+  const priceMax = Math.max(...priceValues) * 1.003;
+
+  new Chart(ctxC, {
+    type: 'line',
+    data: {
+      labels: ['Abertura','Mínimo','Fech.Ant.','Último','Máximo'],
+      datasets: [{
+        data: priceValues,
+        borderColor: lineColor, borderWidth: 2,
+        pointBackgroundColor: priceValues.map((v,i) => i===4?'#00e5b4':i===1?'#ff4444':i===3?lineColor:'#6b7280'),
+        pointRadius: 3, pointHoverRadius: 5,
+        fill: { target:'origin', above: lineColor==='#00e5b4'?'rgba(0,229,180,0.07)':'rgba(255,68,68,0.07)' },
+        tension: 0.35,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display:false }, tooltip: { callbacks: { label: c => `R$ ${c.parsed.y.toFixed(2)}` } } },
+      scales: {
+        x: { ticks: { color:tickColor, font:{size:9,family:'JetBrains Mono'} }, grid: { color:gridColor } },
+        y: { min:priceMin, max:priceMax, ticks: { color:tickColor, font:{size:9,family:'JetBrains Mono'}, callback: v=>'R$'+v.toFixed(2) }, grid: { color:gridColor } }
+      }
+    }
+  });
+
+  const ctxV = document.getElementById('chartVolat').getContext('2d');
+  const perfValues = [r.semana, r.mes, r.ano];
+  const rsiColor = r.ifr > 70 ? '#ff4444' : r.ifr < 30 ? '#00e5b4' : '#6699ff';
+
+  new Chart(ctxV, {
+    type: 'line',
+    data: {
+      labels: ['Semana','Mês','Ano'],
+      datasets: [
+        { label:'Performance (%)', data:perfValues, borderColor:'#00e5b4', borderWidth:2,
+          pointBackgroundColor: perfValues.map(v=>v>=0?'#00e5b4':'#ff4444'), pointRadius:3, pointHoverRadius:5,
+          fill:{target:'origin',above:'rgba(0,229,180,0.08)',below:'rgba(255,68,68,0.08)'}, tension:0.35, yAxisID:'yPerf', clip:false },
+        { label:`Vol. Hist. ${r.vol_hist.toFixed(1)}%`, data:[r.vol_hist,r.vol_hist,r.vol_hist],
+          borderColor:'#f5a623', borderWidth:2, borderDash:[5,4], pointRadius:0, fill:false, tension:0, yAxisID:'yVolat', clip:false },
+        { label:`RSI ${r.ifr.toFixed(0)}`, data:[r.ifr,r.ifr,r.ifr],
+          borderColor:rsiColor, borderWidth:2, borderDash:[2,3], pointRadius:0, fill:false, tension:0, yAxisID:'yRSI', clip:false }
+      ]
+    },
+    options: {
+      responsive: true, layout:{padding:{right:58}}, clip:false,
+      plugins: {
+        legend: { display:true, labels:{color:tickColor, font:{size:9,family:'JetBrains Mono'}, boxWidth:14, padding:10} },
+        tooltip: { callbacks: { label: c => {
+          if (c.dataset.label.startsWith('Performance')) return `Performance: ${c.parsed.y.toFixed(2)}%`;
+          if (c.dataset.label.startsWith('Vol.')) return `Vol. Hist.: ${c.parsed.y.toFixed(1)}%`;
+          return `RSI: ${c.parsed.y.toFixed(1)}`;
+        }}}
+      },
+      scales: {
+        x: { ticks:{color:tickColor,font:{size:9,family:'JetBrains Mono'}}, grid:{color:gridColor} },
+        yPerf: { position:'left', ticks:{color:tickColor,font:{size:9,family:'JetBrains Mono'},callback:v=>v.toFixed(1)+'%'}, grid:{color:gridColor} },
+        yVolat: { display:false, min:0, max:150 },
+        yRSI:   { display:false, min:0, max:100 }
+      }
+    },
+    plugins:[{
+      id:'lineLabels',
+      afterDraw(chart) {
+        const ctx2 = chart.ctx;
+        const xRight = chart.chartArea.right + 4;
+        const yVH = chart.scales['yVolat'].getPixelForValue(r.vol_hist);
+        ctx2.save(); ctx2.font='9px JetBrains Mono,monospace'; ctx2.fillStyle='#f5a623'; ctx2.textAlign='left'; ctx2.textBaseline='middle';
+        ctx2.fillText(`VH ${r.vol_hist.toFixed(1)}%`, xRight, yVH); ctx2.restore();
+        const yRSI2 = chart.scales['yRSI'].getPixelForValue(r.ifr);
+        ctx2.save(); ctx2.font='9px JetBrains Mono,monospace'; ctx2.fillStyle=rsiColor; ctx2.textAlign='left'; ctx2.textBaseline='middle';
+        ctx2.fillText(`RSI ${r.ifr.toFixed(0)}`, xRight, yRSI2); ctx2.restore();
+      }
+    }]
+  });
+}
+
+// ============================================================
+// AI — INDIVIDUAL
+// ============================================================
+async function runAIOnOne(ticker) {
+  const r = rows.find(x => x.ativo === ticker);
+  if (!r) return;
+  const btn = document.getElementById('btn-ai-' + ticker);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analisando...'; }
+  hideErr('err-global');
+
+  const prompt = `Você é um analista técnico da B3. Com base nos dados reais abaixo, gere uma análise técnica detalhada.
+
+Ativo: ${r.ativo} | Setor: ${r.setor || 'não informado'}
+Último: R$ ${r.ultimo.toFixed(2)} | Var: ${r.variacao.toFixed(2)}% (${r.variacao_pts>=0?'+':''}${r.variacao_pts.toFixed(2)} pts)
+Abertura: R$ ${r.abertura.toFixed(2)} | Máx: R$ ${r.maximo.toFixed(2)} | Mín: R$ ${r.minimo.toFixed(2)} | Fech.Ant: R$ ${r.fech_ant.toFixed(2)}
+Volume: R$ ${fmtVol(r.volume)} | Negócios: ${r.negocios.toLocaleString('pt-BR')}
+Of.Compra: R$ ${r.of_compra.toFixed(2)} | Of.Venda: R$ ${r.of_venda.toFixed(2)}
+Vol. Histórica: ${r.vol_hist.toFixed(2)}% | RSI: ${r.ifr.toFixed(1)}
+Semana: ${r.semana.toFixed(2)}% | Mês: ${r.mes.toFixed(2)}% | Ano: ${r.ano.toFixed(2)}%
+
+Responda APENAS com JSON (sem markdown):
+{"sinal":"ALTA ou BAIXA ou NEUTRO","score":número 0-100,"suporte":número,"resistencia":número,"analise":"5-6 frases cobrindo tendência, volume, RSI, amplitude, performance e perspectiva.","pontos_atencao":["ponto 1","ponto 2","ponto 3"]}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:900,
+        messages:[{role:'user',content:prompt}] })
+    });
+    const data = await resp.json();
+    const txt = (data.content||[]).map(i=>i.text||'').join('');
+    const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    r.sinal = parsed.sinal || r.sinal;
+    r.score = parsed.score ?? r.score;
+    r.analise = parsed.analise;
+    r.suporte = parsed.suporte;
+    r.resistencia = parsed.resistencia;
+    r._aiPoints = parsed.pontos_atencao;
+    renderTable(); renderKPIs(); renderHeatmap();
+    showDetail(ticker);
+  } catch(err) {
+    showErr('err-global','Erro ao chamar IA: ' + err.message);
+    if (btn) { btn.disabled=false; btn.textContent='⚡ Aprofundar análise com IA'; }
+  }
+}
+
+// ============================================================
+// AI — ALL
+// ============================================================
+async function runAIOnAll() {
+  if (!rows.length) return;
+  const loading = document.getElementById('loadingGlobal');
+  const btn = document.getElementById('btnAI');
+  btn.disabled = true;
+  hideErr('err-global');
+
+  const batchSize = 5;
+  for (let i = 0; i < rows.length; i += batchSize) {
+    const batch = rows.slice(i, i+batchSize);
+    document.getElementById('loadingMsg').textContent =
+      `Analisando com IA... (${Math.min(i+batchSize,rows.length)}/${rows.length})`;
+    loading.classList.add('active');
+
+    const batchText = batch.map(r =>
+      `${r.ativo}: R$${r.ultimo.toFixed(2)} Var${r.variacao.toFixed(2)}% RSI${r.ifr.toFixed(0)} Sem${r.semana.toFixed(2)}% Mês${r.mes.toFixed(2)}% Ano${r.ano.toFixed(2)}% VolH${r.vol_hist.toFixed(1)}%`
+    ).join('\n');
+
+    const prompt = `Você é analista técnico B3. Analise os ativos abaixo e responda APENAS com JSON (sem markdown):
+{"ativos":[{"ticker":"...","sinal":"ALTA ou BAIXA ou NEUTRO","score":0-100,"analise":"2-3 frases"}]}
+
+Ativos:\n${batchText}`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
+          messages:[{role:'user',content:prompt}] })
+      });
+      const data = await resp.json();
+      const txt = (data.content||[]).map(i=>i.text||'').join('');
+      const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
+      (parsed.ativos||[]).forEach(a => {
+        const row = rows.find(r=>r.ativo===a.ticker);
+        if (row) { row.sinal=a.sinal||row.sinal; row.score=a.score??row.score; row.analise=a.analise||row.analise; }
+      });
+    } catch(err) { /* continue */ }
+  }
+
+  loading.classList.remove('active');
+  btn.disabled = false;
+  renderTable(); renderKPIs(); renderHeatmap();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+function hideErr(id) { document.getElementById(id).style.display='none'; }
+</script>
+</body>
+</html>
