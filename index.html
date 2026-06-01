@@ -135,14 +135,42 @@
   .chart-container{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1.25rem;}
   .chart-title{font-size:0.63rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;}
 
-  /* HEATMAP */
-  .heatmap-wrap{overflow-x:auto;}
-  .heatmap-table{width:100%;border-collapse:separate;border-spacing:3px;min-width:500px;}
-  .heatmap-table th{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.4rem;font-weight:500;}
-  .hm-cell{border-radius:6px;padding:0.5rem 0.4rem;text-align:center;cursor:pointer;transition:transform 0.12s,box-shadow 0.12s;min-width:70px;}
-  .hm-cell:hover{transform:scale(1.04);box-shadow:0 2px 12px rgba(0,0,0,0.3);}
-  .hm-ticker{font-size:0.65rem;font-weight:700;letter-spacing:0.04em;margin-bottom:0.15rem;}
-  .hm-val{font-size:0.72rem;font-weight:700;}
+  /* TABELA COMPACTA */
+  .compact-toolbar{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.9rem;}
+  .compact-toolbar input{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.76rem;padding:0.38rem 0.7rem;border-radius:6px;outline:none;width:170px;transition:border-color 0.2s;}
+  .compact-toolbar input:focus{border-color:var(--accent);}
+  .compact-toolbar select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.74rem;padding:0.38rem 0.65rem;border-radius:6px;outline:none;cursor:pointer;max-width:200px;}
+  .compact-toolbar .ct-count{font-size:0.65rem;color:var(--muted);margin-left:auto;}
+  .ct-wrap{overflow-x:auto;max-height:480px;overflow-y:auto;}
+  .ct-wrap::-webkit-scrollbar{width:5px;height:5px;}
+  .ct-wrap::-webkit-scrollbar-track{background:transparent;}
+  .ct-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  .ct{width:100%;border-collapse:collapse;font-size:0.76rem;}
+  .ct thead{position:sticky;top:0;z-index:2;background:var(--surface);}
+  .ct thead tr{border-bottom:1px solid var(--border2);}
+  .ct th{color:var(--muted);font-weight:500;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.45rem 0.6rem;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;transition:color 0.15s;}
+  .ct th:first-child{text-align:left;}
+  .ct th:hover{color:var(--text);}
+  .ct th.ct-sorted{color:var(--accent);}
+  .ct th.ct-sorted::after{content:' ▾';font-size:0.55rem;}
+  .ct th.ct-sorted.asc::after{content:' ▴';}
+  .ct td{padding:0.42rem 0.6rem;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .ct td:first-child{text-align:left;}
+  .ct tr:hover td{background:rgba(255,255,255,0.025);}
+  [data-theme="light"] .ct tr:hover td{background:rgba(0,0,0,0.025);}
+  .ct-ticker{color:var(--accent);font-weight:700;cursor:pointer;letter-spacing:0.04em;}
+  .ct-ticker:hover{text-decoration:underline;}
+  .ct-setor{font-size:0.58rem;color:var(--muted);margin-left:0.35rem;}
+  .ct-pill{display:inline-block;padding:0.1rem 0.4rem;border-radius:4px;font-size:0.65rem;font-weight:700;}
+  .ct-pos{background:rgba(0,229,180,0.1);color:var(--accent);}
+  .ct-neg{background:rgba(255,68,68,0.1);color:var(--red);}
+  .ct-neu{color:var(--muted);}
+  .ct-rsi-ob{color:var(--red);}
+  .ct-rsi-os{color:var(--accent);}
+  .ct-rsi-n{color:var(--muted);}
+  .ct-bar{display:inline-flex;align-items:center;gap:0.35rem;}
+  .ct-bar-bg{width:48px;height:4px;background:var(--border2);border-radius:2px;overflow:hidden;flex-shrink:0;}
+  .ct-bar-fill{height:100%;border-radius:2px;}
 
   /* RESULTS TABLE */
   #resultWrap{margin-top:2rem;display:none;}
@@ -308,28 +336,46 @@
   <!-- ===== CHARTS SECTION ===== -->
   <div id="chartsSection">
     <div class="charts-nav">
-      <button class="chart-tab-btn active" onclick="switchChartTab('heatmap',this)">🔥 Heatmap de Performance</button>
+      <button class="chart-tab-btn active" onclick="switchChartTab('compact',this)">📋 Tabela Compacta</button>
       <button class="chart-tab-btn" onclick="switchChartTab('setor',this)">🥧 Distribuição por Setor</button>
       <button class="chart-tab-btn" onclick="switchChartTab('ranking',this)">📊 Top Ativos</button>
     </div>
 
-    <!-- HEATMAP -->
-    <div id="chart-heatmap" class="chart-panel active">
+    <!-- TABELA COMPACTA -->
+    <div id="chart-compact" class="chart-panel active">
       <div class="chart-container">
-        <div class="chart-title">Heatmap de Performance — Clique num ativo para ver detalhes</div>
-        <div class="heatmap-wrap">
-          <table class="heatmap-table" id="hmTable">
+        <div class="chart-title">Tabela Compacta — Clique no ticker para ver detalhes</div>
+        <div class="compact-toolbar">
+          <input type="text" id="ctSearch" placeholder="🔍 Buscar ticker..." oninput="renderCompact()">
+          <select id="ctSetor" onchange="renderCompact()"><option value="">Todos os setores</option></select>
+          <select id="ctSort" onchange="renderCompact()">
+            <option value="variacao-desc">↓ Dia %</option>
+            <option value="variacao-asc">↑ Dia %</option>
+            <option value="semana-desc">↓ Semana %</option>
+            <option value="mes-desc">↓ Mês %</option>
+            <option value="ano-desc">↓ Ano %</option>
+            <option value="volume-desc">↓ Volume</option>
+            <option value="ifr-desc">↓ RSI</option>
+            <option value="ifr-asc">↑ RSI</option>
+            <option value="ativo-asc">A→Z Ticker</option>
+          </select>
+          <span class="ct-count" id="ctCount"></span>
+        </div>
+        <div class="ct-wrap">
+          <table class="ct" id="ctTable">
             <thead>
               <tr>
-                <th style="text-align:left;">Ativo</th>
-                <th>Dia</th>
-                <th>Semana</th>
-                <th>Mês</th>
-                <th>Ano</th>
-                <th>RSI</th>
+                <th onclick="ctSortBy('ativo')">Ativo</th>
+                <th onclick="ctSortBy('preco')">Preço</th>
+                <th onclick="ctSortBy('variacao')">Dia %</th>
+                <th onclick="ctSortBy('semana')">Semana %</th>
+                <th onclick="ctSortBy('mes')">Mês %</th>
+                <th onclick="ctSortBy('ano')">Ano %</th>
+                <th onclick="ctSortBy('volume')">Volume</th>
+                <th onclick="ctSortBy('ifr')">RSI</th>
               </tr>
             </thead>
-            <tbody id="hmBody"></tbody>
+            <tbody id="ctBody"></tbody>
           </table>
         </div>
       </div>
@@ -500,6 +546,7 @@ function switchChartTab(name, el) {
   document.querySelectorAll('.chart-panel').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('chart-' + name).classList.add('active');
+  if (name === 'compact') renderCompact();
   if (name === 'setor') renderSectorChart();
   if (name === 'ranking') renderRankingChart();
 }
@@ -760,7 +807,7 @@ function afterLoad() {
   document.getElementById('detailCard').style.display = 'none';
 
   renderKPIs();
-  renderHeatmap();
+  populateSetorFilter(); renderCompact();
   renderSectorChart();
   renderRankingChart();
   renderTable();
@@ -852,60 +899,94 @@ function renderKPIs() {
 }
 
 // ============================================================
-// HEATMAP
+// TABELA COMPACTA com filtro por setor e ordenação
 // ============================================================
-function hmColor(val, min, max) {
-  if (val === null || val === undefined) return '#333';
-  const dark = document.documentElement.getAttribute('data-theme') !== 'light';
-  if (val > 0) {
-    const t = Math.min(val / Math.max(Math.abs(max), 0.01), 1);
-    const g = dark ? Math.round(100 + t * 129) : Math.round(60 + t * 100);
-    const r = dark ? Math.round(20 - t * 10) : Math.round(200 - t * 140);
-    const b = dark ? Math.round(80 + t * 50) : Math.round(140 - t * 80);
-    return `rgb(${r},${g},${b})`;
-  } else if (val < 0) {
-    const t = Math.min(Math.abs(val) / Math.max(Math.abs(min), 0.01), 1);
-    const r = dark ? Math.round(150 + t * 100) : Math.round(180 + t * 75);
-    const g = dark ? Math.round(30 + t * 14) : Math.round(80 - t * 50);
-    const b = dark ? Math.round(30 + t * 14) : Math.round(80 - t * 50);
-    return `rgb(${r},${g},${b})`;
+let ctSortKey = 'variacao';
+let ctSortDir = 'desc';
+
+function ctSortBy(key) {
+  if (ctSortKey === key) {
+    ctSortDir = ctSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    ctSortKey = key;
+    ctSortDir = key === 'ativo' ? 'asc' : 'desc';
   }
-  return dark ? '#1f2330' : '#dde0ec';
+  // Sincroniza o select de ordenação
+  const sel = document.getElementById('ctSort');
+  const opt = `${key}-${ctSortDir}`;
+  if ([...sel.options].some(o => o.value === opt)) sel.value = opt;
+  renderCompact();
 }
 
-function hmTextColor(bg) {
-  return '#fff';
+function populateSetorFilter() {
+  const sel = document.getElementById('ctSetor');
+  const current = sel.value;
+  const setores = [...new Set(rows.map(r => r.setor).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todos os setores</option>' +
+    setores.map(s => `<option value="${s}"${s===current?' selected':''}>${s}</option>`).join('');
 }
 
-function renderHeatmap() {
+function renderCompact() {
   if (!rows.length) return;
-  const dVals = rows.map(r => r.variacao);
-  const sVals = rows.map(r => r.semana);
-  const mVals = rows.map(r => r.mes);
-  const aVals = rows.map(r => r.ano);
 
-  const minMax = arr => [Math.min(...arr), Math.max(...arr)];
-  const [dMin, dMax] = minMax(dVals);
-  const [sMin, sMax] = minMax(sVals);
-  const [mMin, mMax] = minMax(mVals);
-  const [aMin, aMax] = minMax(aVals);
+  // Sync sort from select if triggered by select
+  const selSort = document.getElementById('ctSort');
+  const [sk, sd] = selSort.value.split('-');
+  ctSortKey = sk;
+  ctSortDir = sd;
 
-  const sorted = [...rows].sort((a,b) => b.variacao - a.variacao);
+  const search = (document.getElementById('ctSearch').value || '').trim().toUpperCase();
+  const setor = document.getElementById('ctSetor').value;
 
-  document.getElementById('hmBody').innerHTML = sorted.map(r => {
-    const dBg = hmColor(r.variacao, dMin, dMax);
-    const sBg = hmColor(r.semana, sMin, sMax);
-    const mBg = hmColor(r.mes, mMin, mMax);
-    const aBg = hmColor(r.ano, aMin, aMax);
-    const rsiC = r.ifr > 70 ? 'rgba(255,68,68,0.8)' : r.ifr < 30 ? 'rgba(0,229,180,0.8)' : 'rgba(100,100,120,0.4)';
+  let filtered = rows.filter(r => {
+    const matchTicker = !search || r.ativo.includes(search);
+    const matchSetor = !setor || r.setor === setor;
+    return matchTicker && matchSetor;
+  });
+
+  filtered.sort((a, b) => {
+    let va = a[ctSortKey], vb = b[ctSortKey];
+    if (ctSortKey === 'ativo') { va = va||''; vb = vb||''; return ctSortDir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+    va = va || 0; vb = vb || 0;
+    return ctSortDir === 'desc' ? vb - va : va - vb;
+  });
+
+  // Update header sort indicators
+  document.querySelectorAll('.ct th').forEach(th => {
+    th.classList.remove('ct-sorted','asc');
+    const key = th.getAttribute('onclick')?.match(/ctSortBy\('(\w+)'\)/)?.[1];
+    if (key === ctSortKey) { th.classList.add('ct-sorted'); if (ctSortDir==='asc') th.classList.add('asc'); }
+  });
+
+  document.getElementById('ctCount').textContent = `${filtered.length} ativos`;
+
+  const maxVol = Math.max(...rows.map(r => r.volume || 0), 1);
+
+  document.getElementById('ctBody').innerHTML = filtered.map(r => {
+    const pctCls = v => v > 0 ? 'ct-pos' : v < 0 ? 'ct-neg' : 'ct-neu';
+    const fmtV = v => v === 0 || v === null || v === undefined ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+    const rsiCls = r.ifr > 70 ? 'ct-rsi-ob' : r.ifr < 30 ? 'ct-rsi-os' : 'ct-rsi-n';
+    const rsiLabel = r.ifr > 70 ? ' ▲' : r.ifr < 30 ? ' ▼' : '';
+    const volPct = Math.min((r.volume || 0) / maxVol * 100, 100);
+    const volColor = r.variacao >= 0 ? 'var(--accent)' : 'var(--red)';
 
     return `<tr>
-      <td style="text-align:left;padding:0.3rem 0.5rem;font-weight:700;font-size:0.75rem;color:var(--accent);cursor:pointer;" onclick="showDetail('${r.ativo}')">${r.ativo}${r.setor?`<span style="font-size:0.55rem;color:var(--muted);margin-left:0.3rem;">${r.setor}</span>`:''}</td>
-      <td style="padding:2px;"><div class="hm-cell" style="background:${dBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.variacao)}</div></div></td>
-      <td style="padding:2px;"><div class="hm-cell" style="background:${sBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.semana)}</div></div></td>
-      <td style="padding:2px;"><div class="hm-cell" style="background:${mBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.mes)}</div></div></td>
-      <td style="padding:2px;"><div class="hm-cell" style="background:${aBg};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${fmtPct(r.ano)}</div></div></td>
-      <td style="padding:2px;"><div class="hm-cell" style="background:${rsiC};" onclick="showDetail('${r.ativo}')"><div class="hm-ticker">${r.ativo}</div><div class="hm-val">${r.ifr > 0 ? r.ifr.toFixed(0) : '—'}</div></div></td>
+      <td>
+        <span class="ct-ticker" onclick="showDetail('${r.ativo}')">${r.ativo}</span>
+        ${r.setor ? `<span class="ct-setor">${r.setor}</span>` : ''}
+      </td>
+      <td>${r.preco > 0 ? 'R$ ' + r.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+      <td><span class="ct-pill ${pctCls(r.variacao)}">${fmtV(r.variacao)}</span></td>
+      <td class="${pctCls(r.semana)}">${fmtV(r.semana)}</td>
+      <td class="${pctCls(r.mes)}">${fmtV(r.mes)}</td>
+      <td class="${pctCls(r.ano)}">${fmtV(r.ano)}</td>
+      <td>
+        <div class="ct-bar">
+          <span>${fmtVol(r.volume)}</span>
+          <div class="ct-bar-bg"><div class="ct-bar-fill" style="width:${volPct}%;background:${volColor};"></div></div>
+        </div>
+      </td>
+      <td class="${rsiCls}">${r.ifr > 0 ? r.ifr.toFixed(0) + rsiLabel : '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -1313,7 +1394,7 @@ Responda APENAS com JSON (sem markdown):
     r.suporte = parsed.suporte;
     r.resistencia = parsed.resistencia;
     r._aiPoints = parsed.pontos_atencao;
-    renderTable(); renderKPIs(); renderHeatmap();
+    renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
     showDetail(ticker);
   } catch(err) {
     showErr('err-global','Erro ao chamar IA: ' + err.message);
@@ -1366,7 +1447,7 @@ Ativos:\n${batchText}`;
 
   loading.classList.remove('active');
   btn.disabled = false;
-  renderTable(); renderKPIs(); renderHeatmap();
+  renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
 }
 
 // ============================================================
