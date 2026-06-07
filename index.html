@@ -271,6 +271,7 @@
     <div class="input-panel-inner">
       <div class="tabs" style="margin-bottom:1rem;">
         <button class="tab active" onclick="switchTab('paste',this)">📋 Colar do Profit / Python</button>
+        <button class="tab" onclick="switchTab('auto',this)">🔄 Buscar Automático</button>
         <button class="tab" onclick="switchTab('manual',this)">✏️ Inserir Manualmente</button>
       </div>
 
@@ -288,6 +289,28 @@
           <button class="btn-s" onclick="document.getElementById('pasteArea').value=''">Limpar</button>
         </div>
         <div class="err" id="err-paste"></div>
+      </div>
+
+      <!-- AUTO TAB -->
+      <div id="tab-auto" class="tab-panel">
+        <div class="info-box">
+          <strong>Busca de preços automática.</strong><br>
+          Atualiza os ativos já carregados, ou busca uma lista de tickers que você informar abaixo.<br>
+          Tenta o <strong>Yahoo Finance</strong> (mais completo) e usa o <strong>brapi.dev</strong> como reserva. Dados podem ter ~15 min de atraso e dependem da fonte estar disponível.<br>
+          <em>Campos preenchidos: Último · Variação · Abertura · Máx · Mín · Fech. Ant. · Volume · 52-sem. Nem todos os campos do Profit existem nessas fontes (IFR, Semana, Mês, Vol. Histórica ficam vazios se não houver dado).</em>
+        </div>
+        <div class="ticker-row">
+          <div class="fg" style="flex:1;">
+            <label>Tickers (separados por vírgula ou espaço) — deixe vazio para atualizar os já carregados</label>
+            <input type="text" id="autoTickers" placeholder="ITUB4, PETR4, VALE3, BBAS3 ...">
+          </div>
+        </div>
+        <div class="action-row" style="margin-top:1rem;">
+          <button class="btn-p" onclick="runAuto(false)">🔄 Buscar / Atualizar Preços</button>
+          <button class="btn-s" onclick="runAuto(true)">↻ Atualizar só os carregados</button>
+        </div>
+        <div id="auto-status" style="margin-top:1rem;font-size:.85rem;color:var(--muted,#8aa);display:none;"></div>
+        <div class="err" id="err-auto"></div>
       </div>
 
       <!-- MANUAL TAB -->
@@ -755,6 +778,184 @@ function runPaste() {
 }
 
 // ============================================================
+// AUTO — busca de preços (Yahoo Finance + brapi fallback)
+// ============================================================
+function autoStatus(msg, color) {
+  const el = document.getElementById('auto-status');
+  el.style.display = 'block';
+  if (color) el.style.color = color;
+  el.innerHTML = msg;
+}
+
+// proxies CORS para o Yahoo (mesma técnica do MacroTerminal)
+const CORS_PROXIES = [
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+];
+
+async function fetchViaProxy(url) {
+  for (const wrap of CORS_PROXIES) {
+    try {
+      const resp = await fetch(wrap(url), { cache: 'no-store' });
+      if (!resp.ok) continue;
+      const txt = await resp.text();
+      try { return JSON.parse(txt); } catch { continue; }
+    } catch { continue; }
+  }
+  return null;
+}
+
+// Yahoo: busca 1 ticker (sufixo .SA para B3). Retorna objeto no formato das rows ou null.
+async function fetchYahoo(ticker) {
+  const sym = ticker.toUpperCase().replace(/\.SA$/, '') + '.SA';
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`;
+  const data = await fetchViaProxy(url);
+  const res = data?.chart?.result?.[0];
+  const meta = res?.meta;
+  if (!meta || meta.regularMarketPrice == null) return null;
+
+  const ult = meta.regularMarketPrice;
+  const prev = meta.chartPreviousClose ?? meta.previousClose ?? 0;
+  const varPct = prev > 0 ? ((ult - prev) / prev) * 100 : 0;
+
+  return {
+    ativo: ticker.toUpperCase().replace(/\.SA$/, ''),
+    setor: '',
+    ultimo: ult,
+    variacao: varPct,
+    variacao_pts: prev > 0 ? ult - prev : 0,
+    maximo: meta.regularMarketDayHigh ?? 0,
+    minimo: meta.regularMarketDayLow ?? 0,
+    fech_ant: prev,
+    abertura: meta.regularMarketOpen ?? 0,
+    volume: meta.regularMarketVolume ? meta.regularMarketVolume * ult : 0,
+    negocios: 0,
+    vol_hist: 0,
+    ifr: 0,
+    semana: 0,
+    mes: 0,
+    ano: 0,
+    of_compra: meta.bid ?? 0,
+    of_venda: meta.ask ?? 0,
+    estado: meta.marketState === 'REGULAR' ? 'Aberto' : 'Fechado',
+    sinal: null, analise: null, _source: 'Yahoo'
+  };
+}
+
+// brapi: aceita lista. Retorna mapa ticker->row.
+async function fetchBrapi(tickers) {
+  const out = {};
+  const url = `https://brapi.dev/api/quote/${tickers.join(',')}?range=1d&interval=1d`;
+  let data = null;
+  try {
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (resp.ok) data = await resp.json();
+  } catch {}
+  if (!data) data = await fetchViaProxy(url); // tenta via proxy se direto falhar
+  (data?.results || []).forEach(q => {
+    if (q.regularMarketPrice == null) return;
+    const ult = q.regularMarketPrice;
+    const prev = q.regularMarketPreviousClose ?? 0;
+    out[q.symbol.toUpperCase()] = {
+      ativo: q.symbol.toUpperCase(), setor: '',
+      ultimo: ult,
+      variacao: q.regularMarketChangePercent ?? (prev > 0 ? ((ult - prev) / prev) * 100 : 0),
+      variacao_pts: q.regularMarketChange ?? 0,
+      maximo: q.regularMarketDayHigh ?? 0,
+      minimo: q.regularMarketDayLow ?? 0,
+      fech_ant: prev,
+      abertura: q.regularMarketOpen ?? 0,
+      volume: q.regularMarketVolume ? q.regularMarketVolume * ult : 0,
+      negocios: 0, vol_hist: 0, ifr: 0, semana: 0, mes: 0, ano: 0,
+      of_compra: 0, of_venda: 0,
+      estado: 'Fechado',
+      sinal: null, analise: null, _source: 'brapi'
+    };
+  });
+  return out;
+}
+
+async function runAuto(onlyLoaded) {
+  hideErr('err-auto');
+  let tickers = [];
+  const input = document.getElementById('autoTickers').value.trim();
+
+  if (onlyLoaded || !input) {
+    tickers = rows.map(r => r.ativo).filter(Boolean);
+    if (!tickers.length) {
+      showErr('err-auto', 'Nenhum ativo carregado ainda. Informe tickers no campo acima ou carregue dados primeiro (aba Colar).');
+      return;
+    }
+  } else {
+    tickers = input.split(/[\s,;]+/).map(t => t.trim().toUpperCase().replace(/\.SA$/, '')).filter(t => t.length >= 4);
+  }
+  tickers = [...new Set(tickers)];
+  if (!tickers.length) { showErr('err-auto', 'Nenhum ticker válido reconhecido.'); return; }
+
+  // mapa de setor já conhecido (preserva o que veio do Profit)
+  const setorMap = {};
+  rows.forEach(r => { if (r.ativo && r.setor) setorMap[r.ativo] = r.setor; });
+
+  autoStatus(`Buscando ${tickers.length} ativo(s)... <span id="auto-prog">0</span>/${tickers.length}`, 'var(--muted,#8aa)');
+
+  const fetched = {};
+  let done = 0, yh = 0, bp = 0, fail = 0;
+
+  // 1) Yahoo, em lotes (limita conexões simultâneas via proxy)
+  const BATCH = 6;
+  for (let i = 0; i < tickers.length; i += BATCH) {
+    const slice = tickers.slice(i, i + BATCH);
+    const results = await Promise.all(slice.map(t => fetchYahoo(t).catch(() => null)));
+    results.forEach((r, idx) => {
+      done++;
+      if (r) { fetched[slice[idx]] = r; yh++; }
+      const p = document.getElementById('auto-prog'); if (p) p.textContent = done;
+    });
+  }
+
+  // 2) brapi para os que o Yahoo não cobriu
+  const missing = tickers.filter(t => !fetched[t]);
+  if (missing.length) {
+    autoStatus(`Yahoo cobriu ${yh}. Tentando brapi para ${missing.length} restante(s)...`, 'var(--muted,#8aa)');
+    // brapi free costuma aceitar poucos por vez; busca em lotes pequenos
+    for (let i = 0; i < missing.length; i += 5) {
+      const slice = missing.slice(i, i + 5);
+      const map = await fetchBrapi(slice);
+      slice.forEach(t => { if (map[t]) { fetched[t] = map[t]; bp++; } });
+    }
+  }
+
+  // monta as novas rows preservando setor conhecido
+  const newRows = [];
+  tickers.forEach(t => {
+    if (fetched[t]) {
+      const r = fetched[t];
+      r.setor = setorMap[t] || r.setor || '';
+      r.sinal = autoSignal(r);
+      r.score = autoScore(r);
+      newRows.push(r);
+    } else {
+      fail++;
+    }
+  });
+
+  if (!newRows.length) {
+    showErr('err-auto', 'Nenhuma fonte retornou dados. As fontes gratuitas podem estar fora do ar ou bloqueadas pelos proxies CORS. Tente novamente em instantes ou use a aba Colar.');
+    autoStatus('Falhou — nenhuma fonte respondeu.', '#e66');
+    return;
+  }
+
+  rows = newRows;
+  afterLoad();
+  autoStatus(
+    `✅ <strong>${newRows.length}</strong> ativo(s) carregado(s) · Yahoo: ${yh} · brapi: ${bp}` +
+    (fail ? ` · <span style="color:#e66;">não encontrados: ${fail}</span>` : '') +
+    `<br><span style="font-size:.78rem;">⚠️ IFR, Semana, Mês, Ano e Vol. Histórica não vêm dessas fontes — ficam zerados. Pra esses indicadores, use o paste do Profit.</span>`,
+    'var(--green,#2dd4a7)'
+  );
+}
+
+// ============================================================
 // MANUAL
 // ============================================================
 function addManual() {
@@ -1167,6 +1368,55 @@ function renderTable() {
 }
 
 // ============================================================
+// TRADINGVIEW — modal flutuante
+// ============================================================
+function openTradingView(tvTicker, ativo) {
+  const modal = document.getElementById('tvModal');
+  const body = document.getElementById('tvModalBody');
+  document.getElementById('tvModalTitle').textContent = 'TradingView · ' + ativo;
+  document.getElementById('tvModalExternal').href =
+    'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvTicker);
+
+  // widget oficial (Advanced Chart) embutido via iframe
+  const cfg = {
+    symbol: tvTicker,
+    interval: 'D',
+    timezone: 'America/Sao_Paulo',
+    theme: 'dark',
+    style: '1',
+    locale: 'br',
+    hide_side_toolbar: false,
+    allow_symbol_change: true,
+    autosize: true
+  };
+  const src = 'https://s.tradingview.com/widgetembed/?' +
+    'frameElementId=tv_widget&symbol=' + encodeURIComponent(tvTicker) +
+    '&interval=D&theme=dark&style=1&locale=br&timezone=America/Sao_Paulo' +
+    '&hide_side_toolbar=0&allow_symbol_change=1&autosize=1';
+
+  body.innerHTML = '<iframe src="' + src + '" style="width:100%;height:100%;border:0;display:block;" ' +
+    'allowtransparency="true" frameborder="0" scrolling="no"></iframe>';
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTradingView() {
+  const modal = document.getElementById('tvModal');
+  modal.style.display = 'none';
+  document.getElementById('tvModalBody').innerHTML = ''; // descarrega o iframe
+  document.body.style.overflow = '';
+}
+
+// fechar com Esc ou clicando no fundo escuro
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('tvModal')?.style.display === 'flex') closeTradingView();
+});
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'tvModal') closeTradingView();
+});
+
+// ============================================================
 // DETAIL CARD
 // ============================================================
 function showDetail(ticker) {
@@ -1197,12 +1447,12 @@ function showDetail(ticker) {
       <span class="sinal-pill ${sinalClass}">${r.sinal || '—'}</span>
       ${r.setor ? `<span style="font-size:0.65rem;color:var(--blue);background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2);border-radius:4px;padding:0.15rem 0.5rem;">${r.setor}</span>` : ''}
       ${aiNote}
-      <a href="${tvUrl}" target="_blank" rel="noopener"
-         style="margin-left:auto;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:#2196F3;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
+      <button onclick="openTradingView('${tvTicker}','${r.ativo}')"
+         style="margin-left:auto;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:#2196F3;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
          onmouseover="this.style.background='rgba(33,150,243,0.2)'" onmouseout="this.style.background='rgba(33,150,243,0.1)'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 4-6 4 4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9h4v4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         TradingView
-      </a>
+      </button>
     </div>
     <div class="dc-nome">${r.estado ? 'Estado: '+r.estado+' · ' : ''}${new Date().toLocaleDateString('pt-BR')}</div>
 
@@ -1460,5 +1710,18 @@ Ativos:\n${batchText}`;
 function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
 function hideErr(id) { document.getElementById(id).style.display='none'; }
 </script>
+<!-- TRADINGVIEW MODAL -->
+<div id="tvModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:2vh 2vw;">
+  <div style="background:#0d1117;border:1px solid #2a3142;border-radius:12px;width:100%;max-width:1100px;height:86vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.6);overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;border-bottom:1px solid #2a3142;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 4-6 4 4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9h4v4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="tvModalTitle" style="font-family:var(--mono);font-size:0.8rem;color:#e6edf3;letter-spacing:0.05em;">TradingView</span>
+      <a id="tvModalExternal" href="#" target="_blank" rel="noopener" style="margin-left:auto;font-family:var(--mono);font-size:0.66rem;color:#8aa;text-decoration:none;border:1px solid #2a3142;border-radius:5px;padding:0.2rem 0.55rem;">↗ abrir no site</a>
+      <button onclick="closeTradingView()" style="background:rgba(255,80,80,0.12);border:1px solid rgba(255,80,80,0.3);border-radius:5px;color:#ff7676;font-family:var(--mono);font-size:0.66rem;padding:0.2rem 0.6rem;cursor:pointer;letter-spacing:0.05em;">✕ Fechar</button>
+    </div>
+    <div id="tvModalBody" style="flex:1;min-height:0;"></div>
+  </div>
+</div>
+
 </body>
 </html>
