@@ -235,6 +235,7 @@
   .chart-box canvas{display:block;width:100%!important;}
   .close-btn{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:0.68rem;padding:0.3rem 0.7rem;border-radius:5px;cursor:pointer;transition:all 0.15s;}
   .close-btn:hover{border-color:var(--red);color:var(--red);}
+  .macro-chip{display:inline-flex;align-items:center;background:rgba(102,153,255,0.1);border:1px solid rgba(102,153,255,0.28);border-radius:6px;font-size:0.66rem;color:var(--blue);padding:0.22rem 0.6rem;letter-spacing:0.03em;font-weight:600;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -438,6 +439,7 @@
         <div class="res-meta" id="resMeta"></div>
       </div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn-p" onclick="gerarRelatorio()" id="btnReport" style="padding:0.55rem 0.95rem;font-size:0.72rem;">📄 Gerar Relatório</button>
         <button class="btn-s" onclick="runAIOnAll()" id="btnAI">⚡ Análise IA (todos)</button>
         <button class="btn-s" onclick="clearAll()">✕ Limpar</button>
       </div>
@@ -514,6 +516,23 @@ let sortAsc = false;
 let sectorChartInst = null;
 let sectorVolChartInst = null;
 let rankingChartInst = null;
+
+// ============================================================
+// PERSISTÊNCIA — salva os dados importados no navegador
+// ============================================================
+const STORAGE_KEY = 'sv-rows-v1';
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch (e) { console.warn('Não foi possível salvar:', e); }
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr) && arr.length) { rows = arr; return true; }
+  } catch (e) { console.warn('Não foi possível restaurar:', e); }
+  return false;
+}
 
 // ============================================================
 // THEME
@@ -714,39 +733,216 @@ function autoScore(r) {
   return Math.min(100, Math.max(0, Math.round(s)));
 }
 
-function autoAnalise(r) {
-  const varDir = r.variacao >= 0 ? 'alta' : 'baixa';
-  const ifrMom = r.ifr > 70 ? 'sobrecomprado (RSI acima de 70)' : r.ifr < 30 ? 'sobrevendido (RSI abaixo de 30)' : `neutro (RSI ${r.ifr.toFixed(0)})`;
-  const volComment = r.vol_hist > 50 ? 'alta volatilidade histórica' : r.vol_hist > 25 ? 'volatilidade moderada' : 'baixa volatilidade histórica';
-  const semDir = r.semana >= 0 ? `positiva (+${r.semana.toFixed(2)}%)` : `negativa (${r.semana.toFixed(2)}%)`;
-  const mesDir = r.mes >= 0 ? `+${r.mes.toFixed(2)}%` : `${r.mes.toFixed(2)}%`;
-  const anoDir = r.ano >= 0 ? `+${r.ano.toFixed(2)}%` : `${r.ano.toFixed(2)}%`;
-  const amp = r.maximo > 0 && r.minimo > 0 ? ((r.maximo - r.minimo) / r.minimo * 100).toFixed(2) : null;
+// ---- helpers de níveis técnicos (pivôs clássicos) ----
+function pivotLevels(r) {
+  if (!(r.maximo > 0 && r.minimo > 0 && r.maximo > r.minimo)) return null;
+  const PP = (r.maximo + r.minimo + r.ultimo) / 3;
+  return {
+    PP,
+    R1: 2 * PP - r.minimo,
+    S1: 2 * PP - r.maximo,
+    R2: PP + (r.maximo - r.minimo),
+    S2: PP - (r.maximo - r.minimo)
+  };
+}
 
-  let txt = `${r.ativo} opera com variação de ${r.variacao >= 0 ? '+' : ''}${r.variacao.toFixed(2)}% no dia, `;
-  txt += `precificado a R$ ${r.ultimo.toFixed(2)} (mín: R$ ${r.minimo.toFixed(2)} / máx: R$ ${r.maximo.toFixed(2)}`;
-  if (amp) txt += `, amplitude de ${amp}%`;
-  txt += `). `;
-  txt += `O momento técnico é ${ifrMom}, com ${volComment}. `;
-  txt += `Na semana o desempenho foi ${semDir}; no mês ${mesDir} e no acumulado do ano ${anoDir}. `;
-  if (r.volume > 0) txt += `Volume financeiro de R$ ${fmtVol(r.volume)}, com ${r.negocios.toLocaleString('pt-BR')} negócios realizados.`;
-  return txt;
+function autoAnalise(r) {
+  const has = v => typeof v === 'number' && !isNaN(v) && v !== 0;
+  const fp = v => (v >= 0 ? '+' : '') + v.toFixed(2);
+  const parts = [];
+
+  // 1) Preço e variação do dia
+  const dirDia = r.variacao > 0 ? 'alta' : r.variacao < 0 ? 'queda' : 'estabilidade';
+  let s1 = `${r.ativo} encerra a R$ ${r.ultimo.toFixed(2)}, em ${dirDia} de ${fp(r.variacao)}%`;
+  if (has(r.variacao_pts)) s1 += ` (${fp(r.variacao_pts)} pts)`;
+  s1 += has(r.fech_ant) ? `, ante fechamento anterior de R$ ${r.fech_ant.toFixed(2)}.` : '.';
+  parts.push(s1);
+
+  // 2) Estrutura do candle e posição no range
+  if (has(r.maximo) && has(r.minimo) && r.maximo > r.minimo) {
+    const amp = (r.maximo - r.minimo) / r.minimo * 100;
+    const posRange = (r.ultimo - r.minimo) / (r.maximo - r.minimo) * 100;
+    const posTxt = posRange >= 70 ? 'fechou na parte superior do range do dia, sinal de força compradora'
+                 : posRange <= 30 ? 'fechou na parte inferior do range, sinal de pressão vendedora'
+                 : 'fechou no miolo do range, sem domínio claro entre compradores e vendedores';
+    let s2 = `Negociou entre R$ ${r.minimo.toFixed(2)} e R$ ${r.maximo.toFixed(2)} (amplitude de ${amp.toFixed(2)}%) e ${posTxt}.`;
+    if (has(r.abertura)) {
+      const corpo = r.ultimo - r.abertura;
+      if (Math.abs(corpo) / r.ultimo > 0.001) {
+        s2 += corpo > 0
+          ? ` O candle é de força, fechando ${(corpo / r.abertura * 100).toFixed(2)}% acima da abertura.`
+          : ` O candle é negativo, fechando ${Math.abs(corpo / r.abertura * 100).toFixed(2)}% abaixo da abertura.`;
+      }
+      if (has(r.fech_ant)) {
+        const gap = (r.abertura - r.fech_ant) / r.fech_ant * 100;
+        if (Math.abs(gap) >= 0.5) s2 += ` Abriu em gap de ${fp(gap)}% frente ao fechamento anterior.`;
+      }
+    }
+    parts.push(s2);
+  }
+
+  // 3) Suporte e resistência (pivôs)
+  const piv = pivotLevels(r);
+  if (piv) {
+    parts.push(`Pelos pivôs do dia, o suporte imediato fica em ~R$ ${piv.S1.toFixed(2)} (estendido R$ ${piv.S2.toFixed(2)}) e a resistência em ~R$ ${piv.R1.toFixed(2)} (estendida R$ ${piv.R2.toFixed(2)}), com ponto de pivô em R$ ${piv.PP.toFixed(2)}; o rompimento desses níveis tende a definir o próximo movimento.`);
+  }
+
+  // 4) RSI / momentum
+  if (has(r.ifr)) {
+    let rsiTxt;
+    if (r.ifr >= 70) rsiTxt = `RSI em ${r.ifr.toFixed(0)} indica sobrecompra — costuma anteceder perda de fôlego e realização`;
+    else if (r.ifr >= 60) rsiTxt = `RSI em ${r.ifr.toFixed(0)} mostra momentum comprador firme, ainda sem exagero`;
+    else if (r.ifr >= 45) rsiTxt = `RSI em ${r.ifr.toFixed(0)} está em zona neutra, sem viés definido`;
+    else if (r.ifr >= 30) rsiTxt = `RSI em ${r.ifr.toFixed(0)} revela momentum vendedor, aproximando-se da sobrevenda`;
+    else rsiTxt = `RSI em ${r.ifr.toFixed(0)} indica sobrevenda — condição que costuma anteceder repiques técnicos`;
+    parts.push(rsiTxt + '.');
+  }
+
+  // 5) Confluência de prazos
+  const tf = [];
+  if (has(r.semana)) tf.push(['semana', r.semana]);
+  if (has(r.mes)) tf.push(['mês', r.mes]);
+  if (has(r.ano)) tf.push(['ano', r.ano]);
+  if (tf.length) {
+    const pos = tf.filter(t => t[1] > 0).length;
+    const desc = tf.map(t => `${t[0]} ${fp(t[1])}%`).join(', ');
+    const conf = pos === tf.length ? 'todos os prazos no positivo — tendência alinhada e consistente de alta'
+               : pos === 0 ? 'todos os prazos no negativo — tendência de baixa predominante'
+               : 'sinais mistos entre os prazos — tendência ainda indefinida, exigindo cautela';
+    parts.push(`No acumulado (${desc}), ${conf}.`);
+  }
+
+  // 6) Volatilidade e volume
+  const seg = [];
+  if (has(r.vol_hist)) {
+    const vc = r.vol_hist > 50 ? 'elevada' : r.vol_hist > 30 ? 'moderada' : 'baixa';
+    seg.push(`volatilidade histórica de ${r.vol_hist.toFixed(1)}% (${vc})`);
+  }
+  if (has(r.volume)) {
+    let vv = `volume financeiro de R$ ${fmtVol(r.volume)}`;
+    if (has(r.negocios)) vv += ` em ${r.negocios.toLocaleString('pt-BR')} negócios`;
+    seg.push(vv);
+  }
+  if (seg.length) {
+    const txt = seg.join(' e ');
+    parts.push(txt.charAt(0).toUpperCase() + txt.slice(1) + '.');
+  }
+
+  return parts.join(' ');
 }
 
 function autoPoints(r) {
+  const has = v => typeof v === 'number' && !isNaN(v) && v !== 0;
+  const fp = v => (v >= 0 ? '+' : '') + v.toFixed(2);
   const pts = [];
-  if (r.ifr > 70) pts.push('RSI acima de 70 — zona de sobrecompra, atenção a realizações.');
-  if (r.ifr < 30) pts.push('RSI abaixo de 30 — zona de sobrevenda, possível oportunidade de entrada.');
-  if (r.vol_hist > 60) pts.push(`Volatilidade histórica elevada (${r.vol_hist.toFixed(1)}%) — risco acima da média.`);
-  if (r.ano < -15) pts.push(`Queda acumulada no ano de ${r.ano.toFixed(2)}% — pressão vendedora persistente.`);
-  if (r.ano > 20) pts.push(`Alta acumulada no ano de +${r.ano.toFixed(2)}% — ativo com forte momentum.`);
-  if (r.mes < -8) pts.push(`Mês negativo (${r.mes.toFixed(2)}%) — tendência de curto prazo desfavorável.`);
-  if (r.of_compra > 0 && r.of_venda > 0) {
-    const spread = r.of_venda - r.of_compra;
-    if (spread / r.ultimo > 0.005) pts.push(`Spread bid/ask relativamente alto (R$ ${spread.toFixed(2)}) — liquidez moderada.`);
+
+  // RSI com nuance
+  if (has(r.ifr)) {
+    if (r.ifr >= 70) pts.push(`RSI em ${r.ifr.toFixed(0)} (sobrecompra) — risco de realização; aguardar respiro ou confirmar com volume antes de comprar.`);
+    else if (r.ifr <= 30) pts.push(`RSI em ${r.ifr.toFixed(0)} (sobrevenda) — possível repique técnico, mas só vale como entrada com sinal de reversão confirmado.`);
+    else if (r.ifr < 40) pts.push(`RSI em ${r.ifr.toFixed(0)} — momentum fraco, perto da zona de sobrevenda; monitorar perda de suporte.`);
+    else if (r.ifr > 60) pts.push(`RSI em ${r.ifr.toFixed(0)} — momentum forte, mas se aproximando da sobrecompra.`);
   }
-  if (pts.length === 0) pts.push('Sem alertas técnicos relevantes nos indicadores disponíveis.');
+
+  // Divergência preço x RSI
+  if (has(r.ifr) && has(r.variacao)) {
+    if (r.variacao > 0.5 && r.ifr < 45) pts.push('Alta no dia com RSI ainda baixo — movimento pode ser apenas repique dentro de tendência de baixa.');
+    if (r.variacao < -0.5 && r.ifr > 60) pts.push('Queda no dia com RSI ainda alto — possível início de correção após sobrecompra.');
+  }
+
+  // Posição no range e candle
+  if (has(r.maximo) && has(r.minimo) && r.maximo > r.minimo) {
+    const posRange = (r.ultimo - r.minimo) / (r.maximo - r.minimo) * 100;
+    if (posRange <= 25) pts.push('Fechou perto da mínima do dia — vendedores no controle no fim do pregão.');
+    else if (posRange >= 75) pts.push('Fechou perto da máxima do dia — compradores dominaram o fechamento.');
+  }
+  if (has(r.abertura) && has(r.variacao)) {
+    const corpo = r.ultimo - r.abertura;
+    if (r.variacao > 0 && corpo < 0) pts.push('Apesar da alta no dia, fechou abaixo da abertura — força compradora perdeu tração ao longo do pregão.');
+    if (r.variacao < 0 && corpo > 0) pts.push('Apesar da queda no dia, fechou acima da abertura — sinal de recuperação intradiária.');
+  }
+
+  // Gaps
+  if (has(r.abertura) && has(r.fech_ant)) {
+    const gap = (r.abertura - r.fech_ant) / r.fech_ant * 100;
+    if (gap >= 1) pts.push(`Abertura em gap de alta (${fp(gap)}%) — atenção a possível fechamento do gap em caso de realização.`);
+    if (gap <= -1) pts.push(`Abertura em gap de baixa (${fp(gap)}%) — pressão vendedora desde o início do pregão.`);
+  }
+
+  // Proximidade de suporte/resistência
+  const piv = pivotLevels(r);
+  if (piv) {
+    const distR = (piv.R1 - r.ultimo) / r.ultimo * 100;
+    const distS = (r.ultimo - piv.S1) / r.ultimo * 100;
+    if (distR >= 0 && distR < 1) pts.push(`Preço colado na resistência (~R$ ${piv.R1.toFixed(2)}) — rompimento abre espaço para continuidade; rejeição favorece recuo.`);
+    if (distS >= 0 && distS < 1) pts.push(`Preço colado no suporte (~R$ ${piv.S1.toFixed(2)}) — perder esse nível pode acelerar a queda.`);
+  }
+
+  // Confluência de prazos
+  const tf = [];
+  if (has(r.semana)) tf.push(r.semana);
+  if (has(r.mes)) tf.push(r.mes);
+  if (has(r.ano)) tf.push(r.ano);
+  if (tf.length >= 2) {
+    const sinais = new Set(tf.map(v => v > 0 ? '+' : '-'));
+    if (sinais.size > 1) pts.push('Prazos divergentes (semana/mês/ano com sinais opostos) — tendência ainda não definida; evitar posições direcionais grandes.');
+  }
+  if (has(r.mes) && r.mes < -8) pts.push(`Mês negativo (${r.mes.toFixed(2)}%) — tendência de curto prazo desfavorável.`);
+
+  // Volatilidade
+  if (has(r.vol_hist)) {
+    if (r.vol_hist > 60) pts.push(`Volatilidade histórica elevada (${r.vol_hist.toFixed(1)}%) — dimensionar posição com stops mais largos.`);
+    else if (r.vol_hist < 15) pts.push(`Volatilidade histórica baixa (${r.vol_hist.toFixed(1)}%) — ativo mais estável, porém com movimentos mais lentos.`);
+  }
+
+  // Ano
+  if (has(r.ano)) {
+    if (r.ano < -15) pts.push(`Queda acumulada de ${r.ano.toFixed(2)}% no ano — tendência de fundo ainda vendedora; cuidado em "pegar faca caindo".`);
+    else if (r.ano > 25) pts.push(`Alta de ${fp(r.ano)}% no ano — forte momentum, mas atenção a esticada de preço e correções.`);
+  }
+
+  // Liquidez
+  if (has(r.of_compra) && has(r.of_venda)) {
+    const spread = r.of_venda - r.of_compra;
+    if (spread > 0 && spread / r.ultimo > 0.005) pts.push(`Spread de compra/venda alto (R$ ${spread.toFixed(2)}) — liquidez moderada, maior custo de entrada/saída.`);
+  }
+  if (has(r.negocios) && r.negocios > 0 && r.negocios < 1000) pts.push(`Apenas ${r.negocios.toLocaleString('pt-BR')} negócios no dia — baixa liquidez, atenção a slippage.`);
+
+  if (!pts.length) pts.push('Sem alertas técnicos relevantes nos indicadores disponíveis — quadro tecnicamente equilibrado.');
   return pts;
+}
+
+// ============================================================
+// CONTEXTO MACRO — B3 (datado; pesquisado, comum a todos os ativos)
+// ============================================================
+const MACRO_B3 = {
+  data: '07/06/2026',
+  selic: '14,50% a.a.',
+  ibov: '~169.000 pts',
+  ibovAno: '+8,1% no ano',
+  dolar: 'R$ 5,00',
+  dolarAno: '-8% no ano',
+  resumo: 'B3 volátil no início de junho/2026: bancos e mineradoras (com destaque para a Vale) sustentam o índice, enquanto o risco externo pesa sobre o apetite por ações. A Selic ainda elevada (14,50% a.a.) mantém a renda fixa competitiva, mas o início do ciclo de corte de juros (Focus projeta 13,00% no fim de 2026) e o dólar mais fraco tendem a favorecer a bolsa no médio prazo.',
+  riscos: [
+    'Tarifaço dos EUA: tarifa adicional de 25% sobre produtos brasileiros proposta para 15/jul, somada a 10–12,5% por outras frentes — pressão sobre exportadoras.',
+    'Geopolítica no Oriente Médio elevando a aversão a risco global.',
+    'Decisão do Copom em 16–17/jun pode mexer com juros, câmbio e o humor da bolsa.'
+  ]
+};
+
+function renderMacroBox() {
+  return `
+    <div class="analysis-box" style="border-left-color:var(--blue);">
+      <h4 style="color:var(--blue);">◆ Contexto de mercado — B3 (${MACRO_B3.data})</h4>
+      <p>${MACRO_B3.resumo}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.45rem;margin:0.8rem 0 0.4rem;">
+        <span class="macro-chip">Selic ${MACRO_B3.selic}</span>
+        <span class="macro-chip">Ibovespa ${MACRO_B3.ibov} · ${MACRO_B3.ibovAno}</span>
+        <span class="macro-chip">Dólar ${MACRO_B3.dolar} · ${MACRO_B3.dolarAno}</span>
+      </div>
+      <ul class="points-list" style="margin-top:0.4rem;">${MACRO_B3.riscos.map(p => `<li>▸ ${p}</li>`).join('')}</ul>
+      <div style="font-size:0.6rem;color:var(--muted);margin-top:0.6rem;line-height:1.5;">Contexto macro datado de ${MACRO_B3.data}, comum a todos os ativos — não reflete leitura em tempo real. Edite a constante <code style="font-size:0.9em;">MACRO_B3</code> no código para atualizar.</div>
+    </div>`;
 }
 
 // ============================================================
@@ -992,7 +1188,7 @@ function clearManual() {
 // ============================================================
 // AFTER LOAD
 // ============================================================
-function afterLoad() {
+function afterLoad(isRestore) {
   const setores = [...new Set(rows.map(r => r.setor).filter(Boolean))];
   const sel = document.getElementById('filterSetor');
   sel.innerHTML = '<option value="">Todos os setores</option>' +
@@ -1020,7 +1216,8 @@ function afterLoad() {
   document.getElementById('kpiPanel').style.display = 'block';
   document.getElementById('chartsSection').style.display = 'block';
 
-  document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+  saveState();
+  if (!isRestore) document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function clearAll() {
@@ -1031,6 +1228,7 @@ function clearAll() {
   document.getElementById('chartsSection').style.display = 'none';
   document.getElementById('pasteArea').value = '';
   document.getElementById('toggleHint').textContent = 'Colar do Profit, do script Python, ou inserir manualmente';
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
 }
 
 // ============================================================
@@ -1501,6 +1699,8 @@ function showDetail(ticker) {
       <ul class="points-list">${points.map(p => `<li>▸ ${p}</li>`).join('')}</ul>
     </div>
 
+    ${renderMacroBox()}
+
     <div class="charts-row">
       <div class="chart-box">
         <h4>📈 Cotação do Dia</h4>
@@ -1513,6 +1713,7 @@ function showDetail(ticker) {
     </div>
 
     <button class="btn-p" onclick="runAIOnOne('${r.ativo}')" style="margin-top:0.5rem;" id="btn-ai-${r.ativo}">⚡ Aprofundar análise com IA</button>
+    <button class="btn-s" onclick="gerarRelatorio('${r.ativo}')" style="margin-top:0.5rem;margin-left:0.5rem;">📄 Gerar Relatório de ${r.ativo}</button>
     <div class="disc">⚠ Análise automática baseada nos indicadores fornecidos. Não constitui recomendação de investimento.</div>
   `;
 
@@ -1650,6 +1851,7 @@ Responda APENAS com JSON (sem markdown):
     r._aiPoints = parsed.pontos_atencao;
     renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
     showDetail(ticker);
+    saveState();
   } catch(err) {
     showErr('err-global','Erro ao chamar IA: ' + err.message);
     if (btn) { btn.disabled=false; btn.textContent='⚡ Aprofundar análise com IA'; }
@@ -1702,6 +1904,194 @@ Ativos:\n${batchText}`;
   loading.classList.remove('active');
   btn.disabled = false;
   renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
+  saveState();
+}
+
+// ============================================================
+// GERAR RELATÓRIO — documento imprimível / salvar em PDF
+// ============================================================
+function gerarRelatorio(ticker) {
+  if (!rows.length) { showErr('err-global', 'Carregue ativos antes de gerar o relatório.'); return; }
+  hideErr('err-global');
+
+  const single = ticker ? rows.find(r => r.ativo === ticker) : null;
+
+  const agora = new Date().toLocaleString('pt-BR');
+  const sorted = [...rows].sort((a, b) => b.variacao - a.variacao);
+  const topAlta = sorted[0], topBaixa = sorted[sorted.length - 1];
+  const totalVol = rows.reduce((s, r) => s + r.volume, 0);
+  const avgVar = rows.reduce((s, r) => s + r.variacao, 0) / rows.length;
+  const rsiArr = rows.filter(r => r.ifr > 0);
+  const avgRSI = rsiArr.length ? rsiArr.reduce((s, r) => s + r.ifr, 0) / rsiArr.length : 0;
+  const altaC = rows.filter(r => r.sinal === 'ALTA').length;
+  const baixaC = rows.filter(r => r.sinal === 'BAIXA').length;
+  const neutroC = rows.filter(r => r.sinal === 'NEUTRO').length;
+  const sobrec = rows.filter(r => r.ifr > 70).length;
+  const sobrev = rows.filter(r => r.ifr < 30 && r.ifr > 0).length;
+
+  const pc = v => (v >= 0 ? '+' : '') + (v || 0).toFixed(2) + '%';
+  const cls = v => (v || 0) >= 0 ? 'pos' : 'neg';
+
+  // Ativos que entram na análise detalhada: só o selecionado, ou todos
+  const alvo = single ? [single] : sorted;
+
+  const tabela = sorted.map(r => `
+    <tr>
+      <td class="tk">${r.ativo}</td>
+      <td>${r.setor || '—'}</td>
+      <td class="num">R$ ${fmt2(r.ultimo)}</td>
+      <td class="num ${cls(r.variacao)}">${pc(r.variacao)}</td>
+      <td class="num">${r.ifr > 0 ? r.ifr.toFixed(0) : '—'}</td>
+      <td class="num ${cls(r.semana)}">${pc(r.semana)}</td>
+      <td class="num ${cls(r.mes)}">${pc(r.mes)}</td>
+      <td class="num ${cls(r.ano)}">${pc(r.ano)}</td>
+      <td class="num">${fmtVol(r.volume)}</td>
+      <td><span class="sig sig-${(r.sinal || 'neutro').toLowerCase()}">${r.sinal || '—'}</span></td>
+    </tr>`).join('');
+
+  const detalhes = alvo.map(r => {
+    const analise = r.analise || autoAnalise(r);
+    const pontos = (r._aiPoints && r._aiPoints.length) ? r._aiPoints : autoPoints(r);
+    return `
+      <div class="asset">
+        <div class="asset-head">
+          <span class="asset-tk">${r.ativo}</span>
+          ${r.setor ? `<span class="asset-setor">${r.setor}</span>` : ''}
+          <span class="sig sig-${(r.sinal || 'neutro').toLowerCase()}">${r.sinal || '—'}</span>
+          <span class="asset-price">R$ ${fmt2(r.ultimo)} <b class="${cls(r.variacao)}">${pc(r.variacao)}</b></span>
+          ${typeof r.score === 'number' ? `<span class="asset-score">Score ${r.score}</span>` : ''}
+        </div>
+        <div class="asset-metrics">
+          <span>Máx R$ ${fmt2(r.maximo)}</span><span>Mín R$ ${fmt2(r.minimo)}</span>
+          <span>Abert. R$ ${fmt2(r.abertura)}</span><span>Fech.Ant R$ ${fmt2(r.fech_ant)}</span>
+          <span>RSI ${r.ifr > 0 ? r.ifr.toFixed(1) : '—'}</span>
+          <span>Vol.Hist ${r.vol_hist > 0 ? r.vol_hist.toFixed(1) + '%' : '—'}</span>
+          <span>Volume R$ ${fmtVol(r.volume)}</span>
+        </div>
+        <div class="asset-an"><h4>Análise técnica</h4><p>${analise}</p></div>
+        <div class="asset-pt"><h4>Pontos de atenção</h4><ul>${pontos.map(p => `<li>${p}</li>`).join('')}</ul></div>
+      </div>`;
+  }).join('');
+
+  // Seções condicionais
+  const tituloAtivo = single ? ` — ${single.ativo}` : '';
+  const subLinha = single
+    ? `StockView · Gerado em ${agora} · Ativo: ${single.ativo}${single.setor ? ' (' + single.setor + ')' : ''}`
+    : `StockView · Gerado em ${agora} · ${rows.length} ativo(s) analisado(s)`;
+  const tituloResumo = single ? 'Resumo executivo do mercado' : 'Resumo executivo';
+  const overviewSection = single ? '' : `
+  <h2>Visão geral dos ativos</h2>
+  <table>
+    <thead><tr>
+      <th>Ativo</th><th>Setor</th><th>Último</th><th>Dia %</th><th>RSI</th>
+      <th>Semana %</th><th>Mês %</th><th>Ano %</th><th>Volume</th><th>Sinal</th>
+    </tr></thead>
+    <tbody>${tabela}</tbody>
+  </table>`;
+  const tituloDetalhe = single ? 'Análise do ativo' : 'Análise detalhada';
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório StockView B3${tituloAtivo} — ${agora}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@600;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'JetBrains Mono',monospace;color:#1a1d26;background:#f4f6fa;padding:2rem;line-height:1.6;font-size:12px;}
+  .sheet{max-width:960px;margin:0 auto;background:#fff;border:1px solid #e2e6ee;border-radius:10px;padding:2.2rem 2.4rem;box-shadow:0 8px 30px rgba(0,0,0,0.06);}
+  h1{font-family:'Syne',sans-serif;font-size:1.6rem;color:#009e7d;letter-spacing:-0.02em;}
+  .sub{color:#6b7280;font-size:0.78rem;margin-top:0.2rem;letter-spacing:0.04em;}
+  h2{font-family:'Syne',sans-serif;font-size:1.05rem;color:#1a1d26;margin:1.8rem 0 0.8rem;padding-bottom:0.4rem;border-bottom:2px solid #009e7d;}
+  .toolbar{position:sticky;top:0;display:flex;gap:0.6rem;justify-content:flex-end;margin-bottom:1.2rem;}
+  .btn{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.78rem;padding:0.55rem 1.1rem;border-radius:7px;cursor:pointer;border:none;letter-spacing:0.04em;text-transform:uppercase;}
+  .btn-print{background:#009e7d;color:#fff;}
+  .btn-close{background:#eef0f6;color:#4b5563;border:1px solid #d6dbe6;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.7rem;margin:0.5rem 0;}
+  .kpi{background:#f7f9fc;border:1px solid #e2e6ee;border-left:3px solid #009e7d;border-radius:8px;padding:0.7rem 0.85rem;}
+  .kpi .l{font-size:0.58rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.1em;}
+  .kpi .v{font-size:1.15rem;font-weight:700;margin-top:0.25rem;}
+  .kpi .s{font-size:0.62rem;color:#6b7280;margin-top:0.2rem;}
+  .macro{background:#f1f5ff;border:1px solid #cfdcff;border-left:3px solid #3355cc;border-radius:8px;padding:1rem 1.15rem;margin:0.5rem 0;}
+  .macro h3{font-size:0.7rem;color:#3355cc;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;}
+  .macro p{font-size:0.82rem;}
+  .chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.7rem 0;}
+  .chip{background:#e6edff;border:1px solid #b9caff;border-radius:6px;color:#3355cc;font-size:0.66rem;font-weight:700;padding:0.2rem 0.55rem;}
+  .macro ul{margin:0.4rem 0 0 1.1rem;font-size:0.76rem;color:#374151;}
+  table{width:100%;border-collapse:collapse;font-size:0.74rem;margin-top:0.3rem;}
+  th{background:#f1f4fa;color:#4b5563;text-align:right;padding:0.45rem 0.5rem;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #d6dbe6;}
+  th:first-child,th:nth-child(2){text-align:left;}
+  td{padding:0.4rem 0.5rem;text-align:right;border-bottom:1px solid #eef0f6;}
+  td.tk{text-align:left;font-weight:700;color:#009e7d;}
+  td:nth-child(2){text-align:left;color:#6b7280;font-size:0.68rem;}
+  td.num{font-variant-numeric:tabular-nums;}
+  .pos{color:#0a8f6f;} .neg{color:#d93030;}
+  .sig{display:inline-block;padding:0.1rem 0.45rem;border-radius:999px;font-size:0.58rem;font-weight:700;letter-spacing:0.05em;}
+  .sig-alta{background:rgba(0,158,125,0.14);color:#0a8f6f;}
+  .sig-baixa{background:rgba(217,48,48,0.13);color:#d93030;}
+  .sig-neutro{background:rgba(196,125,0,0.14);color:#b07400;}
+  .asset{border:1px solid #e2e6ee;border-radius:9px;padding:1rem 1.15rem;margin-bottom:0.9rem;page-break-inside:avoid;}
+  .asset-head{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.6rem;}
+  .asset-tk{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:#009e7d;}
+  .asset-setor{font-size:0.62rem;color:#3355cc;background:#eaf0ff;border:1px solid #cfdcff;border-radius:5px;padding:0.12rem 0.45rem;}
+  .asset-price{margin-left:auto;font-size:0.85rem;font-weight:700;}
+  .asset-score{font-size:0.62rem;color:#6b7280;border:1px solid #d6dbe6;border-radius:5px;padding:0.12rem 0.45rem;}
+  .asset-metrics{display:flex;flex-wrap:wrap;gap:0.35rem 1rem;font-size:0.68rem;color:#4b5563;background:#f7f9fc;border-radius:6px;padding:0.5rem 0.7rem;margin-bottom:0.7rem;}
+  .asset-an h4,.asset-pt h4{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:#009e7d;margin-bottom:0.3rem;}
+  .asset-pt h4{color:#b07400;margin-top:0.7rem;}
+  .asset-an p{font-size:0.8rem;color:#1a1d26;}
+  .asset-pt ul{margin:0 0 0 1.1rem;font-size:0.76rem;color:#374151;}
+  .asset-pt li{margin-bottom:0.2rem;}
+  .disc{margin-top:1.6rem;padding-top:0.9rem;border-top:1px solid #e2e6ee;font-size:0.66rem;color:#6b7280;line-height:1.6;}
+  @media print{
+    body{background:#fff;padding:0;font-size:11px;}
+    .sheet{box-shadow:none;border:none;border-radius:0;max-width:100%;padding:0.5rem 1rem;}
+    .toolbar{display:none;}
+    h2{page-break-after:avoid;}
+  }
+</style></head><body>
+<div class="sheet">
+  <div class="toolbar">
+    <button class="btn btn-print" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>
+    <button class="btn btn-close" onclick="window.close()">✕ Fechar</button>
+  </div>
+
+  <h1>Relatório de Análise — B3${tituloAtivo}</h1>
+  <div class="sub">${subLinha}</div>
+
+  <h2>${tituloResumo}</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="l">Maior alta</div><div class="v pos">${pc(topAlta.variacao)}</div><div class="s">${topAlta.ativo} · R$ ${fmt2(topAlta.ultimo)}</div></div>
+    <div class="kpi" style="border-left-color:#d93030;"><div class="l">Maior queda</div><div class="v neg">${pc(topBaixa.variacao)}</div><div class="s">${topBaixa.ativo} · R$ ${fmt2(topBaixa.ultimo)}</div></div>
+    <div class="kpi"><div class="l">Variação média</div><div class="v ${cls(avgVar)}">${pc(avgVar)}</div><div class="s">${altaC} alta · ${neutroC} neutro · ${baixaC} baixa</div></div>
+    <div class="kpi"><div class="l">RSI médio</div><div class="v">${avgRSI.toFixed(1)}</div><div class="s">${sobrec} sobrecomprado · ${sobrev} sobrevendido</div></div>
+    <div class="kpi"><div class="l">Volume total</div><div class="v">R$ ${fmtVol(totalVol)}</div><div class="s">${rows.length} ativos</div></div>
+  </div>
+
+  <h2>Contexto de mercado</h2>
+  <div class="macro">
+    <h3>◆ B3 — ${MACRO_B3.data}</h3>
+    <p>${MACRO_B3.resumo}</p>
+    <div class="chips">
+      <span class="chip">Selic ${MACRO_B3.selic}</span>
+      <span class="chip">Ibovespa ${MACRO_B3.ibov} · ${MACRO_B3.ibovAno}</span>
+      <span class="chip">Dólar ${MACRO_B3.dolar} · ${MACRO_B3.dolarAno}</span>
+    </div>
+    <ul>${MACRO_B3.riscos.map(p => `<li>${p}</li>`).join('')}</ul>
+  </div>
+${overviewSection}
+  <h2>${tituloDetalhe}</h2>
+  ${detalhes}
+
+  <div class="disc">
+    ⚠ Relatório gerado automaticamente a partir dos indicadores fornecidos. As análises técnicas e pontos de atenção são produzidos por heurística local (ou IA, quando acionada) e o contexto macro é datado de ${MACRO_B3.data}, comum a todos os ativos. <strong>Este material é meramente informativo e não constitui recomendação de investimento.</strong>
+  </div>
+</div>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { showErr('err-global', 'O navegador bloqueou o pop-up. Permita pop-ups para abrir o relatório.'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
 }
 
 // ============================================================
@@ -1709,6 +2099,15 @@ Ativos:\n${batchText}`;
 // ============================================================
 function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
 function hideErr(id) { document.getElementById(id).style.display='none'; }
+
+// ============================================================
+// RESTAURAR SESSÃO SALVA (ao abrir o site)
+// ============================================================
+(function restoreSession() {
+  if (loadState()) {
+    try { afterLoad(true); } catch (e) { console.warn('Falha ao restaurar sessão:', e); }
+  }
+})();
 </script>
 <!-- TRADINGVIEW MODAL -->
 <div id="tvModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:2vh 2vw;">
