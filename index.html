@@ -245,9 +245,9 @@
   <!-- HEADER -->
   <header>
     <div>
-      <div class="logo">StockView</div>
+      <div class="logo">ANÁLISE DE AÇÕES</div>
     </div>
-    <div class="subtitle">Análise de Ações B3 — Profit / Python / Planilha</div>
+    <div class="subtitle">B3 — Profit / Python / Planilha</div>
     <div class="header-right">
       <div class="theme-toggle" title="Alternar tema">
         <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" title="Escuro">🌙</button>
@@ -1287,15 +1287,16 @@ function renderKPIs() {
       lbl: 'Alertas RSI',
       val: `${sobrecompra + sobrevenda}`,
       sub: `${sobrecompra} sobrecomprado · ${sobrevenda} sobrevendido`,
-      cls: sobrecompra + sobrevenda > 0 ? 'kpi-yellow' : ''
+      cls: sobrecompra + sobrevenda > 0 ? 'kpi-yellow' : '',
+      rsiAlert: true
     }
   ];
 
   document.getElementById('kpiGrid').innerHTML = kpiData.map(k => `
-    <div class="kpi-card ${k.cls||''}" ${k.ticker && rows.find(r=>r.ativo===k.ticker) ? `onclick="showDetail('${k.ticker}')" style="cursor:pointer;"` : ''}>
+    <div class="kpi-card ${k.cls||''}" ${k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `onclick="showRsiAlerts()" style="cursor:pointer;"` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `onclick="showDetail('${k.ticker}')" style="cursor:pointer;"` : '')}>
       <div class="kpi-lbl">${k.lbl}</div>
       <div class="kpi-val" style="color:${k.cls==='kpi-red'?'var(--red)':k.cls==='highlight'?'var(--accent)':k.cls==='kpi-yellow'?'var(--yellow)':'var(--text)'}">${k.val}</div>
-      ${k.ticker && rows.find(r=>r.ativo===k.ticker) ? `<div class="kpi-ticker">${k.ticker} ↗</div>` : ''}
+      ${k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `<div class="kpi-ticker">ver ativos ↗</div>` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `<div class="kpi-ticker">${k.ticker} ↗</div>` : '')}
       <div class="kpi-sub">${k.sub}</div>
     </div>
   `).join('');
@@ -1617,6 +1618,40 @@ document.addEventListener('click', e => {
 // ============================================================
 // DETAIL CARD
 // ============================================================
+function showRsiAlerts() {
+  const over = rows.filter(r => r.ifr > 70).sort((a,b)=>b.ifr-a.ifr);
+  const under = rows.filter(r => r.ifr < 30 && r.ifr > 0).sort((a,b)=>a.ifr-b.ifr);
+
+  const chip = (r, color) => `
+    <span onclick="showDetail('${r.ativo}')" style="display:inline-flex;align-items:center;gap:0.45rem;background:${color.bg};border:1px solid ${color.bd};border-radius:6px;padding:0.32rem 0.6rem;font-family:var(--mono);font-size:0.72rem;color:${color.fg};cursor:pointer;transition:transform 0.12s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+      <b>${r.ativo}</b><span style="opacity:0.75;">RSI ${r.ifr.toFixed(0)}</span>${r.setor?`<span style="opacity:0.55;font-size:0.62rem;">${r.setor}</span>`:''}
+    </span>`;
+
+  const sec = (title, list, color, hint) => `
+    <div style="margin-bottom:1.1rem;">
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:${color.fg};margin-bottom:0.5rem;">${title} · ${list.length}</div>
+      ${list.length ? `<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">${list.map(r=>chip(r,color)).join('')}</div>
+      <div style="font-size:0.62rem;color:var(--muted);margin-top:0.55rem;">${hint}</div>` 
+      : `<div style="font-size:0.7rem;color:var(--muted);">Nenhum ativo nesta condição.</div>`}
+    </div>`;
+
+  const redC = {bg:'rgba(255,77,79,0.1)', bd:'rgba(255,77,79,0.3)', fg:'var(--red)'};
+  const grnC = {bg:'rgba(0,200,120,0.1)', bd:'rgba(0,200,120,0.3)', fg:'var(--accent)'};
+
+  const html = `
+    <div style="margin-bottom:0.5rem;">
+      <span style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--yellow);">Alertas RSI — ${over.length+under.length} ativo(s)</span>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:1.1rem;">Clique em um ativo para abrir a análise detalhada.</div>
+    ${sec('🔴 Sobrecomprado (RSI &gt; 70)', over, redC, 'RSI alto costuma anteceder perda de fôlego e realização.')}
+    ${sec('🟢 Sobrevendido (RSI &lt; 30)', under, grnC, 'RSI baixo costuma anteceder repiques técnicos.')}
+  `;
+
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailCard').style.display = 'block';
+  document.getElementById('detailCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 function showDetail(ticker) {
   const r = rows.find(x => x.ativo === ticker);
   if (!r) return;
