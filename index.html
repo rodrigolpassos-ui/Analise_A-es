@@ -432,7 +432,7 @@
             <thead>
               <tr>
                 <th onclick="ctSortBy('ativo')">Ativo</th>
-                <th onclick="ctSortBy('preco')">Preço</th>
+                <th onclick="ctSortBy('ultimo')">Preço</th>
                 <th onclick="ctSortBy('variacao')">Dia %</th>
                 <th onclick="ctSortBy('semana')">Semana %</th>
                 <th onclick="ctSortBy('mes')">Mês %</th>
@@ -1418,7 +1418,7 @@ function renderCompact() {
         <span class="ct-ticker" onclick="showDetail('${r.ativo}')">${r.ativo}</span>
         ${r.setor ? `<span class="ct-setor">${r.setor}</span>` : ''}
       </td>
-      <td>${r.preco > 0 ? 'R$ ' + r.preco.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+      <td>${r.ultimo > 0 ? 'R$ ' + r.ultimo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
       <td><span class="ct-pill ${pctCls(r.variacao)}">${fmtV(r.variacao)}</span></td>
       <td class="${pctCls(r.semana)}">${fmtV(r.semana)}</td>
       <td class="${pctCls(r.mes)}">${fmtV(r.mes)}</td>
