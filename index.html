@@ -240,6 +240,93 @@
   .points-list li{font-size:0.78rem;color:var(--text);padding:0.3rem 0;border-bottom:1px solid var(--border);}
   .points-list li:last-child{border:none;}
   .disc{font-size:0.65rem;color:var(--muted);border-top:1px solid var(--border);padding-top:0.85rem;margin-top:1rem;line-height:1.6;}
+  /* ===== CENÁRIOS TÉCNICOS ===== */
+  .sc-wrap{padding:4px 0;}
+  .sc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+  @media(max-width:760px){.sc-grid{grid-template-columns:1fr}}
+  .sc-card{border:1px solid var(--border2);border-radius:8px;padding:12px;background:var(--surface2);position:relative;overflow:hidden;}
+  .sc-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;}
+  .sc-card.bull::before{background:var(--accent)}.sc-card.bear::before{background:var(--red)}.sc-card.neu::before{background:var(--yellow)}
+  .sc-card h3{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;display:flex;gap:6px;}
+  .sc-card.bull h3{color:var(--accent)}.sc-card.bear h3{color:var(--red)}.sc-card.neu h3{color:var(--yellow)}
+  .sc-trigger{font-size:10px;color:var(--muted);margin-bottom:10px;min-height:28px;line-height:1.5;}
+  .sc-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-top:1px solid var(--border);}
+  .sc-row span:first-child{color:var(--muted)}
+  .sc-targets{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border2);font-size:11px;}
+  .sc-targets .sc-t{display:flex;justify-content:space-between;padding:2px 0;}
+  .sc-rr{margin-top:10px;text-align:center;font-size:16px;font-weight:700;letter-spacing:1px;}
+  .sc-card.bull .sc-rr{color:var(--accent)}.sc-card.bear .sc-rr{color:var(--red)}.sc-card.neu .sc-rr{color:var(--yellow)}
+  .sc-rr small{display:block;font-size:9px;color:var(--muted);font-weight:400;letter-spacing:1px;text-transform:uppercase;}
+
+  /* Indicadores painel cenários */
+  .cn-ind{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;}
+  .cn-ind+.cn-ind{border-top:1px solid var(--border);}
+  .cn-ind .cn-k{color:var(--muted);font-size:11px;}
+  .cn-ind .cn-v{font-size:11px;color:var(--text);margin-right:6px;}
+  .cn-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase;}
+  .cn-pill.buy{background:rgba(0,229,180,0.12);color:var(--accent);}
+  .cn-pill.sell{background:rgba(255,82,96,0.12);color:var(--red);}
+  .cn-pill.neu{background:rgba(255,178,46,0.12);color:var(--yellow);}
+
+  /* Ladder de níveis */
+  .cn-ladder{margin:6px 0 4px;}
+  .cn-lvl{display:grid;grid-template-columns:12px 72px 1fr 74px 20px;align-items:center;gap:6px;padding:4px 0;font-size:12px;}
+  .cn-lvl .cn-dot{width:8px;height:8px;border-radius:50%;justify-self:center;}
+  .cn-lvl.res .cn-dot{background:var(--red)}.cn-lvl.sup .cn-dot{background:var(--accent)}
+  .cn-lvl .cn-val{font-weight:700;text-align:right;}
+  .cn-lvl .cn-val[contenteditable]{cursor:text;border-bottom:1px dotted var(--muted);outline:none;}
+  .cn-lvl .cn-val[contenteditable]:focus{border-bottom-color:var(--accent);background:rgba(0,229,180,0.06);}
+  .cn-lvl.res .cn-val{color:var(--red)}.cn-lvl.sup .cn-val{color:var(--accent)}
+  .cn-lvl .cn-bar{height:3px;border-radius:2px;background:var(--border2);position:relative;overflow:hidden;}
+  .cn-lvl .cn-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;}
+  .cn-lvl.res .cn-bar i{background:linear-gradient(90deg,transparent,var(--red))}
+  .cn-lvl.sup .cn-bar i{background:linear-gradient(90deg,transparent,var(--accent))}
+  .cn-lvl .cn-dist{font-size:10px;color:var(--muted);text-align:right;}
+  .cn-lvl .cn-del{color:var(--muted);cursor:pointer;text-align:center;font-size:11px;opacity:0;}
+  .cn-lvl:hover .cn-del{opacity:1;}
+  .cn-lvl .cn-del:hover{color:var(--red);}
+  .cn-now-row{display:grid;grid-template-columns:12px 72px 1fr 74px 20px;align-items:center;gap:6px;padding:7px 0;margin:3px 0;border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);background:linear-gradient(90deg,transparent,rgba(0,229,180,0.05));}
+  .cn-now-row .cn-val{font-weight:700;color:var(--accent);text-align:right;}
+  .cn-now-row .cn-tag{font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
+  .cn-addlvl{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border2);}
+  .cn-addlvl input{width:80px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 6px;border-radius:4px;text-align:right;}
+  .cn-addlvl input:focus{outline:none;border-color:var(--accent);}
+  .cn-addlvl button{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase;}
+  .cn-addlvl button:hover{border-color:var(--accent);color:var(--accent);}
+  .cn-addlvl select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;border-radius:4px;padding:0 4px;}
+
+  /* Gauge viés */
+  .cn-verdict{margin-top:18px;border:1px solid var(--border);border-radius:10px;padding:14px;background:linear-gradient(135deg,var(--surface),var(--surface2));display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .cn-gauge{width:130px;flex-shrink:0;}
+  .cn-vtxt{flex:1;min-width:180px;}
+  .cn-vtxt h3{font-size:13px;letter-spacing:1px;margin-bottom:6px;}
+  .cn-vtxt p{font-size:11px;color:var(--muted);line-height:1.6;}
+
+  /* Header busca cenários */
+  .cn-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .cn-search{display:flex;gap:8px;align-items:center;flex:1;}
+  .cn-search input{width:130px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:7px 10px;border-radius:6px;text-align:center;}
+  .cn-search input:focus{outline:none;border-color:var(--accent);}
+  .cn-status{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;min-height:14px;margin-bottom:12px;}
+  .cn-status.err{color:var(--red);}
+  .cn-status.ok{color:var(--muted2);}
+  .cn-grid{display:grid;grid-template-columns:280px 1fr;gap:18px;}
+  @media(max-width:760px){.cn-grid{grid-template-columns:1fr}}
+  .cn-tkr-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .cn-tkr{font-size:22px;font-weight:700;letter-spacing:1px;color:var(--accent);}
+  .cn-tkr span{color:var(--muted);font-weight:400;font-size:13px;}
+  .cn-price-now{margin-left:auto;display:flex;align-items:baseline;gap:8px;}
+  .cn-price-now .cn-pv{font-size:20px;font-weight:700;}
+  .cn-price-now .cn-chg{font-size:13px;font-weight:700;}
+  .cn-chg-up{color:var(--accent);} .cn-chg-dn{color:var(--red);}
+  .cn-app{opacity:.4;pointer-events:none;transition:opacity .3s;}
+  .cn-app.ready{opacity:1;pointer-events:auto;}
+  .cn-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+  .cn-ctl{display:flex;flex-direction:column;gap:3px;}
+  .cn-ctl label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+  .cn-ctl input{width:90px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:5px 8px;border-radius:4px;text-align:right;}
+  .cn-ctl input:focus{outline:none;border-color:var(--accent);}
+
   .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:0.75rem 0;}
   @media(max-width:600px){.charts-row{grid-template-columns:1fr;}}
   .chart-box{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:1rem;}
@@ -405,6 +492,7 @@
       <button class="chart-tab-btn active" onclick="switchChartTab('compact',this)">📋 Tabela Compacta</button>
       <button class="chart-tab-btn" onclick="switchChartTab('setor',this)">🥧 Distribuição por Setor</button>
       <button class="chart-tab-btn" onclick="switchChartTab('ranking',this)">📊 Top Ativos</button>
+      <button class="chart-tab-btn" id="btnTabCenarios" onclick="switchChartTab('cenarios',this)">📈 Cenários Técnicos</button>
     </div>
 
     <!-- TABELA COMPACTA -->
@@ -466,6 +554,90 @@
       <div class="chart-container">
         <div class="chart-title">Top 10 ativos — Variação no dia (%)</div>
         <canvas id="canvasRanking" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- CENÁRIOS TÉCNICOS -->
+    <div id="chart-cenarios" class="chart-panel">
+      <div class="chart-container">
+        <!-- Header busca -->
+        <div class="cn-header">
+          <div class="cn-search">
+            <input id="cnTicker" type="text" value="ITUB4" maxlength="8" placeholder="TICKER" autocomplete="off"
+              onkeydown="if(event.key==='Enter'){cnLoad(this.value.trim().toUpperCase())}"
+              oninput="this.value=this.value.toUpperCase()">
+            <button class="btn-p" id="cnGo" onclick="cnLoad(document.getElementById('cnTicker').value.trim().toUpperCase())" style="padding:0.5rem 1rem;font-size:0.75rem;">Buscar</button>
+            <button class="btn-s" id="cnPasteBtn" onclick="document.getElementById('cnPasteWrap').style.display=document.getElementById('cnPasteWrap').style.display==='none'?'block':'none'" style="font-size:0.72rem;">Paste</button>
+          </div>
+          <span style="font-size:10px;color:var(--muted);">auto-fetch Yahoo · fallback paste Profit</span>
+        </div>
+
+        <!-- Paste área (oculta por padrão) -->
+        <div id="cnPasteWrap" style="display:none;margin-bottom:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6;">Cole abaixo a série histórica do Profit (TSV — Data · Abertura · Máxima · Mínima · Fechamento · Volume).</div>
+          <textarea id="cnPasteArea" style="width:100%;height:140px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px;border-radius:4px;resize:vertical;outline:none;" placeholder="Data&#9;Abertura&#9;Máxima&#9;Mínima&#9;Fechamento&#9;Volume&#10;01/06/2026&#9;40,22&#9;41,12&#9;40,11&#9;40,56&#9;28.780.000"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+            <input id="cnPasteTicker" type="text" placeholder="TICKER" maxlength="8" style="width:120px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;text-transform:uppercase;padding:6px 8px;border-radius:4px;text-align:center;outline:none;">
+            <button class="btn-p" onclick="cnLoadPaste()" style="padding:0.45rem 1rem;font-size:0.72rem;">Carregar</button>
+            <span id="cnPasteErr" style="font-size:10px;color:var(--red);"></span>
+          </div>
+        </div>
+
+        <div id="cnStatus" class="cn-status"></div>
+
+        <div id="cnApp" class="cn-app">
+          <!-- Ticker + preço -->
+          <div class="cn-tkr-head">
+            <div class="cn-tkr" id="cnTkrName">—</div>
+            <div class="cn-price-now">
+              <span class="cn-pv" id="cnPv">—</span>
+              <span id="cnChg"></span>
+            </div>
+          </div>
+
+          <!-- Grid principal -->
+          <div class="cn-grid">
+            <!-- Coluna esquerda: indicadores + ladder -->
+            <div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);">Indicadores</div>
+                <div id="cnIndicators"></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;"><span>Mapa de Níveis</span><span style="font-weight:400;color:var(--muted);font-size:9px;">edite · +adicione</span></div>
+                <div class="cn-ladder" id="cnLadder"></div>
+                <div class="cn-addlvl">
+                  <select id="cnNewType"><option value="sup">Sup</option><option value="res">Res</option></select>
+                  <input id="cnNewVal" type="number" step="0.01" placeholder="0,00">
+                  <button onclick="cnAddLevel()">+ Adicionar nível</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna direita: cenários + viés -->
+            <div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;"><span>Cenários</span><span style="font-weight:400;color:var(--muted);font-size:9px;">R/R automático</span></div>
+                <div class="sc-grid" id="cnScenarios"></div>
+                <div class="cn-controls">
+                  <div class="cn-ctl"><label>Resist. R1</label><input id="cnR1" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
+                  <div class="cn-ctl"><label>Suporte S1</label><input id="cnS1" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
+                  <div class="cn-ctl"><label>Stop altista</label><input id="cnStopBull" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
+                  <div class="cn-ctl"><label>Stop baixista</label><input id="cnStopBear" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
+                </div>
+              </div>
+
+              <!-- Gauge -->
+              <div class="cn-verdict">
+                <div class="cn-gauge"><svg id="cnGauge" viewBox="0 0 200 110"></svg></div>
+                <div class="cn-vtxt">
+                  <h3 id="cnVlabel">—</h3>
+                  <p id="cnVdesc">Digite um ticker e clique em Buscar.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -633,6 +805,7 @@ function switchChartTab(name, el) {
   if (name === 'compact') renderCompact();
   if (name === 'setor') renderSectorChart();
   if (name === 'ranking') renderRankingChart();
+  if (name === 'cenarios') { /* painel já está visível; pode auto-carregar se ticker definido */ }
 }
 
 // ============================================================
@@ -1616,6 +1789,17 @@ function renderTable() {
 }
 
 // ============================================================
+// CENÁRIOS — abre a aba e carrega ticker
+// ============================================================
+function openCenarios(ticker) {
+  const btn = document.getElementById('btnTabCenarios');
+  if (btn) switchChartTab('cenarios', btn);
+  document.getElementById('cnTicker').value = ticker;
+  cnLoad(ticker);
+  // scroll suave até o topo da seção
+  document.getElementById('chartsSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 // TRADINGVIEW — modal flutuante
 // ============================================================
 function openTradingView(tvTicker, ativo) {
@@ -1729,12 +1913,19 @@ function showDetail(ticker) {
       <span class="sinal-pill ${sinalClass}">${r.sinal || '—'}</span>
       ${r.setor ? `<span style="font-size:0.65rem;color:var(--blue);background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2);border-radius:4px;padding:0.15rem 0.5rem;">${r.setor}</span>` : ''}
       ${aiNote}
-      <button onclick="openTradingView('${tvTicker}','${r.ativo}')"
-         style="margin-left:auto;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:#2196F3;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
-         onmouseover="this.style.background='rgba(33,150,243,0.2)'" onmouseout="this.style.background='rgba(33,150,243,0.1)'">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 4-6 4 4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9h4v4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        TradingView
-      </button>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button onclick="openCenarios('${r.ativo}')"
+           style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(0,229,180,0.08);border:1px solid rgba(0,229,180,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:var(--accent);cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
+           onmouseover="this.style.background='rgba(0,229,180,0.18)'" onmouseout="this.style.background='rgba(0,229,180,0.08)'">
+          📈 Cenários
+        </button>
+        <button onclick="openTradingView('${tvTicker}','${r.ativo}')"
+           style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(33,150,243,0.1);border:1px solid rgba(33,150,243,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:#2196F3;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
+           onmouseover="this.style.background='rgba(33,150,243,0.2)'" onmouseout="this.style.background='rgba(33,150,243,0.1)'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 4-6 4 4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9h4v4" stroke="#2196F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          TradingView
+        </button>
+      </div>
     </div>
     <div class="dc-nome">${r.estado ? 'Estado: '+r.estado+' · ' : ''}${new Date().toLocaleDateString('pt-BR')}</div>
 
@@ -2201,6 +2392,302 @@ function hideErr(id) { document.getElementById(id).style.display='none'; }
     try { afterLoad(true); } catch (e) { console.warn('Falha ao restaurar sessão:', e); }
   }
 })();
+
+// ============================================================
+// ENGINE — CENÁRIOS TÉCNICOS
+// ============================================================
+const CN = { price:0, prevClose:0, candles:[], levels:[], ticker:'' };
+const CN_FMT = v => (v==null||isNaN(v))?'—':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// Proxies CORS (mesma lógica do painel_cenarios)
+const CN_PROXIES = [
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => u
+];
+async function cnTryFetch(url){
+  for(const wrap of CN_PROXIES){
+    try{
+      const r = await fetch(wrap(url),{cache:'no-store'});
+      if(!r.ok) continue;
+      return await r.text();
+    }catch(e){}
+  }
+  throw new Error('todas as rotas de proxy falharam');
+}
+
+async function cnFetchYahoo(ticker){
+  const sym = ticker.includes('.') ? ticker : ticker+'.SA';
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=1y&interval=1d`;
+  const txt = await cnTryFetch(url);
+  const j = JSON.parse(txt);
+  const res = j.chart?.result?.[0];
+  if(!res) throw new Error('ativo não encontrado no Yahoo Finance');
+  const q = res.indicators.quote[0];
+  const ts = res.timestamp||[];
+  const candles=[];
+  for(let i=0;i<ts.length;i++){
+    if(q.close[i]==null) continue;
+    candles.push({t:ts[i]*1000,o:q.open[i],h:q.high[i],l:q.low[i],c:q.close[i],v:q.volume[i]||0});
+  }
+  if(candles.length<30) throw new Error('histórico insuficiente');
+  const meta = res.meta||{};
+  return {
+    candles,
+    price: meta.regularMarketPrice ?? candles[candles.length-1].c,
+    prevClose: meta.chartPreviousClose ?? candles[candles.length-2]?.c ?? candles[candles.length-1].c,
+    name: meta.longName || meta.shortName || ticker
+  };
+}
+
+// Parse paste do Profit
+function cnParseBRNum(s){ if(s==null)return NaN; s=String(s).trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.'); return parseFloat(s); }
+function cnParseDate(s){ s=String(s).trim(); const m=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/); if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,+m[1]).getTime();} const t=Date.parse(s); return isNaN(t)?null:t; }
+function cnParsePaste(text){
+  const lines=text.trim().split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<5) throw new Error('poucas linhas — precisamos de ≥5 candles');
+  const delim=lines[0].includes('\t')?'\t':(lines[0].includes(';')?';':/\s{2,}/);
+  const split=l=>typeof delim==='string'?l.split(delim):l.split(delim);
+  let startIdx=0,cols={d:0,o:1,h:2,l:3,c:4,v:5};
+  const first=split(lines[0]).map(x=>x.toLowerCase().trim());
+  const hasHeader=first.some(x=>/data|date|abert|fech|máx|max|mín|min|volume/.test(x));
+  if(hasHeader){
+    startIdx=1;
+    const find=(...keys)=>first.findIndex(h=>keys.some(k=>h.includes(k)));
+    cols={d:find('data','date'),o:find('abert','open'),h:find('máx','max','high'),l:find('mín','min','low'),c:find('fech','últ','ult','close'),v:find('volume','vol')};
+    if(cols.c<0) throw new Error('coluna de Fechamento não encontrada');
+  }
+  const candles=[];
+  for(let i=startIdx;i<lines.length;i++){
+    const p=split(lines[i]);
+    if(p.length<2)continue;
+    const c=cnParseBRNum(p[cols.c]);
+    if(isNaN(c))continue;
+    const o=cols.o>=0?cnParseBRNum(p[cols.o]):c;
+    const h=cols.h>=0?cnParseBRNum(p[cols.h]):c;
+    const l=cols.l>=0?cnParseBRNum(p[cols.l]):c;
+    const v=cols.v>=0?cnParseBRNum(p[cols.v]):0;
+    const t=cols.d>=0?cnParseDate(p[cols.d]):Date.now()-(lines.length-i)*864e5;
+    candles.push({t:t||Date.now(),o:isNaN(o)?c:o,h:isNaN(h)?c:h,l:isNaN(l)?c:l,c,v:isNaN(v)?0:v});
+  }
+  if(candles.length<5) throw new Error('não foi possível extrair candles válidos');
+  candles.sort((a,b)=>a.t-b.t);
+  return{candles,price:candles[candles.length-1].c,prevClose:candles.length>1?candles[candles.length-2].c:candles[candles.length-1].c,name:'dados colados do Profit'};
+}
+
+// Indicadores
+function cnSMA(arr,n){ if(arr.length<n)return null; let s=0; for(let i=arr.length-n;i<arr.length;i++)s+=arr[i]; return s/n; }
+function cnEMA(arr,n){ if(arr.length<n)return null; const k=2/(n+1); let e=arr.slice(0,n).reduce((a,b)=>a+b,0)/n; for(let i=n;i<arr.length;i++)e=arr[i]*k+e*(1-k); return e; }
+function cnEMASeries(arr,n){ const k=2/(n+1); const out=[]; let e=null; for(let i=0;i<arr.length;i++){if(i<n-1){out.push(null);continue;} if(e===null)e=arr.slice(0,n).reduce((a,b)=>a+b,0)/n; else e=arr[i]*k+e*(1-k); out.push(e);} return out; }
+function cnRSI(closes,n=14){ if(closes.length<n+1)return null; let g=0,l=0; for(let i=closes.length-n;i<closes.length;i++){const d=closes[i]-closes[i-1]; if(d>=0)g+=d;else l-=d;} const ag=g/n,al=l/n; if(al===0)return 100; return 100-100/(1+ag/al); }
+function cnMACD(closes){ const e12=cnEMASeries(closes,12),e26=cnEMASeries(closes,26); const line=[]; for(let i=0;i<closes.length;i++)line.push((e12[i]!=null&&e26[i]!=null)?e12[i]-e26[i]:null); const valid=line.filter(x=>x!=null); const sig=cnEMA(valid,9); const cur=line[line.length-1]; return{macd:cur,signal:sig,hist:(cur!=null&&sig!=null)?cur-sig:null}; }
+
+function cnDetectPivots(candles){
+  const W=5; const highs=[],lows=[];
+  for(let i=W;i<candles.length-W;i++){
+    let isH=true,isL=true;
+    for(let j=i-W;j<=i+W;j++){if(candles[j].h>candles[i].h)isH=false;if(candles[j].l<candles[i].l)isL=false;}
+    if(isH)highs.push(candles[i].h);if(isL)lows.push(candles[i].l);
+  }
+  const price=CN.price;
+  const cluster=vals=>{vals.sort((a,b)=>a-b);const out=[];for(const v of vals){if(out.length&&Math.abs(v-out[out.length-1])/v<0.012)out[out.length-1]=(out[out.length-1]+v)/2;else out.push(v);}return out;};
+  let res=cluster(highs).filter(v=>v>price*1.001).sort((a,b)=>a-b).slice(0,4);
+  let sup=cluster(lows).filter(v=>v<price*0.999).sort((a,b)=>b-a).slice(0,4);
+  const levels=[...res.map((v,i)=>({t:'res',label:'R'+(i+1),v})),...sup.map((v,i)=>({t:'sup',label:'S'+(i+1),v}))];
+  const hi=Math.max(...candles.map(c=>c.h));const lo=Math.min(...candles.map(c=>c.l));
+  if(hi>price*1.001&&!levels.some(l=>Math.abs(l.v-hi)/hi<0.01))levels.push({t:'res',label:'Máx 52s',v:hi});
+  if(lo<price*0.999&&!levels.some(l=>Math.abs(l.v-lo)/lo<0.01))levels.push({t:'sup',label:'Mín 52s',v:lo});
+  return levels;
+}
+
+// Render indicadores
+function cnRenderIndicators(){
+  const closes=CN.candles.map(c=>c.c), vols=CN.candles.map(c=>c.v), p=CN.price;
+  const mm9=cnSMA(closes,9),mm21=cnSMA(closes,21),mm200=cnSMA(closes,200);
+  const r=cnRSI(closes);
+  const m=cnMACD(closes);
+  const volNow=vols[vols.length-1],volAvg=cnSMA(vols,20);
+  const rTxt=r==null?'—':r>=70?r.toFixed(0)+' sobrecompra':r<=30?r.toFixed(0)+' sobrevenda':r.toFixed(0)+' neutro';
+  const rCls=r==null?'neu':r>=70?'sell':r<=30?'buy':'neu';
+  const mmCls=(mm,p)=>mm==null?['—','neu']:(p>mm?['acima','buy']:['abaixo','sell']);
+  const [c9t,c9c]=mmCls(mm9,p),[c21t,c21c]=mmCls(mm21,p),[c200t,c200c]=mmCls(mm200,p);
+  const macdCls=m.hist==null?'neu':m.hist>0?'buy':'sell';
+  const macdLbl=m.hist==null?'—':m.hist>0?'compra':'venda';
+  const volCls=(volAvg&&volNow>volAvg)?'buy':'neu';
+  const ind=[
+    ['RSI (14)',r!=null?r.toFixed(0):'—',rTxt.includes(' ')?rTxt.split(' ').slice(1).join(' '):'',rCls],
+    ['MACD',m.macd!=null?m.macd.toFixed(2):'—',macdLbl,macdCls],
+    ['MM9',mm9!=null?CN_FMT(mm9):'—',c9t,c9c],
+    ['MM21',mm21!=null?CN_FMT(mm21):'—',c21t,c21c],
+    ['MM200',mm200!=null?CN_FMT(mm200):'—',c200t,c200c],
+    ['Volume',volNow?(volNow/1e6).toFixed(1)+'M':'—',(volAvg&&volNow>volAvg)?'acima média':'na média',volCls],
+  ];
+  document.getElementById('cnIndicators').innerHTML=ind.map(r=>
+    `<div class="cn-ind"><span class="cn-k">${r[0]}</span><span><span class="cn-v">${r[1]}</span><span class="cn-pill ${r[3]}">${r[2]}</span></span></div>`
+  ).join('');
+  return{mm200};
+}
+
+// Render ladder
+function cnRenderLadder(){
+  const p=CN.price;
+  const all=[...CN.levels].sort((a,b)=>b.v-a.v);
+  const vals=all.map(l=>l.v).concat(p);
+  const max=Math.max(...vals),min=Math.min(...vals),range=max-min||1;
+  let html='',inserted=false;
+  all.forEach((l,idx)=>{
+    if(!inserted&&p>l.v){html+=`<div class="cn-now-row"><span class="cn-dot" style="background:var(--accent)"></span><span class="cn-val">${CN_FMT(p)}</span><span class="cn-tag">◄ preço atual</span><span></span><span></span></div>`;inserted=true;}
+    const dist=((l.v-p)/p*100),w=((l.v-min)/range*100);
+    html+=`<div class="cn-lvl ${l.t}" data-i="${idx}">
+      <span class="cn-dot"></span>
+      <span class="cn-val" contenteditable data-i="${idx}">${CN_FMT(l.v)}</span>
+      <span class="cn-bar"><i style="width:${w}%"></i></span>
+      <span class="cn-dist">${dist>=0?'+':''}${dist.toFixed(1)}% · ${l.label}</span>
+      <span class="cn-del" data-i="${idx}">✕</span>
+    </div>`;
+  });
+  if(!inserted)html+=`<div class="cn-now-row"><span class="cn-dot" style="background:var(--accent)"></span><span class="cn-val">${CN_FMT(p)}</span><span class="cn-tag">◄ preço atual</span><span></span><span></span></div>`;
+  const el=document.getElementById('cnLadder');
+  el.innerHTML=html;
+  el.querySelectorAll('.cn-val[contenteditable]').forEach(v=>{
+    v.addEventListener('blur',e=>{const i=+e.target.dataset.i;const num=parseFloat(e.target.textContent.replace(/\./g,'').replace(',','.'));if(!isNaN(num)){CN.levels[i].v=num;cnRenderAll();}else cnRenderLadder();});
+    v.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur();}});
+  });
+  el.querySelectorAll('.cn-del').forEach(d=>{d.addEventListener('click',e=>{CN.levels.splice(+e.target.dataset.i,1);cnRenderAll();});});
+}
+
+function cnAddLevel(){
+  const v=parseFloat(document.getElementById('cnNewVal').value);
+  const t=document.getElementById('cnNewType').value;
+  if(!isNaN(v)){CN.levels.push({t,label:t==='res'?'R+':'S+',v});document.getElementById('cnNewVal').value='';cnRenderAll();}
+}
+
+function cnAutoFillControls(){
+  const p=CN.price;
+  const res=CN.levels.filter(l=>l.t==='res').sort((a,b)=>a.v-b.v);
+  const sup=CN.levels.filter(l=>l.t==='sup').sort((a,b)=>b.v-a.v);
+  document.getElementById('cnR1').value=(res[0]?res[0].v:p*1.02).toFixed(2);
+  document.getElementById('cnS1').value=(sup[0]?sup[0].v:p*0.98).toFixed(2);
+  document.getElementById('cnStopBull').value=(p*0.985).toFixed(2);
+  document.getElementById('cnStopBear').value=(p*1.015).toFixed(2);
+}
+
+function cnRenderScenarios(){
+  const p=CN.price;
+  const g=id=>parseFloat(document.getElementById(id).value)||0;
+  const r1=g('cnR1'),s1=g('cnS1'),stopBull=g('cnStopBull'),stopBear=g('cnStopBear');
+  const res=CN.levels.filter(l=>l.t==='res').sort((a,b)=>a.v-b.v);
+  const sup=CN.levels.filter(l=>l.t==='sup').sort((a,b)=>b.v-a.v);
+  const bullTgts=res.slice(0,4),bearTgts=sup.slice(0,4);
+  const bullTgt=bullTgts[1]?bullTgts[1].v:(bullTgts[0]?bullTgts[0].v:p*1.05);
+  const bearTgt=bearTgts[1]?bearTgts[1].v:(bearTgts[0]?bearTgts[0].v:p*0.95);
+  const rrBull=(bullTgt-r1)/(r1-stopBull);
+  const rrBear=(s1-bearTgt)/(stopBear-s1);
+  const data=[
+    {cls:'bull',icon:'▲',title:'Altista',trigger:`Gatilho: romper R$ ${CN_FMT(r1)} com volume`,rows:[['Entrada (rompim.)',CN_FMT(r1)],['Stop',CN_FMT(stopBull)]],targets:bullTgts.map((l,i)=>['Alvo '+(i+1),l.v]),rr:rrBull},
+    {cls:'neu',icon:'◆',title:'Neutro',trigger:'Consolidação entre os extremos até definição de fluxo',rows:[['Piso',CN_FMT(s1)],['Teto',CN_FMT(r1)]],targets:[['Range','lateral']],rr:null},
+    {cls:'bear',icon:'▼',title:'Baixista',trigger:`Gatilho: perder R$ ${CN_FMT(s1)}`,rows:[['Entrada (perda)',CN_FMT(s1)],['Stop',CN_FMT(stopBear)]],targets:bearTgts.map((l,i)=>['Alvo '+(i+1),l.v]),rr:rrBear},
+  ];
+  document.getElementById('cnScenarios').innerHTML=data.map(d=>{
+    const rowsHtml=d.rows.map(r=>`<div class="sc-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+    const tgts=d.targets.length?d.targets.map(t=>`<div class="sc-t"><span>${t[0]}</span><span>${typeof t[1]==='number'?'R$ '+CN_FMT(t[1]):t[1]}</span></div>`).join(''):'<div class="sc-t" style="color:var(--muted)">—</div>';
+    const rr=d.rr!==null&&isFinite(d.rr)&&d.rr>0?`<div class="sc-rr">${d.rr.toFixed(2)} : 1<small>risco / retorno</small></div>`:(d.rr!==null?`<div class="sc-rr" style="color:var(--muted)">—<small>ajuste stop/alvo</small></div>`:'');
+    return `<div class="sc-card ${d.cls}"><h3>${d.icon} ${d.title}</h3><div class="sc-trigger">${d.trigger}</div>${rowsHtml}<div class="sc-targets">${tgts}</div>${rr}</div>`;
+  }).join('');
+}
+
+function cnComputeBias(){
+  const closes=CN.candles.map(c=>c.c),p=CN.price;
+  let score=0;
+  const mm9=cnSMA(closes,9),mm21=cnSMA(closes,21),mm200=cnSMA(closes,200);
+  if(mm9!=null)score+=p>mm9?15:-15;
+  if(mm21!=null)score+=p>mm21?15:-15;
+  if(mm200!=null)score+=p>mm200?25:-25;
+  const r=cnRSI(closes);
+  if(r!=null){if(r>70)score-=10;else if(r<30)score+=10;else score+=(r-50)/2;}
+  const m=cnMACD(closes);
+  if(m.hist!=null)score+=m.hist>0?15:-15;
+  return Math.max(-100,Math.min(100,score));
+}
+
+function cnRenderGauge(score){
+  const ang=(score/100)*90,cx=100,cy=100,r=80;
+  const a=(ang-90)*Math.PI/180;
+  const nx=cx+r*Math.cos(a),ny=cy+r*Math.sin(a);
+  // Usar cores do tema atual
+  const isDark=document.documentElement.getAttribute('data-theme')!=='light';
+  const needleColor=isDark?'#eef0f6':'#0f172a';
+  document.getElementById('cnGauge').innerHTML=`
+    <defs><linearGradient id="cng" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--red)"/><stop offset="0.5" stop-color="var(--yellow)"/><stop offset="1" stop-color="var(--accent)"/>
+    </linearGradient></defs>
+    <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#cng)" stroke-width="10" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${needleColor}" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${needleColor}"/>
+    <text x="22" y="108" fill="var(--muted)" font-size="9" font-family="monospace">VENDA</text>
+    <text x="148" y="108" fill="var(--muted)" font-size="9" font-family="monospace">COMPRA</text>`;
+  let lbl,col,desc;
+  if(score>30){lbl='VIÉS ALTISTA';col='var(--accent)';desc='Preço acima das principais médias com momentum positivo. Estrutura favorece continuidade da alta enquanto mantiver os suportes.';}
+  else if(score<-30){lbl='VIÉS BAIXISTA';col='var(--red)';desc='Preço abaixo das médias com momentum negativo. Pressão vendedora dominante; resistências precisam ser rompidas para reverter.';}
+  else{lbl='VIÉS NEUTRO';col='var(--yellow)';desc='Indicadores mistos — preço espremido entre suporte e resistência. Direção sai do rompimento de uma das pontas. Aguardar confirmação de fluxo.';}
+  const vl=document.getElementById('cnVlabel');vl.textContent=lbl;vl.style.color=col;
+  document.getElementById('cnVdesc').textContent=desc;
+}
+
+function cnRenderAll(){
+  cnRenderIndicators();
+  cnRenderLadder();
+  cnRenderScenarios();
+  cnRenderGauge(cnComputeBias());
+}
+
+function cnApplyData(ticker,d,sourceLabel){
+  CN.ticker=ticker;CN.candles=d.candles;CN.price=d.price;CN.prevClose=d.prevClose;
+  CN.levels=cnDetectPivots(d.candles);
+  document.getElementById('cnTkrName').innerHTML=`${ticker} <span>${d.name}</span>`;
+  document.getElementById('cnPv').textContent='R$ '+CN_FMT(d.price);
+  const chg=d.price-d.prevClose,chgP=d.prevClose?chg/d.prevClose*100:0;
+  const ce=document.getElementById('cnChg');
+  ce.textContent=`${chg>=0?'+':''}${CN_FMT(chg)} (${chgP>=0?'+':''}${chgP.toFixed(2)}%)`;
+  ce.className='cn-chg-'+(chg>=0?'up':'dn');
+  cnAutoFillControls();
+  cnRenderAll();
+  document.getElementById('cnApp').classList.add('ready');
+  const st=document.getElementById('cnStatus');
+  st.className='cn-status ok';
+  st.textContent=`${d.candles.length} candles · ${sourceLabel} · ${new Date().toLocaleString('pt-BR')}`;
+}
+
+async function cnLoad(ticker){
+  if(!ticker)return;
+  const st=document.getElementById('cnStatus');
+  const btn=document.getElementById('cnGo');
+  btn.disabled=true;
+  st.className='cn-status';
+  st.innerHTML=`◌ buscando ${ticker}...`;
+  document.getElementById('cnApp').classList.remove('ready');
+  try{
+    const d=await cnFetchYahoo(ticker);
+    cnApplyData(ticker,d,'Yahoo Finance');
+  }catch(e){
+    st.className='cn-status err';
+    st.textContent=`erro: ${e.message}. Use o botão Paste para colar dados do Profit.`;
+    document.getElementById('cnApp').classList.add('ready');
+  }finally{btn.disabled=false;}
+}
+
+function cnLoadPaste(){
+  const txt=document.getElementById('cnPasteArea').value;
+  const tk=(document.getElementById('cnPasteTicker').value||document.getElementById('cnTicker').value||'ATIVO').trim().toUpperCase();
+  const errEl=document.getElementById('cnPasteErr');
+  try{
+    const d=cnParsePaste(txt);
+    cnApplyData(tk,d,'paste do Profit');
+    document.getElementById('cnPasteWrap').style.display='none';
+    errEl.textContent='';
+  }catch(e){errEl.textContent='⚠ '+e.message;}
+}
+
 </script>
 <!-- TRADINGVIEW MODAL -->
 <div id="tvModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:2vh 2vw;">
