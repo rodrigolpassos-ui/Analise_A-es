@@ -241,91 +241,118 @@
   .points-list li:last-child{border:none;}
   .disc{font-size:0.65rem;color:var(--muted);border-top:1px solid var(--border);padding-top:0.85rem;margin-top:1rem;line-height:1.6;}
   /* ===== CENÁRIOS TÉCNICOS ===== */
-  .sc-wrap{padding:4px 0;}
-  .sc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
-  @media(max-width:760px){.sc-grid{grid-template-columns:1fr}}
-  .sc-card{border:1px solid var(--border2);border-radius:8px;padding:12px;background:var(--surface2);position:relative;overflow:hidden;}
+  /* Cards de cenário */
+  .sc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+  @media(max-width:900px){.sc-grid{grid-template-columns:1fr}}
+  .sc-card{border:1px solid var(--border2);border-radius:8px;padding:12px 14px;background:var(--surface2);position:relative;overflow:hidden;}
   .sc-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;}
-  .sc-card.bull::before{background:var(--accent)}.sc-card.bear::before{background:var(--red)}.sc-card.neu::before{background:var(--yellow)}
-  .sc-card h3{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;display:flex;gap:6px;}
-  .sc-card.bull h3{color:var(--accent)}.sc-card.bear h3{color:var(--red)}.sc-card.neu h3{color:var(--yellow)}
-  .sc-trigger{font-size:10px;color:var(--muted);margin-bottom:10px;min-height:28px;line-height:1.5;}
-  .sc-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-top:1px solid var(--border);}
+  .sc-card.bull::before{background:var(--accent)} .sc-card.bear::before{background:var(--red)} .sc-card.neu::before{background:var(--yellow)}
+  .sc-card h3{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;display:flex;gap:6px;font-weight:700;}
+  .sc-card.bull h3{color:var(--accent)} .sc-card.bear h3{color:var(--red)} .sc-card.neu h3{color:var(--yellow)}
+  .sc-trigger{font-size:10px;color:var(--muted);margin-bottom:10px;min-height:30px;line-height:1.5;}
+  .sc-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--border);}
   .sc-row span:first-child{color:var(--muted)}
   .sc-targets{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border2);font-size:11px;}
-  .sc-targets .sc-t{display:flex;justify-content:space-between;padding:2px 0;}
-  .sc-rr{margin-top:10px;text-align:center;font-size:16px;font-weight:700;letter-spacing:1px;}
-  .sc-card.bull .sc-rr{color:var(--accent)}.sc-card.bear .sc-rr{color:var(--red)}.sc-card.neu .sc-rr{color:var(--yellow)}
-  .sc-rr small{display:block;font-size:9px;color:var(--muted);font-weight:400;letter-spacing:1px;text-transform:uppercase;}
+  .sc-targets .sc-t{display:flex;justify-content:space-between;padding:2px 0;color:var(--muted2);}
+  .sc-rr{margin-top:10px;text-align:center;font-size:15px;font-weight:700;letter-spacing:1px;}
+  .sc-card.bull .sc-rr{color:var(--accent)} .sc-card.bear .sc-rr{color:var(--red)} .sc-card.neu .sc-rr{color:var(--yellow)}
+  .sc-rr small{display:block;font-size:9px;color:var(--muted);font-weight:400;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
 
-  /* Indicadores painel cenários */
-  .cn-ind{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;}
+  /* Indicadores */
+  .cn-ind{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11px;}
   .cn-ind+.cn-ind{border-top:1px solid var(--border);}
   .cn-ind .cn-k{color:var(--muted);font-size:11px;}
-  .cn-ind .cn-v{font-size:11px;color:var(--text);margin-right:6px;}
-  .cn-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase;}
+  .cn-ind .cn-v{font-size:11px;color:var(--text);margin-right:5px;}
+  .cn-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.4px;text-transform:uppercase;}
   .cn-pill.buy{background:rgba(0,229,180,0.12);color:var(--accent);}
   .cn-pill.sell{background:rgba(255,82,96,0.12);color:var(--red);}
-  .cn-pill.neu{background:rgba(255,178,46,0.12);color:var(--yellow);}
+  .cn-pill.neu{background:rgba(255,178,46,0.10);color:var(--yellow);}
 
   /* Ladder de níveis */
-  .cn-ladder{margin:6px 0 4px;}
-  .cn-lvl{display:grid;grid-template-columns:12px 72px 1fr 74px 20px;align-items:center;gap:6px;padding:4px 0;font-size:12px;}
-  .cn-lvl .cn-dot{width:8px;height:8px;border-radius:50%;justify-self:center;}
-  .cn-lvl.res .cn-dot{background:var(--red)}.cn-lvl.sup .cn-dot{background:var(--accent)}
-  .cn-lvl .cn-val{font-weight:700;text-align:right;}
+  .cn-ladder{margin:4px 0;}
+  .cn-lvl{display:grid;grid-template-columns:10px 68px 1fr 72px 18px;align-items:center;gap:5px;padding:3px 0;font-size:11px;}
+  .cn-lvl .cn-dot{width:7px;height:7px;border-radius:50%;justify-self:center;}
+  .cn-lvl.res .cn-dot{background:var(--red)} .cn-lvl.sup .cn-dot{background:var(--accent)}
+  .cn-lvl .cn-val{font-weight:700;text-align:right;font-size:11px;}
   .cn-lvl .cn-val[contenteditable]{cursor:text;border-bottom:1px dotted var(--muted);outline:none;}
-  .cn-lvl .cn-val[contenteditable]:focus{border-bottom-color:var(--accent);background:rgba(0,229,180,0.06);}
-  .cn-lvl.res .cn-val{color:var(--red)}.cn-lvl.sup .cn-val{color:var(--accent)}
+  .cn-lvl .cn-val[contenteditable]:focus{border-bottom-color:var(--accent);background:rgba(0,229,180,0.05);}
+  .cn-lvl.res .cn-val{color:var(--red)} .cn-lvl.sup .cn-val{color:var(--accent)}
   .cn-lvl .cn-bar{height:3px;border-radius:2px;background:var(--border2);position:relative;overflow:hidden;}
   .cn-lvl .cn-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;}
   .cn-lvl.res .cn-bar i{background:linear-gradient(90deg,transparent,var(--red))}
   .cn-lvl.sup .cn-bar i{background:linear-gradient(90deg,transparent,var(--accent))}
-  .cn-lvl .cn-dist{font-size:10px;color:var(--muted);text-align:right;}
-  .cn-lvl .cn-del{color:var(--muted);cursor:pointer;text-align:center;font-size:11px;opacity:0;}
+  .cn-lvl .cn-dist{font-size:9px;color:var(--muted);text-align:right;}
+  .cn-lvl .cn-del{color:var(--muted);cursor:pointer;text-align:center;font-size:10px;opacity:0;}
   .cn-lvl:hover .cn-del{opacity:1;}
   .cn-lvl .cn-del:hover{color:var(--red);}
-  .cn-now-row{display:grid;grid-template-columns:12px 72px 1fr 74px 20px;align-items:center;gap:6px;padding:7px 0;margin:3px 0;border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);background:linear-gradient(90deg,transparent,rgba(0,229,180,0.05));}
-  .cn-now-row .cn-val{font-weight:700;color:var(--accent);text-align:right;}
-  .cn-now-row .cn-tag{font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
-  .cn-addlvl{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border2);}
-  .cn-addlvl input{width:80px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 6px;border-radius:4px;text-align:right;}
-  .cn-addlvl input:focus{outline:none;border-color:var(--accent);}
-  .cn-addlvl button{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase;}
+  .cn-now-row{display:grid;grid-template-columns:10px 68px auto 18px;align-items:center;gap:6px;padding:6px 0;margin:2px 0;border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);background:linear-gradient(90deg,transparent,rgba(0,229,180,0.04));}
+  .cn-now-row .cn-val{font-weight:700;color:var(--accent);text-align:right;font-size:11px;}
+  .cn-now-row .cn-tag{font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+  .cn-addlvl{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border2);}
+  .cn-addlvl input{width:76px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:4px 6px;border-radius:4px;text-align:right;outline:none;}
+  .cn-addlvl input:focus{border-color:var(--accent);}
+  .cn-addlvl button{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase;padding:4px;}
   .cn-addlvl button:hover{border-color:var(--accent);color:var(--accent);}
-  .cn-addlvl select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;border-radius:4px;padding:0 4px;}
+  .cn-addlvl select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:10px;border-radius:4px;padding:0 4px;}
 
-  /* Gauge viés */
-  .cn-verdict{margin-top:18px;border:1px solid var(--border);border-radius:10px;padding:14px;background:linear-gradient(135deg,var(--surface),var(--surface2));display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-  .cn-gauge{width:130px;flex-shrink:0;}
-  .cn-vtxt{flex:1;min-width:180px;}
-  .cn-vtxt h3{font-size:13px;letter-spacing:1px;margin-bottom:6px;}
-  .cn-vtxt p{font-size:11px;color:var(--muted);line-height:1.6;}
+  /* Gauge */
+  .cn-verdict{margin-top:14px;border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:linear-gradient(135deg,var(--surface),var(--surface2));display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .cn-gauge{width:120px;flex-shrink:0;}
+  .cn-vtxt{flex:1;min-width:160px;}
+  .cn-vtxt h3{font-size:12px;letter-spacing:1px;margin-bottom:5px;font-weight:700;}
+  .cn-vtxt p{font-size:10px;color:var(--muted);line-height:1.6;}
 
   /* Header busca cenários */
   .cn-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
   .cn-search{display:flex;gap:8px;align-items:center;flex:1;}
-  .cn-search input{width:130px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:7px 10px;border-radius:6px;text-align:center;}
+  .cn-search input{width:120px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:6px 10px;border-radius:6px;text-align:center;}
   .cn-search input:focus{outline:none;border-color:var(--accent);}
-  .cn-status{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;min-height:14px;margin-bottom:12px;}
+  .cn-status{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;min-height:14px;margin-bottom:10px;}
   .cn-status.err{color:var(--red);}
   .cn-status.ok{color:var(--muted2);}
-  .cn-grid{display:grid;grid-template-columns:280px 1fr;gap:18px;}
-  @media(max-width:760px){.cn-grid{grid-template-columns:1fr}}
-  .cn-tkr-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
-  .cn-tkr{font-size:22px;font-weight:700;letter-spacing:1px;color:var(--accent);}
-  .cn-tkr span{color:var(--muted);font-weight:400;font-size:13px;}
+
+  /* Grid e app */
+  .cn-grid{display:grid;grid-template-columns:270px 1fr;gap:16px;}
+  @media(max-width:860px){.cn-grid{grid-template-columns:1fr}}
+  .cn-tkr-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .cn-tkr{font-size:18px;font-weight:700;letter-spacing:1px;color:var(--accent);}
+  .cn-tkr span{color:var(--muted);font-weight:400;font-size:12px;letter-spacing:0;}
   .cn-price-now{margin-left:auto;display:flex;align-items:baseline;gap:8px;}
-  .cn-price-now .cn-pv{font-size:20px;font-weight:700;}
-  .cn-price-now .cn-chg{font-size:13px;font-weight:700;}
-  .cn-chg-up{color:var(--accent);} .cn-chg-dn{color:var(--red);}
-  .cn-app{opacity:.4;pointer-events:none;transition:opacity .3s;}
+  .cn-price-now .cn-pv{font-size:18px;font-weight:700;}
+  .cn-chg-up{color:var(--accent);font-size:13px;font-weight:700;}
+  .cn-chg-dn{color:var(--red);font-size:13px;font-weight:700;}
+  .cn-app{opacity:.35;pointer-events:none;transition:opacity .3s;}
   .cn-app.ready{opacity:1;pointer-events:auto;}
-  .cn-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+
+  /* Valor Justo */
+  .vj-box{margin-top:14px;border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:linear-gradient(135deg,var(--surface),var(--surface2));}
+  .vj-title{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;padding-bottom:7px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .vj-inputs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .vj-ctl{display:flex;flex-direction:column;gap:3px;}
+  .vj-ctl label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+  .vj-ctl input{width:90px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;border-radius:4px;text-align:right;outline:none;}
+  .vj-ctl input:focus{border-color:var(--accent);}
+  .vj-results{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:600px){.vj-results{grid-template-columns:1fr}}
+  .vj-card{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;position:relative;}
+  .vj-card-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+  .vj-card-val{font-size:20px;font-weight:700;font-family:var(--mono);letter-spacing:-0.01em;margin-bottom:4px;}
+  .vj-card-val.vj-green{color:var(--accent);}
+  .vj-card-val.vj-red{color:var(--red);}
+  .vj-card-val.vj-gray{color:var(--muted);}
+  .vj-card-sub{font-size:10px;color:var(--muted);line-height:1.4;}
+  .vj-upside{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:4px;}
+  .vj-upside.pos{background:rgba(0,229,180,0.12);color:var(--accent);}
+  .vj-upside.neg{background:rgba(255,82,96,0.12);color:var(--red);}
+  .vj-upside.neu{background:rgba(255,178,46,0.10);color:var(--yellow);}
+  .vj-formula{font-size:9px;color:var(--muted);opacity:.65;margin-top:5px;}
+
+  /* Controles stop/alvo */
+  .cn-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
   .cn-ctl{display:flex;flex-direction:column;gap:3px;}
   .cn-ctl label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
-  .cn-ctl input{width:90px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:5px 8px;border-radius:4px;text-align:right;}
-  .cn-ctl input:focus{outline:none;border-color:var(--accent);}
+  .cn-ctl input{width:84px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 7px;border-radius:4px;text-align:right;outline:none;}
+  .cn-ctl input:focus{border-color:var(--accent);}
 
   .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:0.75rem 0;}
   @media(max-width:600px){.charts-row{grid-template-columns:1fr;}}
@@ -560,33 +587,49 @@
     <!-- CENÁRIOS TÉCNICOS -->
     <div id="chart-cenarios" class="chart-panel">
       <div class="chart-container">
-        <!-- Header busca -->
+
+        <!-- ── Header: busca ── -->
         <div class="cn-header">
           <div class="cn-search">
-            <input id="cnTicker" type="text" value="ITUB4" maxlength="8" placeholder="TICKER" autocomplete="off"
-              onkeydown="if(event.key==='Enter'){cnLoad(this.value.trim().toUpperCase())}"
+            <input id="cnTicker" type="text" value="ITUB4" maxlength="8" placeholder="TICKER"
+              autocomplete="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')cnLoad(this.value.trim().toUpperCase())"
               oninput="this.value=this.value.toUpperCase()">
-            <button class="btn-p" id="cnGo" onclick="cnLoad(document.getElementById('cnTicker').value.trim().toUpperCase())" style="padding:0.5rem 1rem;font-size:0.75rem;">Buscar</button>
-            <button class="btn-s" id="cnPasteBtn" onclick="document.getElementById('cnPasteWrap').style.display=document.getElementById('cnPasteWrap').style.display==='none'?'block':'none'" style="font-size:0.72rem;">Paste</button>
+            <button class="btn-p" id="cnGo"
+              onclick="cnLoad(document.getElementById('cnTicker').value.trim().toUpperCase())"
+              style="padding:0.48rem 1rem;font-size:0.74rem;">Buscar</button>
+            <button class="btn-s" id="cnPasteBtn"
+              onclick="var w=document.getElementById('cnPasteWrap');w.style.display=w.style.display==='none'?'block':'none'"
+              style="font-size:0.72rem;">Paste</button>
           </div>
-          <span style="font-size:10px;color:var(--muted);">auto-fetch Yahoo · fallback paste Profit</span>
+          <span style="font-size:10px;color:var(--muted);letter-spacing:0.04em;">auto-fetch Yahoo · fallback paste Profit</span>
         </div>
 
-        <!-- Paste área (oculta por padrão) -->
-        <div id="cnPasteWrap" style="display:none;margin-bottom:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6;">Cole abaixo a série histórica do Profit (TSV — Data · Abertura · Máxima · Mínima · Fechamento · Volume).</div>
-          <textarea id="cnPasteArea" style="width:100%;height:140px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px;border-radius:4px;resize:vertical;outline:none;" placeholder="Data&#9;Abertura&#9;Máxima&#9;Mínima&#9;Fechamento&#9;Volume&#10;01/06/2026&#9;40,22&#9;41,12&#9;40,11&#9;40,56&#9;28.780.000"></textarea>
-          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
-            <input id="cnPasteTicker" type="text" placeholder="TICKER" maxlength="8" style="width:120px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;text-transform:uppercase;padding:6px 8px;border-radius:4px;text-align:center;outline:none;">
-            <button class="btn-p" onclick="cnLoadPaste()" style="padding:0.45rem 1rem;font-size:0.72rem;">Carregar</button>
-            <span id="cnPasteErr" style="font-size:10px;color:var(--red);"></span>
+        <!-- ── Paste (oculto) ── -->
+        <div id="cnPasteWrap" style="display:none;margin-bottom:14px;">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6;">
+              Cole a série histórica do Profit — formato TSV: <strong style="color:var(--text)">Data · Abertura · Máx · Mín · Fechamento · Volume</strong>
+            </div>
+            <textarea id="cnPasteArea"
+              style="width:100%;height:130px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px;border-radius:6px;resize:vertical;outline:none;line-height:1.5;"
+              placeholder="Data&#9;Abertura&#9;Máxima&#9;Mínima&#9;Fechamento&#9;Volume"></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;">
+              <input id="cnPasteTicker" type="text" placeholder="TICKER" maxlength="8"
+                style="width:110px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;font-weight:700;text-transform:uppercase;padding:6px 8px;border-radius:5px;text-align:center;outline:none;">
+              <button class="btn-p" onclick="cnLoadPaste()" style="padding:0.44rem 1rem;font-size:0.72rem;">Carregar</button>
+              <span id="cnPasteErr" style="font-size:10px;color:var(--red);"></span>
+            </div>
           </div>
         </div>
 
+        <!-- ── Status ── -->
         <div id="cnStatus" class="cn-status"></div>
 
+        <!-- ── App (opaco até carregar) ── -->
         <div id="cnApp" class="cn-app">
-          <!-- Ticker + preço -->
+
+          <!-- Cabeçalho ticker + preço -->
           <div class="cn-tkr-head">
             <div class="cn-tkr" id="cnTkrName">—</div>
             <div class="cn-price-now">
@@ -595,16 +638,25 @@
             </div>
           </div>
 
-          <!-- Grid principal -->
+          <!-- Grid 2 colunas -->
           <div class="cn-grid">
-            <!-- Coluna esquerda: indicadores + ladder -->
-            <div>
-              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);">Indicadores</div>
+
+            <!-- Coluna esquerda -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
+
+              <!-- Indicadores -->
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:7px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;">
+                  <span>Indicadores</span><span style="color:var(--accent);opacity:.6;">calculados</span>
+                </div>
                 <div id="cnIndicators"></div>
               </div>
+
+              <!-- Mapa de níveis -->
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;"><span>Mapa de Níveis</span><span style="font-weight:400;color:var(--muted);font-size:9px;">edite · +adicione</span></div>
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:7px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;">
+                  <span>Mapa de Níveis</span><span style="font-size:9px;color:var(--muted);opacity:.7;">edite · +adicione</span>
+                </div>
                 <div class="cn-ladder" id="cnLadder"></div>
                 <div class="cn-addlvl">
                   <select id="cnNewType"><option value="sup">Sup</option><option value="res">Res</option></select>
@@ -614,11 +666,17 @@
               </div>
             </div>
 
-            <!-- Coluna direita: cenários + viés -->
-            <div>
-              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;"><span>Cenários</span><span style="font-weight:400;color:var(--muted);font-size:9px;">R/R automático</span></div>
+            <!-- Coluna direita -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
+
+              <!-- Cenários -->
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;">
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;padding-bottom:7px;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;">
+                  <span>Cenários</span><span style="font-size:9px;color:var(--muted);opacity:.7;">R/R automático</span>
+                </div>
                 <div class="sc-grid" id="cnScenarios"></div>
+
+                <!-- Controles stop/alvo -->
                 <div class="cn-controls">
                   <div class="cn-ctl"><label>Resist. R1</label><input id="cnR1" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
                   <div class="cn-ctl"><label>Suporte S1</label><input id="cnS1" type="number" step="0.01" oninput="cnRenderScenarios()"></div>
@@ -627,7 +685,7 @@
                 </div>
               </div>
 
-              <!-- Gauge -->
+              <!-- Gauge viés -->
               <div class="cn-verdict">
                 <div class="cn-gauge"><svg id="cnGauge" viewBox="0 0 200 110"></svg></div>
                 <div class="cn-vtxt">
@@ -635,12 +693,49 @@
                   <p id="cnVdesc">Digite um ticker e clique em Buscar.</p>
                 </div>
               </div>
+
+              <!-- Valor Justo -->
+              <div class="vj-box">
+                <div class="vj-title">
+                  <span>Valor Justo</span>
+                  <span id="vjFetchStatus" style="font-size:9px;color:var(--muted);opacity:.7;">Graham · Bazin</span>
+                </div>
+                <div class="vj-inputs">
+                  <div class="vj-ctl">
+                    <label>LPA (R$) <span id="vjLpaTag" style="color:var(--accent);font-size:8px;"></span></label>
+                    <input id="vjLpa" type="number" step="0.01" placeholder="0,00" oninput="vjCalc()">
+                  </div>
+                  <div class="vj-ctl">
+                    <label>VPA (R$) <span id="vjVpaTag" style="color:var(--accent);font-size:8px;"></span></label>
+                    <input id="vjVpa" type="number" step="0.01" placeholder="0,00" oninput="vjCalc()">
+                  </div>
+                  <div class="vj-ctl">
+                    <label>DY anual (R$) <span id="vjDyTag" style="color:var(--accent);font-size:8px;"></span></label>
+                    <input id="vjDy" type="number" step="0.01" placeholder="0,00" oninput="vjCalc()">
+                  </div>
+                </div>
+                <div class="vj-results" id="vjResults">
+                  <div class="vj-card">
+                    <div class="vj-card-title">Graham</div>
+                    <div class="vj-card-val vj-gray" id="vjGrahamVal">—</div>
+                    <div class="vj-card-sub" id="vjGrahamSub">Aguardando dados…</div>
+                    <div class="vj-formula">√(22,5 × LPA × VPA)</div>
+                  </div>
+                  <div class="vj-card">
+                    <div class="vj-card-title">Bazin</div>
+                    <div class="vj-card-val vj-gray" id="vjBazinVal">—</div>
+                    <div class="vj-card-sub" id="vjBazinSub">Aguardando dados…</div>
+                    <div class="vj-formula">Dividendo ÷ 6%</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        </div><!-- /cnApp -->
+      </div><!-- /chart-container -->
+    </div><!-- /chart-cenarios -->
+  </div><!-- /chartsSection -->
 
   <!-- RESULTS -->
   <div id="resultWrap">
@@ -1789,6 +1884,194 @@ function renderTable() {
 }
 
 // ============================================================
+// ============================================================
+// VALOR JUSTO — Graham + Bazin (auto-fetch Yahoo quoteSummary)
+// ============================================================
+
+function vjSetTag(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text ? '✓ auto' : '';
+}
+
+function vjCalc() {
+  const price = CN.price || 0;
+  const lpa   = parseFloat(document.getElementById('vjLpa').value) || 0;
+  const vpa   = parseFloat(document.getElementById('vjVpa').value) || 0;
+  const dy    = parseFloat(document.getElementById('vjDy').value)  || 0;
+
+  // ── Graham ──────────────────────────────────────────────
+  const grahamEl  = document.getElementById('vjGrahamVal');
+  const grahamSub = document.getElementById('vjGrahamSub');
+  if (lpa > 0 && vpa > 0) {
+    const inner = 22.5 * lpa * vpa;
+    if (inner > 0) {
+      const graham = Math.sqrt(inner);
+      const upside = price > 0 ? ((graham - price) / price * 100) : null;
+      grahamEl.textContent = 'R$ ' + CN_FMT(graham);
+      const cls = upside === null ? 'vj-gray' : upside >= 10 ? 'vj-green' : upside <= -10 ? 'vj-red' : 'vj-gray';
+      grahamEl.className = 'vj-card-val ' + cls;
+      if (upside !== null) {
+        const sinal = upside >= 0 ? '+' : '';
+        const pillCls = upside >= 10 ? 'pos' : upside <= -10 ? 'neg' : 'neu';
+        const txt = upside >= 10 ? 'subvalorizada' : upside <= -10 ? 'sobrevalorizada' : 'próxima do justo';
+        grahamSub.innerHTML = `<span class="vj-upside ${pillCls}">${sinal}${upside.toFixed(1)}% upside</span><br>${txt}`;
+      } else {
+        grahamSub.textContent = 'Informe o preço atual';
+      }
+    } else {
+      grahamEl.textContent  = '—';
+      grahamEl.className    = 'vj-card-val vj-gray';
+      grahamSub.textContent = 'LPA ou VPA negativos — Graham não aplicável';
+    }
+  } else {
+    grahamEl.textContent  = '—';
+    grahamEl.className    = 'vj-card-val vj-gray';
+    grahamSub.textContent = lpa < 0 || vpa < 0 ? 'LPA/VPA negativos — não aplicável' : 'Informe LPA e VPA';
+  }
+
+  // ── Bazin ───────────────────────────────────────────────
+  const bazinEl  = document.getElementById('vjBazinVal');
+  const bazinSub = document.getElementById('vjBazinSub');
+  if (dy > 0) {
+    const bazin  = dy / 0.06;
+    const upside = price > 0 ? ((bazin - price) / price * 100) : null;
+    bazinEl.textContent = 'R$ ' + CN_FMT(bazin);
+    const cls = upside === null ? 'vj-gray' : upside >= 10 ? 'vj-green' : upside <= -10 ? 'vj-red' : 'vj-gray';
+    bazinEl.className = 'vj-card-val ' + cls;
+    if (upside !== null) {
+      const sinal = upside >= 0 ? '+' : '';
+      const pillCls = upside >= 10 ? 'pos' : upside <= -10 ? 'neg' : 'neu';
+      const txt = upside >= 10 ? 'subvalorizada' : upside <= -10 ? 'sobrevalorizada' : 'próxima do justo';
+      bazinSub.innerHTML = `<span class="vj-upside ${pillCls}">${sinal}${upside.toFixed(1)}% upside</span><br>${txt}`;
+    } else {
+      bazinSub.textContent = 'Informe o preço atual';
+    }
+  } else {
+    bazinEl.textContent  = '—';
+    bazinEl.className    = 'vj-card-val vj-gray';
+    bazinSub.textContent = 'Informe dividendo anual (R$)';
+  }
+}
+
+// ── Auto-fetch Yahoo Finance quoteSummary ────────────────────
+async function vjFetchFundamentals(ticker) {
+  const status = document.getElementById('vjFetchStatus');
+  status.style.color = 'var(--muted)';
+  status.textContent = '⟳ buscando fundamentos…';
+
+  const sym = ticker.includes('.') ? ticker : ticker + '.SA';
+
+  // Resultado acumulado
+  let lpa = null, vpa = null, dy = null;
+
+  // ── Fonte 1: brapi.dev (sem CORS, gratuita) ─────────────────────────────
+  // Retorna: eps (LPA), dividendsPerShare (DY). VPA não disponível.
+  try {
+    const brapiUrl = `https://brapi.dev/api/quote/${ticker}?fundamental=true`;
+    const r = await fetch(brapiUrl, { cache: 'no-store' });
+    if (r.ok) {
+      const j = await r.json();
+      const q = j.results?.[0];
+      if (q) {
+        if (q.eps        != null) lpa = q.eps;
+        if (q.bookValue  != null) vpa = q.bookValue;
+        // DY: brapi retorna dividendYield em % — converte para R$
+        if (q.dividendsPerShare != null && q.dividendsPerShare > 0) {
+          dy = q.dividendsPerShare;
+        } else if (q.dividendYield != null && q.dividendYield > 0 && CN.price > 0) {
+          dy = CN.price * (q.dividendYield / 100);
+        }
+      }
+    }
+  } catch(e) { /* brapi falhou, tenta Yahoo */ }
+
+  // ── Fonte 2: Yahoo Finance v11 via proxy CORS ────────────────────────────
+  // Complementa o que faltou da brapi (especialmente VPA/bookValue)
+  if (lpa == null || vpa == null || dy == null) {
+    try {
+      const modules = 'defaultKeyStatistics,summaryDetail,financialData';
+      const yahooUrl = `https://query2.finance.yahoo.com/v11/finance/quoteSummary/${sym}?modules=${modules}&crumb=`;
+      const txt = await cnTryFetch(yahooUrl);
+      const j   = JSON.parse(txt);
+      const res = j.quoteSummary?.result?.[0];
+      if (res) {
+        const ks = res.defaultKeyStatistics || {};
+        const sd = res.summaryDetail        || {};
+        const fd = res.financialData        || {};
+
+        if (lpa == null) lpa = ks.trailingEps?.raw ?? fd.earningsPerShare?.raw ?? null;
+        if (vpa == null) vpa = ks.bookValue?.raw ?? null;
+        if (dy  == null) {
+          dy = sd.trailingAnnualDividendRate?.raw ?? sd.dividendRate?.raw ?? null;
+          if (dy == null && sd.dividendYield?.raw && CN.price > 0) {
+            dy = CN.price * sd.dividendYield.raw;
+          }
+        }
+      }
+    } catch(e) { /* Yahoo também falhou */ }
+  }
+
+  // ── Fonte 3: Yahoo Finance v8 chart (já carregado nos candles) ──────────
+  // O meta do chart às vezes traz trailingEps e bookValue
+  if ((lpa == null || vpa == null) && CN.candles.length > 0) {
+    try {
+      const chartUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=1d&interval=1d&includePrePost=false`;
+      const txt = await cnTryFetch(chartUrl);
+      const j   = JSON.parse(txt);
+      const meta = j.chart?.result?.[0]?.meta || {};
+      if (lpa == null && meta.epsTrailingTwelveMonths != null) lpa = meta.epsTrailingTwelveMonths;
+      if (vpa == null && meta.bookValue != null) vpa = meta.bookValue;
+    } catch(e) { /* ignorar */ }
+  }
+
+  // ── Preencher campos ─────────────────────────────────────────────────────
+  let filled = 0;
+  if (lpa != null) {
+    document.getElementById('vjLpa').value = lpa.toFixed(2);
+    vjSetTag('vjLpaTag', true); filled++;
+  }
+  if (vpa != null) {
+    document.getElementById('vjVpa').value = vpa.toFixed(2);
+    vjSetTag('vjVpaTag', true); filled++;
+  }
+  if (dy != null && dy > 0) {
+    document.getElementById('vjDy').value = dy.toFixed(2);
+    vjSetTag('vjDyTag', true); filled++;
+  }
+
+  const missing = [];
+  if (lpa == null) missing.push('LPA');
+  if (vpa == null) missing.push('VPA');
+  if (dy == null || dy <= 0) missing.push('DY');
+
+  if (filled === 0) {
+    status.style.color = 'var(--yellow)';
+    status.textContent = '⚠ sem dados automáticos — preencha manualmente';
+  } else if (missing.length === 0) {
+    status.style.color = 'var(--accent)';
+    status.textContent = '✓ dados automáticos';
+  } else {
+    status.style.color = 'var(--accent)';
+    status.textContent = `✓ parcial — preencha: ${missing.join(', ')}`;
+  }
+
+  vjCalc();
+}
+
+// Resetar campos VJ ao trocar de ativo
+function vjReset() {
+  ['vjLpa','vjVpa','vjDy'].forEach(id => { document.getElementById(id).value = ''; });
+  ['vjLpaTag','vjVpaTag','vjDyTag'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=''; });
+  document.getElementById('vjGrahamVal').textContent = '—';
+  document.getElementById('vjGrahamVal').className   = 'vj-card-val vj-gray';
+  document.getElementById('vjGrahamSub').textContent = 'Aguardando dados…';
+  document.getElementById('vjBazinVal').textContent  = '—';
+  document.getElementById('vjBazinVal').className    = 'vj-card-val vj-gray';
+  document.getElementById('vjBazinSub').textContent  = 'Aguardando dados…';
+  const st = document.getElementById('vjFetchStatus');
+  if (st) { st.style.color = 'var(--muted)'; st.textContent = 'Graham · Bazin'; }
+}
+
 // CENÁRIOS — abre a aba e carrega ticker
 // ============================================================
 function openCenarios(ticker) {
@@ -2432,10 +2715,15 @@ async function cnFetchYahoo(ticker){
   }
   if(candles.length<30) throw new Error('histórico insuficiente');
   const meta = res.meta||{};
+  // Usar sempre o fechamento do penúltimo candle como prevClose
+  // para evitar distorções do meta.chartPreviousClose do Yahoo
+  const lastCandle = candles[candles.length-1];
+  const prevCandle = candles.length > 1 ? candles[candles.length-2] : lastCandle;
+  const price = meta.regularMarketPrice ?? lastCandle.c;
   return {
     candles,
-    price: meta.regularMarketPrice ?? candles[candles.length-1].c,
-    prevClose: meta.chartPreviousClose ?? candles[candles.length-2]?.c ?? candles[candles.length-1].c,
+    price,
+    prevClose: prevCandle.c,
     name: meta.longName || meta.shortName || ticker
   };
 }
@@ -2652,6 +2940,8 @@ function cnApplyData(ticker,d,sourceLabel){
   ce.className='cn-chg-'+(chg>=0?'up':'dn');
   cnAutoFillControls();
   cnRenderAll();
+  vjReset();
+  vjFetchFundamentals(ticker);
   document.getElementById('cnApp').classList.add('ready');
   const st=document.getElementById('cnStatus');
   st.className='cn-status ok';
