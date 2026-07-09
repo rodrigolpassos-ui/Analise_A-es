@@ -163,36 +163,39 @@
   .ct-wrap::-webkit-scrollbar{width:5px;height:5px;}
   .ct-wrap::-webkit-scrollbar-track{background:transparent;}
   .ct-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-  .ct{width:100%;border-collapse:collapse;font-size:0.78rem;}
+  .ct-dual{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:1000px){.ct-dual{grid-template-columns:1fr}}
+  .ct-col-label{font-size:8px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:6px;}
+  .ct{width:100%;border-collapse:collapse;font-size:0.6rem;}
   .ct thead{position:sticky;top:0;z-index:2;background:var(--surface);}
   .ct thead tr{border-bottom:1px solid var(--border2);}
-  .ct th{color:var(--muted);font-weight:500;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.65rem;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;transition:color 0.15s;}
+  .ct th{color:var(--muted);font-weight:500;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.4rem 0.4rem;text-align:right;white-space:nowrap;cursor:pointer;user-select:none;transition:color 0.15s;}
   .ct th:first-child{text-align:left;}
   .ct th:hover{color:var(--text);}
   .ct th.ct-sorted{color:var(--accent);}
-  .ct th.ct-sorted::after{content:' ▾';font-size:0.55rem;}
+  .ct th.ct-sorted::after{content:' ▾';font-size:0.5rem;}
   .ct th.ct-sorted.asc::after{content:' ▴';}
-  .ct td{padding:0.5rem 0.65rem;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .ct td{padding:0.3rem 0.4rem;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
   .ct td:first-child{text-align:left;}
   .ct tbody tr:nth-child(even) td{background:rgba(255,255,255,0.018);}
   [data-theme="light"] .ct tbody tr:nth-child(even) td{background:rgba(0,0,0,0.018);}
   .ct tbody tr{transition:background 0.12s;}
   .ct tr:hover td{background:rgba(0,229,180,0.05)!important;}
   [data-theme="light"] .ct tr:hover td{background:rgba(0,158,125,0.06)!important;}
-  .ct-ticker{color:var(--accent);font-weight:700;cursor:pointer;letter-spacing:0.04em;}
+  .ct-ticker{color:var(--accent);font-weight:700;cursor:pointer;letter-spacing:0.03em;}
   .ct-ticker:hover{text-decoration:underline;}
-  .ct-setor{font-size:0.58rem;color:var(--muted);margin-left:0.35rem;}
-  .ct-pill{display:inline-block;padding:0.12rem 0.45rem;border-radius:5px;font-size:0.7rem;font-weight:700;font-variant-numeric:tabular-nums;min-width:62px;text-align:center;}
+  .ct-setor{font-size:0.5rem;color:var(--muted);margin-left:0.3rem;}
+  .ct-pill{display:inline-block;padding:0.1rem 0.35rem;border-radius:4px;font-size:0.58rem;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:center;}
   .ct-pos{background:rgba(0,229,180,0.12);color:var(--accent);}
   .ct-neg{background:rgba(255,68,68,0.12);color:var(--red);}
   .ct-neu{color:var(--muted);}
   .ct-rsi-ob{color:var(--red);}
   .ct-rsi-os{color:var(--accent);}
   .ct-rsi-n{color:var(--muted);}
-  .ct-bar{display:inline-flex;align-items:center;gap:0.35rem;}
-  .ct-bar-bg{width:48px;height:4px;background:var(--border2);border-radius:2px;overflow:hidden;flex-shrink:0;}
+  .ct-bar{display:inline-flex;align-items:center;gap:0.3rem;}
+  .ct-bar-bg{width:32px;height:4px;background:var(--border2);border-radius:2px;overflow:hidden;flex-shrink:0;}
   .ct-bar-fill{height:100%;border-radius:2px;}
-  .ct-star{text-align:center!important;cursor:pointer;color:var(--muted);font-size:0.95rem;transition:color 0.15s,transform 0.15s;width:26px;}
+  .ct-star{text-align:center!important;cursor:pointer;color:var(--muted);font-size:0.82rem;transition:color 0.15s,transform 0.15s;width:20px;}
   .ct-star:hover{color:var(--yellow);transform:scale(1.2);}
   .ct-star.active{color:var(--yellow);}
   .ct tbody tr.ct-fav td{background:rgba(255,178,46,0.05);}
@@ -568,23 +571,49 @@
           <button class="ct-toolbar-btn" onclick="exportCSV()">⬇ Exportar CSV</button>
           <span class="ct-count" id="ctCount"></span>
         </div>
-        <div class="ct-wrap">
-          <table class="ct" id="ctTable">
-            <thead>
-              <tr>
-                <th></th>
-                <th onclick="ctSortBy('ativo')">Ativo</th>
-                <th onclick="ctSortBy('ultimo')">Preço</th>
-                <th onclick="ctSortBy('variacao')">Dia %</th>
-                <th onclick="ctSortBy('semana')">Semana %</th>
-                <th onclick="ctSortBy('mes')">Mês %</th>
-                <th onclick="ctSortBy('ano')">Ano %</th>
-                <th onclick="ctSortBy('volume')">Volume</th>
-                <th onclick="ctSortBy('ifr')">RSI</th>
-              </tr>
-            </thead>
-            <tbody id="ctBody"></tbody>
-          </table>
+        <div class="ct-dual">
+          <div class="ct-col">
+            <div class="ct-col-label">Conforme ordenação selecionada acima</div>
+            <div class="ct-wrap">
+              <table class="ct" id="ctTable">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th onclick="ctSortBy('ativo')">Ativo</th>
+                    <th onclick="ctSortBy('ultimo')">Preço</th>
+                    <th onclick="ctSortBy('variacao')">Dia %</th>
+                    <th onclick="ctSortBy('semana')">Semana %</th>
+                    <th onclick="ctSortBy('mes')">Mês %</th>
+                    <th onclick="ctSortBy('ano')">Ano %</th>
+                    <th onclick="ctSortBy('volume')">Volume</th>
+                    <th onclick="ctSortBy('ifr')">RSI</th>
+                  </tr>
+                </thead>
+                <tbody id="ctBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="ct-col">
+            <div class="ct-col-label">🔻 Maiores Baixas</div>
+            <div class="ct-wrap">
+              <table class="ct" id="ctTableBaixa">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th onclick="ctSortByBaixa('ativo')">Ativo</th>
+                    <th onclick="ctSortByBaixa('ultimo')">Preço</th>
+                    <th onclick="ctSortByBaixa('variacao')">Dia %</th>
+                    <th onclick="ctSortByBaixa('semana')">Semana %</th>
+                    <th onclick="ctSortByBaixa('mes')">Mês %</th>
+                    <th onclick="ctSortByBaixa('ano')">Ano %</th>
+                    <th onclick="ctSortByBaixa('volume')">Volume</th>
+                    <th onclick="ctSortByBaixa('ifr')">RSI</th>
+                  </tr>
+                </thead>
+                <tbody id="ctBodyBaixa"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1759,14 +1788,16 @@ function renderKPIs() {
       val: fmtPct(topAlta.variacao),
       sub: `R$ ${fmt2(topAlta.ultimo)}`,
       ticker: topAlta.ativo,
-      cls: 'highlight'
+      cls: 'highlight',
+      topMovers: 'alta'
     },
     {
       lbl: 'Maior Queda do Dia',
       val: fmtPct(topBaixa.variacao),
       sub: `R$ ${fmt2(topBaixa.ultimo)}`,
       ticker: topBaixa.ativo,
-      cls: 'kpi-red'
+      cls: 'kpi-red',
+      topMovers: 'baixa'
     },
     {
       lbl: 'Volume Total',
@@ -1796,10 +1827,10 @@ function renderKPIs() {
   ];
 
   document.getElementById('kpiGrid').innerHTML = kpiData.map(k => `
-    <div class="kpi-card ${k.cls||''}" ${k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `onclick="showRsiAlerts()" style="cursor:pointer;"` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `onclick="showDetail('${k.ticker}')" style="cursor:pointer;"` : '')}>
+    <div class="kpi-card ${k.cls||''}" ${k.topMovers ? `onclick="showTopMovers('${k.topMovers}')" style="cursor:pointer;"` : (k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `onclick="showRsiAlerts()" style="cursor:pointer;"` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `onclick="showDetail('${k.ticker}')" style="cursor:pointer;"` : ''))}>
       <div class="kpi-lbl">${k.lbl}</div>
       <div class="kpi-val" style="color:${k.cls==='kpi-red'?'var(--red)':k.cls==='highlight'?'var(--accent)':k.cls==='kpi-yellow'?'var(--yellow)':'var(--text)'}">${k.val}</div>
-      ${k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `<div class="kpi-ticker">ver ativos ↗</div>` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `<div class="kpi-ticker">${k.ticker} ↗</div>` : '')}
+      ${k.topMovers ? `<div class="kpi-ticker">${k.ticker} · ver top 10 ↗</div>` : (k.rsiAlert && (sobrecompra+sobrevenda)>0 ? `<div class="kpi-ticker">ver ativos ↗</div>` : (k.ticker && rows.find(r=>r.ativo===k.ticker) ? `<div class="kpi-ticker">${k.ticker} ↗</div>` : ''))}
       <div class="kpi-sub">${k.sub}</div>
     </div>
   `).join('');
@@ -1810,6 +1841,8 @@ function renderKPIs() {
 // ============================================================
 let ctSortKey = 'variacao';
 let ctSortDir = 'desc';
+let ctSortKeyBaixa = 'variacao';
+let ctSortDirBaixa = 'asc';
 
 function ctSortBy(key) {
   if (ctSortKey === key) {
@@ -1825,6 +1858,16 @@ function ctSortBy(key) {
   renderCompact();
 }
 
+function ctSortByBaixa(key) {
+  if (ctSortKeyBaixa === key) {
+    ctSortDirBaixa = ctSortDirBaixa === 'desc' ? 'asc' : 'desc';
+  } else {
+    ctSortKeyBaixa = key;
+    ctSortDirBaixa = 'asc';
+  }
+  renderCompact();
+}
+
 function populateSetorFilter() {
   const sel = document.getElementById('ctSetor');
   const current = sel.value;
@@ -1833,46 +1876,21 @@ function populateSetorFilter() {
     setores.map(s => `<option value="${s}"${s===current?' selected':''}>${s}</option>`).join('');
 }
 
-function renderCompact() {
-  if (!rows.length) return;
-
-  // Sync sort from select if triggered by select
-  const selSort = document.getElementById('ctSort');
-  const [sk, sd] = selSort.value.split('-');
-  ctSortKey = sk;
-  ctSortDir = sd;
-
-  const search = (document.getElementById('ctSearch').value || '').trim().toUpperCase();
-  const setor = document.getElementById('ctSetor').value;
-
-  let filtered = rows.filter(r => {
-    const matchTicker = !search || r.ativo.includes(search);
-    const matchSetor = !setor || r.setor === setor;
-    const matchFav = !favOnly || favoritos.has(r.ativo);
-    return matchTicker && matchSetor && matchFav;
-  });
-
-  filtered.sort((a, b) => {
+function ctSortRows(list, key, dir) {
+  const out = [...list];
+  out.sort((a, b) => {
     const favA = favoritos.has(a.ativo) ? 1 : 0, favB = favoritos.has(b.ativo) ? 1 : 0;
     if (favA !== favB) return favB - favA; // favoritos sempre no topo
-    let va = a[ctSortKey], vb = b[ctSortKey];
-    if (ctSortKey === 'ativo') { va = va||''; vb = vb||''; return ctSortDir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+    let va = a[key], vb = b[key];
+    if (key === 'ativo') { va = va||''; vb = vb||''; return dir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
     va = va || 0; vb = vb || 0;
-    return ctSortDir === 'desc' ? vb - va : va - vb;
+    return dir === 'desc' ? vb - va : va - vb;
   });
+  return out;
+}
 
-  // Update header sort indicators
-  document.querySelectorAll('.ct th').forEach(th => {
-    th.classList.remove('ct-sorted','asc');
-    const key = th.getAttribute('onclick')?.match(/ctSortBy\('(\w+)'\)/)?.[1];
-    if (key === ctSortKey) { th.classList.add('ct-sorted'); if (ctSortDir==='asc') th.classList.add('asc'); }
-  });
-
-  document.getElementById('ctCount').textContent = `${filtered.length} ativos${favOnly ? ' · só favoritos' : ''}`;
-
-  const maxVol = Math.max(...rows.map(r => r.volume || 0), 1);
-
-  document.getElementById('ctBody').innerHTML = filtered.map(r => {
+function ctRowsHtml(list, maxVol) {
+  return list.map(r => {
     const pctCls = v => v > 0 ? 'ct-pos' : v < 0 ? 'ct-neg' : 'ct-neu';
     const fmtV = v => v === 0 || v === null || v === undefined ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%';
     const rsiCls = r.ifr > 70 ? 'ct-rsi-ob' : r.ifr < 30 ? 'ct-rsi-os' : 'ct-rsi-n';
@@ -1901,6 +1919,49 @@ function renderCompact() {
       <td class="${rsiCls}">${r.ifr > 0 ? r.ifr.toFixed(0) + rsiLabel : '—'}</td>
     </tr>`;
   }).join('');
+}
+
+function renderCompact() {
+  if (!rows.length) return;
+
+  // Sync sort from select if triggered by select
+  const selSort = document.getElementById('ctSort');
+  const [sk, sd] = selSort.value.split('-');
+  ctSortKey = sk;
+  ctSortDir = sd;
+
+  const search = (document.getElementById('ctSearch').value || '').trim().toUpperCase();
+  const setor = document.getElementById('ctSetor').value;
+
+  let filtered = rows.filter(r => {
+    const matchTicker = !search || r.ativo.includes(search);
+    const matchSetor = !setor || r.setor === setor;
+    const matchFav = !favOnly || favoritos.has(r.ativo);
+    return matchTicker && matchSetor && matchFav;
+  });
+
+  const sortedMain = ctSortRows(filtered, ctSortKey, ctSortDir);
+  const sortedBaixa = ctSortRows(filtered, ctSortKeyBaixa, ctSortDirBaixa);
+
+  // Update header sort indicators — tabela principal
+  document.querySelectorAll('#ctTable th').forEach(th => {
+    th.classList.remove('ct-sorted','asc');
+    const key = th.getAttribute('onclick')?.match(/ctSortBy\('(\w+)'\)/)?.[1];
+    if (key === ctSortKey) { th.classList.add('ct-sorted'); if (ctSortDir==='asc') th.classList.add('asc'); }
+  });
+  // Update header sort indicators — tabela de baixas
+  document.querySelectorAll('#ctTableBaixa th').forEach(th => {
+    th.classList.remove('ct-sorted','asc');
+    const key = th.getAttribute('onclick')?.match(/ctSortByBaixa\('(\w+)'\)/)?.[1];
+    if (key === ctSortKeyBaixa) { th.classList.add('ct-sorted'); if (ctSortDirBaixa==='asc') th.classList.add('asc'); }
+  });
+
+  document.getElementById('ctCount').textContent = `${filtered.length} ativos${favOnly ? ' · só favoritos' : ''}`;
+
+  const maxVol = Math.max(...rows.map(r => r.volume || 0), 1);
+
+  document.getElementById('ctBody').innerHTML = ctRowsHtml(sortedMain, maxVol);
+  document.getElementById('ctBodyBaixa').innerHTML = ctRowsHtml(sortedBaixa, maxVol);
 }
 
 // ============================================================
@@ -2360,6 +2421,33 @@ document.addEventListener('click', e => {
 // ============================================================
 // DETAIL CARD
 // ============================================================
+function showTopMovers(tipo) {
+  const sorted = [...rows].sort((a,b) => b.variacao - a.variacao);
+  const top10 = tipo === 'alta' ? sorted.slice(0, 10) : sorted.slice(-10).reverse();
+
+  const chip = (r, color) => `
+    <span onclick="showDetail('${r.ativo}')" style="display:inline-flex;align-items:center;gap:0.45rem;background:${color.bg};border:1px solid ${color.bd};border-radius:6px;padding:0.32rem 0.6rem;font-family:var(--mono);font-size:0.72rem;color:${color.fg};cursor:pointer;transition:transform 0.12s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+      <b>${r.ativo}</b><span style="opacity:0.75;">${fmtPct(r.variacao)}</span><span style="opacity:0.55;">R$ ${fmt2(r.ultimo)}</span>${r.setor?`<span style="opacity:0.55;font-size:0.62rem;">${r.setor}</span>`:''}
+    </span>`;
+
+  const redC = {bg:'rgba(255,77,79,0.1)', bd:'rgba(255,77,79,0.3)', fg:'var(--red)'};
+  const grnC = {bg:'rgba(0,200,120,0.1)', bd:'rgba(0,200,120,0.3)', fg:'var(--accent)'};
+  const color = tipo === 'alta' ? grnC : redC;
+  const titulo = tipo === 'alta' ? '🔺 Maiores Altas do Dia' : '🔻 Maiores Quedas do Dia';
+
+  const html = `
+    <div style="margin-bottom:0.5rem;">
+      <span style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:${color.fg};">${titulo} — top ${top10.length}</span>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:1.1rem;">Clique em um ativo para abrir a análise detalhada.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">${top10.map(r=>chip(r,color)).join('')}</div>
+  `;
+
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailCard').style.display = 'block';
+  document.getElementById('detailCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 function showRsiAlerts() {
   const over = rows.filter(r => r.ifr > 70).sort((a,b)=>b.ifr-a.ifr);
   const under = rows.filter(r => r.ifr < 30 && r.ifr > 0).sort((a,b)=>a.ifr-b.ifr);
