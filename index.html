@@ -290,7 +290,7 @@
 
   /* Ladder de níveis */
   .cn-ladder{margin:4px 0;}
-  .cn-lvl{display:grid;grid-template-columns:10px 68px 1fr 84px 18px;align-items:center;gap:5px;padding:3px 0;font-size:11px;}
+  .cn-lvl{display:grid;grid-template-columns:10px 68px 1fr 72px 18px;align-items:center;gap:5px;padding:3px 0;font-size:11px;}
   .cn-lvl .cn-dot{width:7px;height:7px;border-radius:50%;justify-self:center;}
   .cn-lvl.res .cn-dot{background:var(--red)} .cn-lvl.sup .cn-dot{background:var(--accent)}
   .cn-lvl .cn-val{font-weight:700;text-align:right;font-size:11px;}
@@ -301,7 +301,7 @@
   .cn-lvl .cn-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;}
   .cn-lvl.res .cn-bar i{background:linear-gradient(90deg,transparent,var(--red))}
   .cn-lvl.sup .cn-bar i{background:linear-gradient(90deg,transparent,var(--accent))}
-  .cn-lvl .cn-dist{font-size:8.5px;color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cn-lvl .cn-dist{font-size:9px;color:var(--muted);text-align:right;}
   .cn-lvl .cn-del{color:var(--muted);cursor:pointer;text-align:center;font-size:10px;opacity:0;}
   .cn-lvl:hover .cn-del{opacity:1;}
   .cn-lvl .cn-del:hover{color:var(--red);}
@@ -665,11 +665,20 @@
             </div>
           </div>
 
-          <!-- Mini gráfico de preço -->
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px 8px;margin-bottom:14px;">
-            <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">Preço — últimos candles carregados</div>
-            <div style="height:90px;"><canvas id="cnPriceChart"></canvas></div>
+          <!-- Mini gráficos: preço + volatilidade -->
+          <div class="cn-charts-row" style="display:flex;gap:14px;margin-bottom:14px;">
+            <div style="flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px 8px;">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">Preço — últimos candles carregados</div>
+              <div style="height:90px;"><canvas id="cnPriceChart"></canvas></div>
+            </div>
+            <div style="flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px 8px;">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <span>Volatilidade — HV 20 anualizada</span><span id="cnVolNow" style="color:var(--blue);letter-spacing:0;"></span>
+              </div>
+              <div style="height:90px;"><canvas id="cnVolChart"></canvas></div>
+            </div>
           </div>
+          <style>@media(max-width:700px){.cn-charts-row{flex-direction:column}}</style>
 
           <!-- Grid 2 colunas -->
           <div class="cn-grid">
@@ -3171,6 +3180,7 @@ function cnRenderAll(){
   cnRenderScenarios();
   cnRenderGauge(cnComputeBias());
   cnRenderChart();
+  cnRenderVolChart();
 }
 
 // Mini gráfico de linha do preço (fecha do dia), últimos N candles carregados.
@@ -3223,6 +3233,86 @@ function cnRenderChart(){
       scales: {
         x: { ticks: { color: textColor, font: { size: 8, family: 'JetBrains Mono' }, maxTicksLimit: 6 }, grid: { display: false } },
         y: { ticks: { color: textColor, font: { size: 8, family: 'JetBrains Mono' }, callback: v => CN_FMT(v) }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
+// Mini gráfico de volatilidade histórica (HV) — desvio-padrão anualizado
+// dos log-retornos em janela móvel de 20 candles, mesmo recorte do gráfico de preço.
+let cnVolChartInst = null;
+function cnComputeHV(candles, janela){
+  const closes = candles.map(c => c.c);
+  const rets = [];
+  for(let i=1;i<closes.length;i++){
+    rets.push(Math.log(closes[i]/closes[i-1]));
+  }
+  const hv = new Array(closes.length).fill(null);
+  for(let i=janela;i<=rets.length;i++){
+    const win = rets.slice(i-janela, i);
+    const mean = win.reduce((a,b)=>a+b,0)/win.length;
+    const variance = win.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(win.length-1);
+    const stdev = Math.sqrt(variance);
+    hv[i] = stdev * Math.sqrt(252) * 100; // anualizado, em %
+  }
+  return hv;
+}
+
+function cnRenderVolChart(){
+  const canvas = document.getElementById('cnVolChart');
+  if(!canvas || !CN.candles.length) return;
+  if(cnVolChartInst){ cnVolChartInst.destroy(); cnVolChartInst = null; }
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#6b7280' : '#4b5563';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+
+  const WINDOW = 20;
+  const N = 90; // mesmo recorte do gráfico de preço
+  const hvFull = cnComputeHV(CN.candles, WINDOW);
+  const slice = CN.candles.slice(-N);
+  const hvSlice = hvFull.slice(-N);
+  const labels = slice.map(c => new Date(c.t).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}));
+
+  const lastValid = [...hvSlice].reverse().find(v => v !== null && v !== undefined);
+  const badge = document.getElementById('cnVolNow');
+  if(badge) badge.textContent = lastValid !== undefined ? lastValid.toFixed(1) + '%' : '';
+
+  const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() || '#6699ff';
+
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height || 90);
+  grad.addColorStop(0, 'rgba(102,153,255,0.28)');
+  grad.addColorStop(1, 'rgba(102,153,255,0)');
+
+  cnVolChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: hvSlice,
+        borderColor: lineColor,
+        backgroundColor: grad,
+        borderWidth: 1.6,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        pointHoverBackgroundColor: lineColor,
+        tension: 0.15,
+        fill: true,
+        spanGaps: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => c.raw == null ? ' —' : ' HV ' + c.raw.toFixed(1) + '%' } }
+      },
+      scales: {
+        x: { ticks: { color: textColor, font: { size: 8, family: 'JetBrains Mono' }, maxTicksLimit: 6 }, grid: { display: false } },
+        y: { ticks: { color: textColor, font: { size: 8, family: 'JetBrains Mono' }, callback: v => v.toFixed(0) + '%' }, grid: { color: gridColor } }
       }
     }
   });
