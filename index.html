@@ -385,6 +385,55 @@
   .close-btn{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:0.68rem;padding:0.3rem 0.7rem;border-radius:5px;cursor:pointer;transition:all 0.15s;}
   .close-btn:hover{border-color:var(--red);color:var(--red);}
   .macro-chip{display:inline-flex;align-items:center;background:rgba(102,153,255,0.1);border:1px solid rgba(102,153,255,0.28);border-radius:6px;font-size:0.66rem;color:var(--blue);padding:0.22rem 0.6rem;letter-spacing:0.03em;font-weight:600;}
+
+  /* ===== MACRO GLOBAL ===== */
+  /* GRID DE ÍNDICES / CÂMBIO */
+  .idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.85rem;}
+  .idx-card{background:linear-gradient(160deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:border-color 0.2s,transform 0.18s;}
+  .idx-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+  .idx-card::before{content:'';position:absolute;top:0;bottom:0;left:0;width:3px;opacity:0;transition:opacity 0.2s;}
+  .idx-card.idx-up::before{background:linear-gradient(var(--accent),var(--accent-d));opacity:1;}
+  .idx-card.idx-down::before{background:linear-gradient(var(--red),var(--red-d));opacity:1;}
+  .idx-lbl{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .idx-val{font-size:1.05rem;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:0.2rem;}
+  .idx-pct{font-size:0.72rem;font-weight:700;font-variant-numeric:tabular-nums;}
+  .idx-up .idx-pct{color:var(--accent);}
+  .idx-down .idx-pct{color:var(--red);}
+  .idx-flat .idx-pct{color:var(--muted);}
+  .idx-loading{color:var(--muted);font-size:0.7rem;text-align:center;padding:1.2rem 0;grid-column:1/-1;}
+  .idx-err{color:var(--red);font-size:0.62rem;margin-top:0.3rem;}
+
+  /* JUROS */
+  .juros-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:800px){.juros-wrap{grid-template-columns:1fr}}
+  .juros-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;}
+  .juros-box-title{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px dashed var(--border);}
+  .juros-row{display:flex;justify-content:space-between;align-items:baseline;padding:0.45rem 0;border-bottom:1px solid var(--border);font-size:0.78rem;}
+  .juros-row:last-child{border-bottom:none;}
+  .juros-pais{color:var(--text);}
+  .juros-pais .flag{margin-right:0.4rem;}
+  .juros-val{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .juros-sub{font-size:0.6rem;color:var(--muted);margin-top:0.6rem;}
+
+  /* CALENDÁRIO */
+  .cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.75rem;overflow:hidden;}
+
+  /* NOTÍCIAS */
+  .news-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:800px){.news-wrap{grid-template-columns:1fr}}
+  .news-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;}
+  .news-col-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px dashed var(--border);}
+  .news-list{max-height:440px;overflow-y:auto;}
+  .news-list::-webkit-scrollbar{width:5px;}
+  .news-list::-webkit-scrollbar-track{background:transparent;}
+  .news-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  .news-item{padding:0.55rem 0;border-bottom:1px solid var(--border);}
+  .news-item:last-child{border-bottom:none;}
+  .news-item a{color:var(--text);text-decoration:none;font-size:0.76rem;line-height:1.4;display:block;transition:color 0.15s;}
+  .news-item a:hover{color:var(--accent);}
+  .news-meta{display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem;font-size:0.6rem;color:var(--muted);}
+  .news-src{text-transform:uppercase;letter-spacing:0.04em;}
+  .news-urgent{display:inline-block;background:rgba(255,82,96,0.15);color:var(--red);border-radius:4px;padding:0.05rem 0.4rem;font-weight:700;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.05em;margin-right:0.3rem;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
@@ -423,7 +472,7 @@
     <div>
       <div class="logo">ANÁLISE DE AÇÕES</div>
     </div>
-    <div class="subtitle">B3 — Profit / Python / Planilha</div>
+    <div class="subtitle">B3 + Macro Global — Profit / Python / Planilha / Índices / Notícias / Juros / Calendário</div>
     <div class="header-right">
       <div class="rtd-wrap">
         <span class="rtd-status" id="rtdStatus">○ Tempo real desligado</span>
@@ -547,6 +596,7 @@
       <button class="chart-tab-btn" onclick="switchChartTab('setor',this)">🥧 Distribuição por Setor</button>
       <button class="chart-tab-btn" onclick="switchChartTab('ranking',this)">📊 Top Ativos</button>
       <button class="chart-tab-btn" id="btnTabCenarios" onclick="switchChartTab('cenarios',this)">📈 Cenários Técnicos</button>
+      <button class="chart-tab-btn" id="btnTabMacro" onclick="switchChartTab('macro',this)">🌐 Macro Global</button>
     </div>
 
     <!-- TABELA COMPACTA -->
@@ -806,6 +856,78 @@
         </div><!-- /cnApp -->
       </div><!-- /chart-container -->
     </div><!-- /chart-cenarios -->
+
+    <!-- MACRO GLOBAL -->
+    <div id="chart-macro" class="chart-panel">
+      <div class="chart-container">
+        <div class="chart-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Bolsas Mundiais &amp; Câmbio</span>
+          <span style="text-transform:none;letter-spacing:normal;font-size:0.68rem;">
+            <span id="macroStatusLine" style="color:var(--muted);">carregando…</span>
+            <button class="rtd-btn" id="macroRefreshBtn" onclick="atualizarMacro()" style="margin-left:0.6rem;">↻ Atualizar</button>
+          </span>
+        </div>
+        <div class="idx-grid" id="idxGrid">
+          <div class="idx-loading">Carregando cotações…</div>
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:1rem;">
+        <div class="chart-title">Notícias — Brasil &amp; Internacional</div>
+        <div class="news-wrap">
+          <div class="news-col">
+            <div class="news-col-title">🇧🇷 Brasil</div>
+            <div class="news-list" id="newsBR"><div class="idx-loading">Carregando notícias…</div></div>
+          </div>
+          <div class="news-col">
+            <div class="news-col-title">🌐 Internacional</div>
+            <div class="news-list" id="newsIntl"><div class="idx-loading">Carregando notícias…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:1rem;">
+        <div class="chart-title">Juros dos Principais Países</div>
+        <div class="juros-wrap">
+          <div class="juros-box">
+            <div class="juros-box-title">Brasil — Banco Central (dado ao vivo)</div>
+            <div id="jurosBR"><div class="idx-loading">Carregando…</div></div>
+          </div>
+          <div class="juros-box">
+            <div class="juros-box-title">Principais Bancos Centrais (referência manual)</div>
+            <div id="jurosGlobal"></div>
+            <div class="juros-sub" id="jurosGlobalData"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:1rem;">
+        <div class="chart-title">Calendário Econômico</div>
+        <div class="cal-wrap">
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+            {
+              "colorTheme": "dark",
+              "isTransparent": true,
+              "width": "100%",
+              "height": "500",
+              "locale": "br",
+              "importanceFilter": "-1,0,1",
+              "countryFilter": "us,br,eu,gb,jp,cn"
+            }
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.6;">
+        Fontes: Yahoo Finance (índices e câmbio, com atraso de mercado) · Banco Central do Brasil — SGS/Olinda (Selic, dado oficial) ·
+        RSS das próprias fontes de notícia (ver rótulo em cada manchete) · TradingView (calendário econômico) ·
+        Juros internacionais atualizados manualmente — ver data de referência acima.<br>
+        Não é recomendação de investimento. Dados de mercado podem estar atrasados em relação ao pregão ao vivo.
+      </div>
+    </div><!-- /chart-macro -->
   </div><!-- /chartsSection -->
 
   <!-- RESULTS -->
@@ -1126,6 +1248,8 @@ function switchChartTab(name, el) {
   if (name === 'setor') renderSectorChart();
   if (name === 'ranking') renderRankingChart();
   if (name === 'cenarios') { /* painel já está visível; pode auto-carregar se ticker definido */ }
+  if (name === 'macro') { ensureMacroLoaded(); startMacroAutoRefresh(); }
+  else { stopMacroAutoRefresh(); }
 }
 
 // ============================================================
@@ -3493,6 +3617,370 @@ function cnLoadPaste(){
     <div id="tvModalBody" style="flex:1;min-height:0;"></div>
   </div>
 </div>
+
+<script>
+// ============================================================
+// MACRO GLOBAL — índices mundiais, notícias, juros e calendário
+// ============================================================
+const MG_PROXIES = [
+  u => `https://noticias-proxy.rodrigolpassos.workers.dev/?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => u
+];
+
+async function mgFetch(url, timeoutMs = 8000) {
+  let lastErr;
+  for (const wrap of MG_PROXIES) {
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      const r = await fetch(wrap(url), { cache: 'no-store', signal: controller.signal });
+      clearTimeout(t);
+      if (!r.ok) continue;
+      return await r.text();
+    } catch (e) { lastErr = e; }
+  }
+  throw new Error('todas as rotas de proxy falharam' + (lastErr ? ': ' + lastErr.message : ''));
+}
+
+// ============================================================
+// ÍNDICES GLOBAIS & CÂMBIO — Yahoo Finance (mesmo endpoint já usado no StockView)
+// ============================================================
+const MG_INDICES = [
+  { sym: '^BVSP',    lbl: 'Ibovespa' },
+  { sym: '^GSPC',    lbl: 'S&P 500' },
+  { sym: '^DJI',     lbl: 'Dow Jones' },
+  { sym: '^IXIC',    lbl: 'Nasdaq' },
+  { sym: '^GDAXI',   lbl: 'DAX (Alemanha)' },
+  { sym: '^FTSE',    lbl: 'FTSE 100 (Reino Unido)' },
+  { sym: '^FCHI',    lbl: 'CAC 40 (França)' },
+  { sym: '^N225',    lbl: 'Nikkei 225 (Japão)' },
+  { sym: '^HSI',     lbl: 'Hang Seng (Hong Kong)' },
+  { sym: '^STOXX50E',lbl: 'Euro Stoxx 50' },
+  { sym: 'USDBRL=X', lbl: 'Dólar / Real' },
+  { sym: '^VIX',     lbl: 'VIX (volatilidade)' },
+];
+
+async function mgFetchQuote(symbol) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+  const txt = await mgFetch(url);
+  const j = JSON.parse(txt);
+  const res = j?.chart?.result?.[0];
+  const meta = res?.meta;
+  if (!meta || meta.regularMarketPrice == null) throw new Error('sem dado');
+  const ult = meta.regularMarketPrice;
+  const prev = meta.chartPreviousClose ?? meta.previousClose ?? 0;
+  const pct = prev > 0 ? ((ult - prev) / prev) * 100 : 0;
+  return { ultimo: ult, variacao: pct };
+}
+
+function mgFmtNum(v, casas) {
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+}
+
+async function renderIndices() {
+  const grid = document.getElementById('idxGrid');
+  grid.innerHTML = MG_INDICES.map((idx, i) => `
+    <div class="idx-card" id="idxCard-${i}">
+      <div class="idx-lbl">${idx.lbl}</div>
+      <div class="idx-val" id="idxVal-${i}">···</div>
+      <div class="idx-pct" id="idxPct-${i}">carregando…</div>
+    </div>
+  `).join('');
+
+  // Busca em paralelo, mas cada uma trata seu próprio erro sem travar as outras
+  await Promise.all(MG_INDICES.map(async (idx, i) => {
+    const card = document.getElementById(`idxCard-${i}`);
+    const valEl = document.getElementById(`idxVal-${i}`);
+    const pctEl = document.getElementById(`idxPct-${i}`);
+    try {
+      const q = await mgFetchQuote(idx.sym);
+      const casas = Math.abs(q.ultimo) < 20 ? 4 : 2;
+      valEl.textContent = mgFmtNum(q.ultimo, casas);
+      const cls = q.variacao > 0.005 ? 'idx-up' : q.variacao < -0.005 ? 'idx-down' : 'idx-flat';
+      card.classList.add(cls);
+      pctEl.textContent = (q.variacao >= 0 ? '+' : '') + q.variacao.toFixed(2) + '%';
+    } catch (e) {
+      valEl.textContent = '—';
+      pctEl.innerHTML = `<span class="idx-err">falhou</span>`;
+    }
+  }));
+}
+
+// ============================================================
+// JUROS — Selic ao vivo (Banco Central) + referência manual dos demais
+// ============================================================
+// Banco Central: cascata própria que SÓ aceita uma tentativa como sucesso se o
+// conteúdo realmente parecer dado de Selic (array não-vazio com .valor).
+// Isso evita cair na armadilha de aceitar um HTTP 200 que na verdade é um
+// erro genérico de algum proxy. O Worker próprio fica por último aqui porque,
+// nos testes, ele devolveu um erro malformado especificamente pra esse domínio
+// (provavelmente não foi pensado pra proxiar api.bcb.gov.br).
+async function bcbFetchSelic(url, timeoutMs = 6000) {
+  const tentativas = [
+    { nome: 'direto',      req: () => fetch(url, { cache: 'no-store' }) },
+    { nome: 'corsproxy',   req: () => fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, { cache: 'no-store' }) },
+    { nome: 'allorigins',  req: () => fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { cache: 'no-store' }) },
+    { nome: 'worker próprio', req: () => fetch(`https://noticias-proxy.rodrigolpassos.workers.dev/?url=${encodeURIComponent(url)}`, { cache: 'no-store' }) },
+  ];
+
+  const erros = [];
+  for (const t of tentativas) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const r = await t.req();
+      clearTimeout(timer);
+      if (!r.ok) { erros.push(`${t.nome}: HTTP ${r.status}`); continue; }
+      const txt = await r.text();
+      let arr;
+      try { arr = JSON.parse(txt); }
+      catch { erros.push(`${t.nome}: resposta não é JSON (${txt.slice(0,60)})`); continue; }
+      if (Array.isArray(arr) && arr.length > 0 && arr[0]?.valor != null) {
+        return arr[0]; // sucesso — payload realmente parece dado de Selic
+      }
+      erros.push(`${t.nome}: formato inesperado (${JSON.stringify(arr).slice(0,80)})`);
+    } catch (e) {
+      erros.push(`${t.nome}: ${e.message}`);
+    }
+  }
+  throw new Error(erros.join(' | '));
+}
+
+async function renderJurosBR() {
+  const el = document.getElementById('jurosBR');
+  const fontes = [
+    {
+      url: 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json',
+      rotulo: 'Meta Selic definida pelo Copom (série 432)',
+      calcular: d => ({ anual: parseFloat(d.valor), data: d.data, obs: '' })
+    },
+    {
+      url: 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/ultimos/1?formato=json',
+      rotulo: 'Selic diária, convertida p/ taxa anual (série 11)',
+      calcular: d => {
+        // Série 11 vem em % ao dia (ex: 0,052531). Anualiza por juros compostos,
+        // convenção de 252 dias úteis (padrão do mercado brasileiro).
+        const diaria = parseFloat(d.valor) / 100;
+        const anual = (Math.pow(1 + diaria, 252) - 1) * 100;
+        return { anual, data: d.data, obs: ` · taxa diária original: ${d.valor}%, convertida p/ 252 dias úteis` };
+      }
+    }
+  ];
+
+  const errosGerais = [];
+  for (const fonte of fontes) {
+    try {
+      const d = await bcbFetchSelic(fonte.url);
+      const { anual, data, obs } = fonte.calcular(d);
+      el.innerHTML = `
+        <div class="juros-row">
+          <span class="juros-pais"><span class="flag">🇧🇷</span>Selic</span>
+          <span class="juros-val">${anual.toFixed(2).replace('.', ',')}% a.a.</span>
+        </div>
+        <div class="juros-sub">Referência: ${data} · fonte: BCB (SGS) — ${fonte.rotulo}${obs}</div>
+      `;
+      return;
+    } catch (e) {
+      errosGerais.push(`${fonte.rotulo}: ${e.message}`);
+    }
+  }
+
+  console.error('Falha ao buscar Selic — detalhes de cada tentativa:\n' + errosGerais.join('\n'));
+  el.innerHTML = `
+    <div class="idx-err">Não foi possível buscar a Selic agora.<br>Veja o console (F12) para o detalhe de cada tentativa.</div>
+    <div class="juros-sub">
+      Diagnóstico rápido — abra este link direto no navegador e veja o que a API responde:<br>
+      <a href="${fontes[0].url}" target="_blank" style="color:var(--blue);">${fontes[0].url}</a>
+    </div>
+  `;
+}
+
+// Bancos centrais internacionais — mudam pouco (reuniões a cada 6-8 semanas),
+// então mantemos como referência manual em vez de depender de uma API paga.
+// >>> ATUALIZE OS VALORES E A DATA ABAIXO QUANDO HOUVER MUDANÇA DE POLÍTICA MONETÁRIA <<<
+const MG_JUROS_GLOBAL = {
+  referencia: '09/07/2026', // <- atualize esta data ao revisar os valores
+  taxas: [
+    { pais: 'Estados Unidos', flag: '🇺🇸', banco: 'Federal Reserve (Fed Funds)', valor: '4,25% – 4,50%' },
+    { pais: 'Zona do Euro',   flag: '🇪🇺', banco: 'BCE (Depósito)',              valor: '2,75%' },
+    { pais: 'Reino Unido',    flag: '🇬🇧', banco: 'Bank of England (Base Rate)', valor: '4,25%' },
+    { pais: 'Japão',          flag: '🇯🇵', banco: 'BoJ (Policy Rate)',           valor: '0,50%' },
+    { pais: 'China',          flag: '🇨🇳', banco: 'PBoC (1Y LPR)',               valor: '3,00%' },
+  ]
+};
+
+function renderJurosGlobal() {
+  const el = document.getElementById('jurosGlobal');
+  el.innerHTML = MG_JUROS_GLOBAL.taxas.map(t => `
+    <div class="juros-row">
+      <span class="juros-pais"><span class="flag">${t.flag}</span>${t.pais} <span style="color:var(--muted);font-size:0.62rem;">— ${t.banco}</span></span>
+      <span class="juros-val">${t.valor}</span>
+    </div>
+  `).join('');
+  document.getElementById('jurosGlobalData').textContent =
+    `Referência manual em ${MG_JUROS_GLOBAL.referencia} — atualize direto no código quando houver reunião de política monetária.`;
+}
+
+// ============================================================
+// NOTÍCIAS — RSS com fallback de codificação (UTF-8 / ISO-8859-1)
+// e destaque simples de urgência por palavra-chave.
+// ============================================================
+const MG_FEEDS_BR = [
+  { nome: 'InfoMoney',   url: 'https://www.infomoney.com.br/feed/' },
+  { nome: 'G1 Economia', url: 'https://g1.globo.com/rss/g1/economia/' },
+  { nome: 'Money Times', url: 'https://www.moneytimes.com.br/feed/' },
+];
+const MG_FEEDS_INTL = [
+  { nome: 'MarketWatch',   url: 'https://www.marketwatch.com/rss/topstories' },
+  { nome: 'CNBC Markets',  url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=15839135' },
+  { nome: 'Yahoo Finance', url: 'https://finance.yahoo.com/news/rssindex' },
+];
+
+// Destaque de urgência — heurística simples por palavra-chave (não é o motor
+// completo de scoring cruzado entre fontes do MacroTerminal, mas cobre bem
+// o caso de uma manchete isoladamente urgente).
+const MG_URGENTE_RE = new RegExp(
+  '\\b(urgente|breaking|quebra|colapso|crash|guerra|war|atentado|ataque|' +
+  'renuncia|renúncia|resigns|demite|demissão em massa|intervenção|default|' +
+  'calote|recessão|recession|crise|emergência|emergency|explosão|invasão)\\b',
+  'i'
+);
+
+async function mgFetchBuffer(url, timeoutMs = 8000) {
+  let lastErr;
+  for (const wrap of MG_PROXIES) {
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      const r = await fetch(wrap(url), { cache: 'no-store', signal: controller.signal });
+      clearTimeout(t);
+      if (!r.ok) continue;
+      return await r.arrayBuffer();
+    } catch (e) { lastErr = e; }
+  }
+  throw new Error('todas as rotas de proxy falharam' + (lastErr ? ': ' + lastErr.message : ''));
+}
+
+// Decodifica como UTF-8; se os bytes não forem UTF-8 válido (feeds antigos
+// em ISO-8859-1 sem charset correto no header), cai pra ISO-8859-1.
+function mgDecode(buffer) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buffer); }
+  catch (e) { return new TextDecoder('iso-8859-1').decode(buffer); }
+}
+
+function mgTimeAgo(date) {
+  const min = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (min < 1) return 'agora';
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
+}
+
+async function mgFetchFeed(fonte) {
+  const buffer = await mgFetchBuffer(fonte.url);
+  const txt = mgDecode(buffer);
+  const doc = new DOMParser().parseFromString(txt, 'text/xml');
+  if (doc.querySelector('parsererror')) throw new Error('XML inválido');
+
+  const itensRss = [...doc.querySelectorAll('item')];
+  const entradas = itensRss.length ? itensRss : [...doc.querySelectorAll('entry')]; // fallback Atom
+
+  return entradas.slice(0, 15).map(el => {
+    const titulo = el.querySelector('title')?.textContent?.trim() || '(sem título)';
+    const linkEl = el.querySelector('link');
+    const link = linkEl?.textContent?.trim() || linkEl?.getAttribute('href') || '#';
+    const dataTxt = el.querySelector('pubDate')?.textContent
+                 || el.querySelector('published')?.textContent
+                 || el.querySelector('updated')?.textContent;
+    const data = dataTxt ? new Date(dataTxt) : new Date();
+    return { titulo, link, data: isNaN(data) ? new Date() : data, fonte: fonte.nome };
+  });
+}
+
+async function mgRenderColuna(feeds, elId) {
+  const el = document.getElementById(elId);
+  const resultados = await Promise.allSettled(feeds.map(mgFetchFeed));
+
+  let todas = [];
+  const falhas = [];
+  resultados.forEach((r, i) => {
+    if (r.status === 'fulfilled') todas = todas.concat(r.value);
+    else falhas.push(feeds[i].nome);
+  });
+
+  if (!todas.length) {
+    el.innerHTML = `<div class="idx-err">Não foi possível carregar nenhuma fonte de notícia agora.<br>Tentativas: ${feeds.map(f => f.nome).join(', ')}.</div>`;
+    return;
+  }
+
+  todas.sort((a, b) => b.data - a.data);
+  todas = todas.slice(0, 25);
+
+  let html = todas.map(n => `
+    <div class="news-item">
+      <a href="${n.link}" target="_blank" rel="noopener">${MG_URGENTE_RE.test(n.titulo) ? '<span class="news-urgent">urgente</span>' : ''}${n.titulo}</a>
+      <div class="news-meta"><span class="news-src">${n.fonte}</span><span>·</span><span>${mgTimeAgo(n.data)}</span></div>
+    </div>`).join('');
+
+  if (falhas.length) {
+    html += `<div class="juros-sub" style="margin-top:0.6rem;">Fontes indisponíveis agora: ${falhas.join(', ')}.</div>`;
+  }
+  el.innerHTML = html;
+}
+
+async function renderNoticias() {
+  await Promise.all([
+    mgRenderColuna(MG_FEEDS_BR, 'newsBR'),
+    mgRenderColuna(MG_FEEDS_INTL, 'newsIntl'),
+  ]);
+}
+
+// ============================================================
+// ORQUESTRAÇÃO
+// ============================================================
+async function atualizarMacro() {
+  const btn = document.getElementById('macroRefreshBtn');
+  const status = document.getElementById('macroStatusLine');
+  btn.disabled = true;
+  status.textContent = 'atualizando…';
+  try {
+    await Promise.all([renderIndices(), renderJurosBR(), renderNoticias()]);
+    renderJurosGlobal();
+    const agora = new Date().toLocaleTimeString('pt-BR');
+    status.innerHTML = `última atualização: <b>${agora}</b>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============================================================
+// LAZY LOAD + AUTO-REFRESH — só carrega/atualiza a Macro Global
+// enquanto essa aba estiver realmente aberta, pra não gastar
+// requisições em segundo plano enquanto o usuário está no B3.
+// ============================================================
+let macroLoaded = false;
+let macroAutoRefreshTimer = null;
+
+function ensureMacroLoaded() {
+  if (!macroLoaded) {
+    macroLoaded = true;
+    atualizarMacro();
+  }
+}
+
+function startMacroAutoRefresh() {
+  stopMacroAutoRefresh();
+  macroAutoRefreshTimer = setInterval(atualizarMacro, 60000); // 60s
+}
+
+function stopMacroAutoRefresh() {
+  if (macroAutoRefreshTimer) { clearInterval(macroAutoRefreshTimer); macroAutoRefreshTimer = null; }
+}
+
+</script>
 
 </body>
 </html>
