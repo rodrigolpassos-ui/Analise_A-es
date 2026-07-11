@@ -902,6 +902,18 @@
       </div>
 
       <div class="chart-container" style="margin-top:1rem;">
+        <div class="chart-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Curva de Juros — DI Futuro</span>
+          <span style="text-transform:none;letter-spacing:normal;font-size:0.68rem;color:var(--muted);" id="diCurveStatus">aguardando RTD…</span>
+        </div>
+        <div class="chart-box">
+          <h4>Vencimentos DI1 · taxa (% a.a.)</h4>
+          <div id="diCurveEmpty" class="idx-loading">Ligue o Tempo Real (RTD) acima, com os vencimentos DI1 colados na grade, pra ver a curva ao vivo.</div>
+          <div id="diCurveChartWrap" style="display:none;height:220px;"><canvas id="canvasDICurve"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:1rem;">
         <div class="chart-title">Calendário Econômico</div>
         <div class="cal-wrap">
           <div class="tradingview-widget-container">
@@ -1048,6 +1060,7 @@ function liveRefresh() {
   try { renderKPIs(); } catch(e) {}
   try { renderSectorChart(); } catch(e) {}
   try { renderRankingChart(); } catch(e) {}
+  try { renderDICurve(); } catch(e) {}
   try { renderCompact(); } catch(e) {}
   try { renderTable(); } catch(e) {}
   try { cnSyncFromRtd(); } catch(e) {}
@@ -1194,7 +1207,7 @@ function setTheme(t) {
   document.getElementById('btnDark').classList.toggle('active', t === 'dark');
   document.getElementById('btnLight').classList.toggle('active', t === 'light');
   localStorage.setItem('sv-theme', t);
-  if (rows.length) { renderSectorChart(); renderRankingChart(); }
+  if (rows.length) { renderSectorChart(); renderRankingChart(); renderDICurve(); }
   if (CN.candles.length) { cnRenderChart(); }
 }
 (function(){
@@ -1248,7 +1261,7 @@ function switchChartTab(name, el) {
   if (name === 'setor') renderSectorChart();
   if (name === 'ranking') renderRankingChart();
   if (name === 'cenarios') { /* painel já está visível; pode auto-carregar se ticker definido */ }
-  if (name === 'macro') { ensureMacroLoaded(); startMacroAutoRefresh(); }
+  if (name === 'macro') { ensureMacroLoaded(); startMacroAutoRefresh(); try { renderDICurve(); } catch(e) {} }
   else { stopMacroAutoRefresh(); }
 }
 
@@ -1867,6 +1880,7 @@ function afterLoad(isRestore) {
   // Os gráficos dependem do Chart.js (CDN). Se ele não carregar, não derruba o resto.
   try { renderSectorChart(); } catch(e) { console.warn('Gráfico de setor indisponível:', e.message); }
   try { renderRankingChart(); } catch(e) { console.warn('Gráfico de ranking indisponível:', e.message); }
+  try { renderDICurve(); } catch(e) { console.warn('Curva de DI indisponível:', e.message); }
   try { renderTable(); } catch(e) { console.warn(e); }
 
   document.getElementById('kpiPanel').style.display = 'block';
@@ -2151,6 +2165,81 @@ function renderSectorChart() {
       scales: {
         x: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' }, callback: v => fmtVol(v) }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)' } },
         y: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CURVA DE JUROS — DI Futuro (via rows[] do RTD, mesmos dados da grade)
+// ============================================================
+let diCurveChartInst = null;
+const DI_MONTH_CODE = {F:1,G:2,H:3,J:4,K:5,M:6,N:7,Q:8,U:9,V:10,X:11,Z:12};
+
+function diSortKey(ticker) {
+  const m = ticker.toUpperCase().match(/([FGHJKMNQUVXZ])(\d{2,4})$/);
+  if (!m) return 999999;
+  const month = DI_MONTH_CODE[m[1]] || 0;
+  let year = parseInt(m[2]);
+  if (m[2].length === 2) year += 2000;
+  return year * 100 + month;
+}
+
+function renderDICurve() {
+  const empty = document.getElementById('diCurveEmpty');
+  const wrap = document.getElementById('diCurveChartWrap');
+  const status = document.getElementById('diCurveStatus');
+  if (!empty || !wrap) return;
+
+  // só vencimentos com código real (mês+ano) — exclui DI1FUT genérico/contínuo
+  const diRows = rows
+    .filter(r => /^DI1[FGHJKMNQUVXZ]\d{2,4}$/i.test(r.ativo))
+    .sort((a, b) => diSortKey(a.ativo) - diSortKey(b.ativo));
+
+  if (!diRows.length) {
+    empty.style.display = '';
+    wrap.style.display = 'none';
+    if (status) status.textContent = rows.length ? 'nenhum DI1 na grade' : 'aguardando RTD…';
+    return;
+  }
+
+  empty.style.display = 'none';
+  wrap.style.display = '';
+  if (status) status.textContent = diRows.length + ' vencimentos · ' + new Date().toLocaleTimeString('pt-BR');
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#6b7280' : '#4b5563';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+
+  const labels = diRows.map(r => r.ativo.replace('DI1', ''));
+  const values = diRows.map(r => r.ultimo);
+
+  if (diCurveChartInst) { diCurveChartInst.destroy(); diCurveChartInst = null; }
+
+  diCurveChartInst = new Chart(document.getElementById('canvasDICurve').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: 'rgba(0,229,180,0.95)',
+        backgroundColor: (c) => {
+          const area = c.chart.chartArea;
+          return vGrad(c.chart.ctx, area, 'rgba(0,229,180,0.35)', 'rgba(0,229,180,0.02)');
+        },
+        borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(0,229,180,0.95)',
+        fill: true, tension: 0.2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.raw.toFixed(2)}% a.a.` } }
+      },
+      scales: {
+        x: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' } }, grid: { color: gridColor } },
+        y: { ticks: { color: textColor, font: { size: 9, family: 'JetBrains Mono' }, callback: v => v.toFixed(2)+'%' }, grid: { color: gridColor } }
       }
     }
   });
