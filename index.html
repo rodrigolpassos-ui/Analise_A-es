@@ -205,6 +205,29 @@
   .ct-toolbar-btn:hover{border-color:var(--accent);color:var(--accent);}
   .ct-toolbar-btn.active{background:var(--accent);color:#04130f;border-color:transparent;font-weight:700;}
 
+  /* OPTIONS SCREENER (aba nova) */
+  .opt-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+  .opt-chips{display:flex;flex-wrap:wrap;gap:0.4rem;}
+  .opt-chip{border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-family:var(--mono);font-size:0.62rem;padding:0.35rem 0.7rem;border-radius:20px;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:0.35rem;user-select:none;text-transform:uppercase;letter-spacing:0.04em;}
+  .opt-chip .opt-dot{width:6px;height:6px;border-radius:50%;background:var(--opt-dotcolor,var(--muted));}
+  .opt-chip:hover{color:var(--text);border-color:var(--opt-dotcolor,var(--border2));}
+  .opt-chip.active{color:#fff;border-color:var(--opt-dotcolor,var(--accent));background:color-mix(in srgb, var(--opt-dotcolor,var(--accent)) 18%, var(--surface2));}
+  .opt-search-col{display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;}
+  .opt-search-col input{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.76rem;padding:0.4rem 0.7rem;border-radius:6px;outline:none;width:190px;transition:border-color 0.2s;}
+  .opt-search-col input:focus{border-color:var(--accent);}
+  .opt-status{font-size:0.62rem;color:var(--muted);min-height:14px;text-align:right;}
+  .opt-chart-wrap{position:relative;height:400px;margin-bottom:1.25rem;}
+  .opt-liq-bar-wrap{width:80px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
+  .opt-liq-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));}
+  .opt-liq-num{font-size:0.6rem;color:var(--muted);margin-left:0.35rem;}
+  .opt-badge{display:inline-flex;align-items:center;gap:0.3rem;background:rgba(255,178,46,0.1);border:1px solid rgba(255,178,46,0.3);color:var(--yellow);padding:0.15rem 0.45rem;border-radius:5px;font-size:0.62rem;font-weight:700;}
+  .opt-src{font-size:0.5rem;font-weight:700;border:1px solid var(--border2);border-radius:8px;padding:0.05rem 0.3rem;cursor:help;}
+  .opt-tags{display:flex;flex-wrap:wrap;gap:0.25rem;max-width:210px;}
+  .opt-tag{font-size:0.54rem;padding:0.1rem 0.4rem;border-radius:8px;color:#04130f;font-weight:700;white-space:nowrap;}
+  .opt-note{color:var(--muted);font-size:0.62rem;max-width:260px;line-height:1.4;white-space:normal;}
+  .opt-new{color:var(--accent);font-weight:700;}
+  @media(max-width:900px){.opt-note{display:none;}}
+
   /* RTD live pulse */
   @keyframes rtdPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,180,0.55);}50%{opacity:0.55;box-shadow:0 0 0 5px rgba(0,229,180,0);}}
   .rtd-status.live::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:0.4rem;animation:rtdPulse 1.6s ease-in-out infinite;vertical-align:middle;}
@@ -293,10 +316,10 @@
 
   /* Ladder de níveis */
   .cn-ladder{margin:4px 0;}
-  .cn-lvl{display:grid;grid-template-columns:10px 68px 1fr 72px 18px;align-items:center;gap:5px;padding:3px 0;font-size:11px;}
-  .cn-lvl .cn-dot{width:7px;height:7px;border-radius:50%;justify-self:center;}
+  .cn-lvl{display:grid;grid-template-columns:8px 50px minmax(20px,1fr) 92px 14px;align-items:center;gap:4px;padding:3px 0;font-size:11px;}
+  .cn-lvl .cn-dot{width:6px;height:6px;border-radius:50%;justify-self:center;}
   .cn-lvl.res .cn-dot{background:var(--red)} .cn-lvl.sup .cn-dot{background:var(--accent)}
-  .cn-lvl .cn-val{font-weight:700;text-align:right;font-size:11px;}
+  .cn-lvl .cn-val{font-weight:700;text-align:right;font-size:10px;white-space:nowrap;}
   .cn-lvl .cn-val[contenteditable]{cursor:text;border-bottom:1px dotted var(--muted);outline:none;}
   .cn-lvl .cn-val[contenteditable]:focus{border-bottom-color:var(--accent);background:rgba(0,229,180,0.05);}
   .cn-lvl.res .cn-val{color:var(--red)} .cn-lvl.sup .cn-val{color:var(--accent)}
@@ -304,7 +327,7 @@
   .cn-lvl .cn-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;}
   .cn-lvl.res .cn-bar i{background:linear-gradient(90deg,transparent,var(--red))}
   .cn-lvl.sup .cn-bar i{background:linear-gradient(90deg,transparent,var(--accent))}
-  .cn-lvl .cn-dist{font-size:9px;color:var(--muted);text-align:right;}
+  .cn-lvl .cn-dist{font-size:8px;color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cn-lvl .cn-del{color:var(--muted);cursor:pointer;text-align:center;font-size:10px;opacity:0;}
   .cn-lvl:hover .cn-del{opacity:1;}
   .cn-lvl .cn-del:hover{color:var(--red);}
@@ -597,6 +620,7 @@
       <button class="chart-tab-btn" onclick="switchChartTab('ranking',this)">📊 Top Ativos</button>
       <button class="chart-tab-btn" id="btnTabCenarios" onclick="switchChartTab('cenarios',this)">📈 Cenários Técnicos</button>
       <button class="chart-tab-btn" id="btnTabMacro" onclick="switchChartTab('macro',this)">🌐 Macro Global</button>
+      <button class="chart-tab-btn" id="btnTabOpcoes" onclick="switchChartTab('opcoes',this)">🎯 Options Screener</button>
     </div>
 
     <!-- TABELA COMPACTA -->
@@ -940,6 +964,43 @@
         Não é recomendação de investimento. Dados de mercado podem estar atrasados em relação ao pregão ao vivo.
       </div>
     </div><!-- /chart-macro -->
+
+    <!-- OPTIONS SCREENER -->
+    <div id="chart-opcoes" class="chart-panel">
+      <div class="chart-container">
+        <div class="chart-title">Mapa de liquidez × HV (proxy de IV) — ações mais operadas em opções na B3</div>
+
+        <div class="opt-toolbar">
+          <div class="opt-chips" id="optChipBar"></div>
+          <div class="opt-search-col">
+            <input type="text" id="optSearchBox" placeholder="Buscar… ou digitar ticker">
+            <span class="opt-status" id="optStatus"></span>
+          </div>
+        </div>
+
+        <div class="opt-chart-wrap"><canvas id="optQuadrantChart"></canvas></div>
+
+        <div class="ct-wrap">
+          <table class="ct" id="optTable">
+            <thead>
+              <tr>
+                <th data-key="ticker">Ticker</th>
+                <th data-key="liquidity">Liquidez</th>
+                <th data-key="ivMid">HV</th>
+                <th data-key="none" style="text-align:left;">Categorias</th>
+                <th data-key="spot">Preço</th>
+                <th data-key="none2" style="text-align:left;">Nota</th>
+              </tr>
+            </thead>
+            <tbody id="optTableBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1rem;font-size:0.62rem;color:var(--muted);line-height:1.6;">
+          Liquidez e HV vêm dos MESMOS dados carregados acima (RTD ao vivo, paste do Profit, busca automática ou entrada manual — <code>rows[]</code>) — sem conexão separada. HV é volatilidade histórica, usada aqui como <b>proxy de IV</b>, não é a IV implícita das opções. Quando um ticker não está nos dados carregados, cai pro snapshot fixo ou pro brapi.dev (histórico recente, ~1 mês). Categorias dos 14 curados são classificação qualitativa manual; tickers puxados dinamicamente usam heurística automática. Não constitui recomendação de investimento.
+        </div>
+      </div>
+    </div><!-- /chart-opcoes -->
   </div><!-- /chartsSection -->
 
   <!-- RESULTS -->
@@ -1063,6 +1124,7 @@ function liveRefresh() {
   try { renderDICurve(); } catch(e) {}
   try { renderCompact(); } catch(e) {}
   try { renderTable(); } catch(e) {}
+  try { renderOptionsScreener(); } catch(e) {}
   try { cnSyncFromRtd(); } catch(e) {}
   // se um ticker estiver aberto no detalhe, reabre com dados novos
   const dc = document.getElementById('detailCard');
@@ -1263,6 +1325,7 @@ function switchChartTab(name, el) {
   if (name === 'cenarios') { /* painel já está visível; pode auto-carregar se ticker definido */ }
   if (name === 'macro') { ensureMacroLoaded(); startMacroAutoRefresh(); try { renderDICurve(); } catch(e) {} }
   else { stopMacroAutoRefresh(); }
+  if (name === 'opcoes') { try { renderOptionsScreener(); } catch(e) { console.warn('Options Screener:', e); } }
 }
 
 // ============================================================
@@ -1882,6 +1945,7 @@ function afterLoad(isRestore) {
   try { renderRankingChart(); } catch(e) { console.warn('Gráfico de ranking indisponível:', e.message); }
   try { renderDICurve(); } catch(e) { console.warn('Curva de DI indisponível:', e.message); }
   try { renderTable(); } catch(e) { console.warn(e); }
+  try { renderOptionsScreener(); } catch(e) { console.warn('Options Screener:', e); }
 
   document.getElementById('kpiPanel').style.display = 'block';
   document.getElementById('chartsSection').style.display = 'block';
@@ -4069,6 +4133,388 @@ function stopMacroAutoRefresh() {
   if (macroAutoRefreshTimer) { clearInterval(macroAutoRefreshTimer); macroAutoRefreshTimer = null; }
 }
 
+</script>
+
+<script>
+// ============================================================
+// OPTIONS SCREENER — aba nova. Reaproveita rows[] (mesmos dados de
+// paste/auto/manual/RTD já carregados acima) em vez de abrir uma
+// conexão própria — "tudo junto", uma fonte de verdade só.
+// ============================================================
+const OPT_CAT_LABELS = {
+  'venda-premio':'Venda de Prêmio',
+  'direcional-alta':'Direcional Alta',
+  'direcional-baixa':'Direcional Baixa',
+  'neutro-vol':'Neutro/Volatilidade',
+  'covered-call':'Covered Call',
+  'evento':'Evento'
+};
+const OPT_CAT_COLORS = {
+  'venda-premio':'#00e5b4',
+  'direcional-alta':'#4ade80',
+  'direcional-baixa':'#ff5260',
+  'neutro-vol':'#ffb22e',
+  'covered-call':'#6699ff',
+  'evento':'#c084fc'
+};
+
+// Curadoria manual (14 ações mais operadas em opções na B3) + fallback estático
+// (snapshot do StockView_RTD_template.xlsx) pra quando o ticker não estiver em
+// rows[] nem disponível no brapi.dev.
+const OPT_CURATED = [
+  {ticker:'PETR4',name:'Petrobras PN',primary:'venda-premio',cats:['venda-premio','covered-call','direcional-baixa'],note:'Opções mais líquidas da B3; ideal para travas e venda coberta, mas sensível a política de preços e dividendos.',fallback:{liquidity:87,hv:25.5,spot:39.65,volume:1081032436}},
+  {ticker:'VALE3',name:'Vale ON',primary:'venda-premio',cats:['venda-premio','covered-call','direcional-baixa'],note:'Maior volume financeiro do grupo; correlacionada a minério de ferro e China, boa para prêmio e proteção.',fallback:{liquidity:98,hv:28.7,spot:74.18,volume:1642695546}},
+  {ticker:'ITUB4',name:'Itaú Unibanco PN',primary:'venda-premio',cats:['venda-premio','covered-call'],note:'Baixa volatilidade relativa entre bancões; consistente para venda de prêmio.',fallback:{liquidity:91,hv:24.3,spot:44.30,volume:1264187689}},
+  {ticker:'BBDC4',name:'Bradesco PN',primary:'venda-premio',cats:['venda-premio','covered-call'],note:'Maior número de negócios do grupo; perfil parecido ao ITUB4.',fallback:{liquidity:82,hv:26.8,spot:18.86,volume:896828380}},
+  {ticker:'BOVA11',name:'ETF Ibovespa',primary:'neutro-vol',cats:['neutro-vol','venda-premio','covered-call'],note:'Proxy do índice; menor HV do grupo, útil para estruturas neutras e hedge de carteira.',fallback:{liquidity:72,hv:19.0,spot:175.01,volume:591243543}},
+  {ticker:'B3SA3',name:'B3 ON',primary:'direcional-alta',cats:['direcional-alta','venda-premio'],note:'Sensível a volume de mercado e juros; boa opcionalidade em ciclos de queda de Selic.',fallback:{liquidity:73,hv:35.1,spot:15.42,volume:638120783}},
+  {ticker:'ABEV3',name:'Ambev ON',primary:'neutro-vol',cats:['neutro-vol','covered-call'],note:'Historicamente lateralizada; candidata a covered call e condor.',fallback:{liquidity:70,hv:25.6,spot:15.82,volume:550431567}},
+  {ticker:'BBAS3',name:'Banco do Brasil ON',primary:'evento',cats:['evento','venda-premio','direcional-baixa'],note:'Estatal; ruído político eleva a IV em janelas de notícia — atenção a gaps.',fallback:{liquidity:67,hv:24.0,spot:20.58,volume:498839480}},
+  {ticker:'PRIO3',name:'PRIO ON',primary:'evento',cats:['evento','direcional-alta'],note:'Notícias de M&A e produção movem o papel; prêmios mais gordos que a média.',fallback:{liquidity:60,hv:34.6,spot:55.45,volume:378168324}},
+  {ticker:'WEGE3',name:'WEG ON',primary:'covered-call',cats:['covered-call','neutro-vol'],note:'Qualidade e HV baixa; mais indicada para geração de renda do que especulação direcional.',fallback:{liquidity:57,hv:25.2,spot:46.51,volume:332444877}},
+  {ticker:'RENT3',name:'Localiza ON',primary:'direcional-baixa',cats:['direcional-baixa','venda-premio'],note:'Sensível a juros e ciclo de frota; put spreads fazem sentido em alta de Selic.',fallback:{liquidity:57,hv:37.3,spot:41.10,volume:340604506}},
+  {ticker:'SUZB3',name:'Suzano ON',primary:'covered-call',cats:['covered-call','venda-premio'],note:'Papel de celulose dolarizado; câmbio destrava movimentos, mas liquidez de opções é mais fina.',fallback:{liquidity:57,hv:25.0,spot:41.55,volume:335761730}},
+  {ticker:'EMBR3',name:'Embraer ON',primary:'evento',cats:['evento','direcional-alta'],note:'Cíclica e exportadora; câmbio e carteira de pedidos geram HV elevada perto de resultados. Usa o feed EMBJ3 quando aparece fechado/zerado, mesmo papel.',fallback:{liquidity:56,hv:40.5,spot:84.60,volume:321894646}},
+  {ticker:'MGLU3',name:'Magazine Luiza ON',primary:'direcional-alta',cats:['direcional-alta','direcional-baixa','evento'],note:'Menor liquidez financeira do grupo e HV disparada; straddle/strangle mais interessante que venda nua.',fallback:{liquidity:40,hv:63.2,spot:5.22,volume:175187426}}
+];
+
+let optDynamicExtras = []; // tickers adicionados via busca (não curados)
+let optActiveCats = new Set();
+let optSearchTerm = '';
+let optSortKey = 'liquidity';
+let optSortDir = -1;
+let optSearchDebounceTimer = null;
+let optQuadrantChartInst = null;
+
+function optFindRow(ticker){
+  let r = rows.find(x => x.ativo === ticker);
+  if(!optRowValid(r) && ticker==='EMBR3'){
+    r = rows.find(x => x.ativo === 'EMBJ3');
+  }
+  return r;
+}
+function optRowValid(r){
+  return !!r && ((r.ultimo && r.ultimo>0) || (r.negocios && r.negocios>0));
+}
+function optLiquidityFromVolume(volume, volMin, volMax){
+  const lo = Math.log10(Math.max(volMin,1)), hi = Math.log10(Math.max(volMax,volMin+1));
+  const v = Math.log10(Math.max(volume,1));
+  const score = 40 + (v-lo)/((hi-lo)||1)*58;
+  return Math.round(Math.min(100, Math.max(5, score)));
+}
+function optClassify(hv, liquidity){
+  const cats = [];
+  let primary;
+  if(hv < 20){ primary='neutro-vol'; }
+  else if(hv <= 33){ primary='venda-premio'; }
+  else { primary='evento'; }
+  cats.push(primary);
+  if(liquidity < 35 && primary!=='evento') cats.push('evento');
+  return {primary, cats};
+}
+
+// Monta a lista completa (curados + dinâmicos) usando rows[] como fonte ao vivo,
+// com fallback pro snapshot fixo (curados) ou pro dado já buscado no brapi (dinâmicos).
+function optBuildList(){
+  const curatedVols = OPT_CURATED.map(meta=>{
+    const r = optFindRow(meta.ticker);
+    return (optRowValid(r) && r.volume>0) ? r.volume : meta.fallback.volume;
+  });
+  const volMin = Math.min(...curatedVols), volMax = Math.max(...curatedVols);
+
+  const curated = OPT_CURATED.map(meta=>{
+    const r = optFindRow(meta.ticker);
+    if(optRowValid(r)){
+      const hv = r.vol_hist>0 ? r.vol_hist : meta.fallback.hv;
+      const liquidity = r.volume>0 ? optLiquidityFromVolume(r.volume, volMin, volMax) : meta.fallback.liquidity;
+      return {
+        ticker:meta.ticker, name:meta.name, primary:meta.primary, cats:meta.cats, note:meta.note,
+        hv:Math.round(hv*10)/10, ivMid:Math.round(hv*10)/10,
+        liquidity, spot:r.ultimo, spotSource:'live', dynamic:false
+      };
+    }
+    return {
+      ticker:meta.ticker, name:meta.name, primary:meta.primary, cats:meta.cats, note:meta.note,
+      hv:meta.fallback.hv, ivMid:meta.fallback.hv, liquidity:meta.fallback.liquidity,
+      spot:meta.fallback.spot, spotSource:'snapshot', dynamic:false
+    };
+  });
+
+  const dynamics = optDynamicExtras.map(extra=>{
+    const r = optFindRow(extra.ticker);
+    if(optRowValid(r)){
+      const hv = r.vol_hist>0 ? r.vol_hist : extra.hv;
+      const liquidity = r.volume>0 ? optLiquidityFromVolume(r.volume, volMin, volMax) : extra.liquidity;
+      const {primary, cats} = optClassify(hv, liquidity);
+      return {...extra, hv:Math.round(hv*10)/10, ivMid:Math.round(hv*10)/10, liquidity, spot:r.ultimo, spotSource:'live', primary, cats};
+    }
+    return extra; // sem dado novo: mantém o que já tinha (brapi ou fallback anterior)
+  });
+
+  return [...curated, ...dynamics];
+}
+
+function optGetFiltered(){
+  return optBuildList().filter(s=>{
+    const matchesCat = optActiveCats.size===0 || s.cats.some(c=>optActiveCats.has(c));
+    const matchesSearch = !optSearchTerm || s.ticker.includes(optSearchTerm);
+    return matchesCat && matchesSearch;
+  });
+}
+
+// ---------- chips de categoria ----------
+function optInitChips(){
+  const bar = document.getElementById('optChipBar');
+  if(!bar || bar.childElementCount) return; // já montado
+  Object.keys(OPT_CAT_LABELS).forEach(cat=>{
+    const chip = document.createElement('div');
+    chip.className = 'opt-chip';
+    chip.style.setProperty('--opt-dotcolor', OPT_CAT_COLORS[cat]);
+    chip.innerHTML = `<span class="opt-dot"></span>${OPT_CAT_LABELS[cat]}`;
+    chip.addEventListener('click', ()=>{
+      if(optActiveCats.has(cat)){ optActiveCats.delete(cat); chip.classList.remove('active'); }
+      else{ optActiveCats.add(cat); chip.classList.add('active'); }
+      renderOptionsScreener();
+    });
+    bar.appendChild(chip);
+  });
+}
+
+// ---------- busca / ticker dinâmico ----------
+function optSetStatus(msg){
+  const el = document.getElementById('optStatus');
+  if(el) el.textContent = msg;
+}
+
+async function optFetchDynamic(ticker){
+  const target = `https://brapi.dev/api/quote/${ticker}?range=3mo&interval=1d`;
+  const attempts = [
+    u => `https://noticias-proxy.rodrigolpassos.workers.dev/?url=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => u
+  ];
+  for(const wrap of attempts){
+    try{
+      const res = await fetch(wrap(target));
+      if(!res.ok) continue;
+      const data = await res.json();
+      const r = data?.results?.[0];
+      if(!r || typeof r.regularMarketPrice !== 'number') continue;
+      const hist = (r.historicalDataPrice || []).filter(h => typeof h.close === 'number' && h.close > 0);
+      if(hist.length < 10) continue;
+      const win = hist.slice(-22);
+      const closes = win.map(h=>h.close);
+      const rets = [];
+      for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
+      const mean = rets.reduce((a,b)=>a+b,0)/rets.length;
+      const variance = rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(rets.length-1);
+      const hv = Math.sqrt(variance) * Math.sqrt(252) * 100;
+      const avgDollarVol = win.reduce((a,h)=>a+(h.close*(h.volume||0)),0) / win.length;
+      const volume = avgDollarVol > 0 ? avgDollarVol : (r.regularMarketPrice * (r.regularMarketVolume||0));
+      return { price:r.regularMarketPrice, hv, volume };
+    }catch(e){ /* tenta próximo proxy */ }
+  }
+  return null;
+}
+
+async function optAttemptAdd(val){
+  if(!val) return;
+  if(optBuildList().some(s=>s.ticker===val)) return;
+  if(!/^[A-Z]{4}\d{1,2}$/.test(val)){
+    optSetStatus(`Formato de ticker inválido: ${val}`);
+    return;
+  }
+
+  // 1) prioridade: já está em rows[] (RTD ao vivo, paste, auto ou manual)
+  const r = optFindRow(val);
+  if(optRowValid(r)){
+    const hv = r.vol_hist>0 ? r.vol_hist : 30;
+    const {primary, cats} = optClassify(hv, 50);
+    optDynamicExtras.push({
+      ticker:val, name:val, primary, cats,
+      note:'Puxado direto dos dados já carregados acima — categoria é heurística automática, não curadoria manual.',
+      hv:Math.round(hv*10)/10, ivMid:Math.round(hv*10)/10, liquidity:50, spot:r.ultimo, spotSource:'live', dynamic:true
+    });
+    optSetStatus(`${val} adicionado — dos dados já carregados.`);
+    renderOptionsScreener();
+    return;
+  }
+
+  // 2) fallback: brapi.dev
+  optSetStatus(`Buscando ${val}…`);
+  const result = await optFetchDynamic(val);
+  if(!result){
+    optSetStatus(`${val} não encontrado (nem nos dados carregados, nem no brapi.dev).`);
+    return;
+  }
+  const {primary, cats} = optClassify(result.hv, 50);
+  optDynamicExtras.push({
+    ticker:val, name:val, primary, cats,
+    note:'Adicionado dinamicamente via brapi.dev — HV calculada do histórico recente (~1 mês). Categoria é heurística automática, não curadoria manual.',
+    hv:Math.round(result.hv*10)/10, ivMid:Math.round(result.hv*10)/10,
+    liquidity:50, volume:result.volume, spot:result.price, spotSource:'brapi', dynamic:true
+  });
+  optSetStatus(`${val} adicionado — dados ao vivo (brapi.dev).`);
+  renderOptionsScreener();
+}
+
+function optInitSearch(){
+  const box = document.getElementById('optSearchBox');
+  if(!box || box.dataset.bound) return;
+  box.dataset.bound = '1';
+  box.addEventListener('input', e=>{
+    optSearchTerm = e.target.value.trim().toUpperCase();
+    renderOptionsScreener();
+    clearTimeout(optSearchDebounceTimer);
+    const exists = optBuildList().some(s=>s.ticker===optSearchTerm);
+    const looksLikeTicker = /^[A-Z]{4}\d{1,2}$/.test(optSearchTerm);
+    if(optSearchTerm && !exists && looksLikeTicker){
+      optSetStatus(`"${optSearchTerm}" não está na lista — buscando em ~1s (ou aperte Enter)…`);
+      optSearchDebounceTimer = setTimeout(()=>optAttemptAdd(optSearchTerm), 900);
+    } else if(!optSearchTerm){
+      optSetStatus('');
+    }
+  });
+  box.addEventListener('keydown', e=>{
+    if(e.key !== 'Enter') return;
+    clearTimeout(optSearchDebounceTimer);
+    optAttemptAdd(e.target.value.trim().toUpperCase());
+  });
+}
+
+function optInitSort(){
+  document.querySelectorAll('#optTable thead th[data-key]').forEach(th=>{
+    if(th.dataset.bound) return;
+    th.dataset.bound = '1';
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(key==='none'||key==='none2') return;
+      if(optSortKey===key){ optSortDir *= -1; } else { optSortKey = key; optSortDir = -1; }
+      document.querySelectorAll('#optTable thead th').forEach(t=>t.classList.remove('ct-sorted','asc'));
+      th.classList.add('ct-sorted');
+      if(optSortDir===1) th.classList.add('asc');
+      renderOptionsScreener();
+    });
+  });
+}
+
+// ---------- gráfico de quadrantes ----------
+const optQuadrantZonesPlugin = {
+  id:'optQuadrantZones',
+  beforeDatasetsDraw(chart){
+    const {ctx, chartArea, scales:{x,y}} = chart;
+    if(!chartArea || chartArea.right<=0) return;
+    const {left,right,top,bottom} = chartArea;
+    const midX = x.getPixelForValue(60);
+    const midY = y.getPixelForValue(32);
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    ctx.save();
+    ctx.fillStyle='rgba(192,132,252,0.05)'; ctx.fillRect(left, top, midX-left, midY-top);
+    ctx.fillStyle='rgba(0,229,180,0.05)';  ctx.fillRect(midX, top, right-midX, midY-top);
+    ctx.fillStyle= isDark ? 'rgba(120,120,120,0.04)' : 'rgba(0,0,0,0.03)'; ctx.fillRect(left, midY, midX-left, bottom-midY);
+    ctx.fillStyle='rgba(102,153,255,0.05)'; ctx.fillRect(midX, midY, right-midX, bottom-midY);
+    ctx.font = "10px 'JetBrains Mono'";
+    ctx.fillStyle= isDark ? 'rgba(238,240,246,0.4)' : 'rgba(15,23,42,0.4)';
+    ctx.fillText('ESPECULATIVO / EVENTO', left+8, top+13);
+    ctx.fillText('TRAVAS & STRADDLE', midX+8, top+13);
+    ctx.fillText('EVITAR (pouca liquidez)', left+8, bottom-7);
+    ctx.fillText('VENDA DE PRÊMIO', midX+8, bottom-7);
+    ctx.restore();
+  }
+};
+
+function optRenderChart(list){
+  if(optQuadrantChartInst){ optQuadrantChartInst.destroy(); optQuadrantChartInst = null; }
+  const canvas = document.getElementById('optQuadrantChart');
+  if(!canvas) return;
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#6b7280' : '#4b5563';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+  optQuadrantChartInst = new Chart(canvas.getContext('2d'), {
+    type:'bubble',
+    data:{ datasets:[{
+      data:list.map(s=>({x:s.liquidity, y:s.ivMid, r:Math.max(6,s.liquidity/6), s})),
+      backgroundColor:list.map(s=>OPT_CAT_COLORS[s.primary]+'cc'),
+      borderColor:list.map(s=>OPT_CAT_COLORS[s.primary]),
+      borderWidth:1.5
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:250},
+      scales:{
+        x:{ min:0, max:100, title:{display:true,text:'Score de Liquidez',color:textColor,font:{family:'JetBrains Mono',size:10.5}}, grid:{color:gridColor}, ticks:{color:textColor,font:{family:'JetBrains Mono',size:9.5}} },
+        y:{ min:10, max:70, title:{display:true,text:'HV (%) — proxy de IV',color:textColor,font:{family:'JetBrains Mono',size:10.5}}, grid:{color:gridColor}, ticks:{color:textColor,font:{family:'JetBrains Mono',size:9.5}} }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor: isDark ? '#101319' : '#ffffff',
+          borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.14)',
+          borderWidth:1,
+          titleFont:{family:'JetBrains Mono',size:12,weight:'bold'},
+          bodyFont:{family:'JetBrains Mono',size:11},
+          padding:10,
+          callbacks:{
+            title:(items)=> items[0].raw.s.ticker + ' · ' + items[0].raw.s.name,
+            label:(item)=>{
+              const s = item.raw.s;
+              const srcLabel = s.spotSource==='live' ? 'dados carregados' : s.spotSource==='brapi' ? 'brapi.dev' : 'snapshot';
+              return [
+                `Liquidez: ${s.liquidity}`,
+                `HV (proxy de IV): ${s.hv}%`,
+                `Categorias: ${s.cats.map(c=>OPT_CAT_LABELS[c]).join(', ')}`,
+                `Preço (${srcLabel}): R$ ${s.spot!=null ? s.spot.toFixed(2) : '—'}`
+              ];
+            }
+          }
+        }
+      }
+    },
+    plugins:[optQuadrantZonesPlugin]
+  });
+}
+
+function optRenderTable(list){
+  const sorted = [...list].sort((a,b)=>{
+    if(optSortKey==='ticker') return a.ticker.localeCompare(b.ticker)*optSortDir*-1;
+    if(optSortKey==='spot'){
+      const av = a.spot ?? -1, bv = b.spot ?? -1;
+      return (av-bv)*optSortDir;
+    }
+    return ((a[optSortKey])-(b[optSortKey]))*optSortDir;
+  });
+
+  const srcTag = s => s.spotSource==='live'
+    ? `<span class="opt-src" style="color:var(--accent);border-color:var(--accent);" title="Vem dos dados já carregados acima (RTD ao vivo, paste, busca automática ou manual)">ao vivo</span>`
+    : s.spotSource==='brapi'
+      ? `<span class="opt-src" style="color:var(--blue);border-color:var(--blue);" title="Cotação via brapi.dev">brapi</span>`
+      : `<span class="opt-src" style="color:var(--muted);" title="Snapshot fixo — sem dado carregado nem no brapi.dev no momento">snapshot</span>`;
+
+  const body = document.getElementById('optTableBody');
+  if(!body) return;
+  body.innerHTML = sorted.map(s=>`
+    <tr>
+      <td style="text-align:left;"><span style="color:var(--accent);font-weight:700;">${s.ticker}</span>${s.dynamic?' <span class="opt-new">novo</span>':''}<br><span style="font-size:0.55rem;color:var(--muted);">${s.name}</span></td>
+      <td>
+        <span class="opt-liq-bar-wrap"><span class="opt-liq-bar" style="width:${s.liquidity}%"></span></span>
+        <span class="opt-liq-num">${s.liquidity}</span>
+      </td>
+      <td><span class="opt-badge">${s.hv}%</span></td>
+      <td style="text-align:left;"><div class="opt-tags">${s.cats.map(c=>`<span class="opt-tag" style="background:${OPT_CAT_COLORS[c]}">${OPT_CAT_LABELS[c]}</span>`).join('')}</div></td>
+      <td>${s.spot!=null ? 'R$ '+s.spot.toFixed(2) : '—'} ${srcTag(s)}</td>
+      <td class="opt-note" style="text-align:left;">${s.note}</td>
+    </tr>
+  `).join('');
+}
+
+function renderOptionsScreener(){
+  optInitChips();
+  optInitSearch();
+  optInitSort();
+  const list = optGetFiltered();
+  optRenderChart(list);
+  optRenderTable(list);
+}
 </script>
 
 </body>
