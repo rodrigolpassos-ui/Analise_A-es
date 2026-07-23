@@ -73,7 +73,7 @@
   .action-row{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;}
 
   /* MANUAL FORM */
-  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.65rem;margin-bottom:0.75rem;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:0.65rem;margin-bottom:0.75rem;}
   .fg{display:flex;flex-direction:column;gap:0.3rem;}
   .fg label{font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
   .fg input,.fg select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.82rem;padding:0.45rem 0.65rem;border-radius:6px;outline:none;transition:border-color 0.2s;width:100%;}
@@ -199,6 +199,19 @@
   .ct-star:hover{color:var(--yellow);transform:scale(1.2);}
   .ct-star.active{color:var(--yellow);}
   .ct tbody tr.ct-fav td{background:rgba(255,178,46,0.05);}
+
+  /* RENDA FIXA */
+  .rf-note{margin-top:1rem;font-size:0.62rem;color:var(--muted);line-height:1.6;}
+  .rf-badge{display:inline-block;font-size:0.5rem;padding:0.12rem 0.45rem;border-radius:10px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;margin-right:0.3rem;}
+  .rf-badge.isento{background:rgba(0,229,180,0.12);color:var(--accent);border:1px solid rgba(0,229,180,0.3);}
+  .rf-badge.tributado{background:rgba(255,178,46,0.12);color:var(--yellow);border:1px solid rgba(255,178,46,0.3);}
+  .ct tbody tr.rf-best td{background:rgba(0,229,180,0.07)!important;}
+  .rf-result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-top:1rem;}
+  .rf-result-card{background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:0.75rem 0.9rem;}
+  .rf-result-card .lbl{font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.35rem;}
+  .rf-result-card .val{font-size:1.05rem;font-weight:700;color:var(--text);font-family:var(--mono);}
+  .rf-result-card .val.pos{color:var(--accent);}
+  .rf-result-card .val.neg{color:var(--red);}
 
   /* TOOLBAR BUTTONS (favoritos / export) */
   .ct-toolbar-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:0.68rem;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;padding:0.5rem 0.8rem;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
@@ -621,6 +634,7 @@
       <button class="chart-tab-btn" id="btnTabCenarios" onclick="switchChartTab('cenarios',this)">📈 Cenários Técnicos</button>
       <button class="chart-tab-btn" id="btnTabMacro" onclick="switchChartTab('macro',this)">🌐 Macro Global</button>
       <button class="chart-tab-btn" id="btnTabOpcoes" onclick="switchChartTab('opcoes',this)">🎯 Options Screener</button>
+      <button class="chart-tab-btn" id="btnTabRendaFixa" onclick="switchChartTab('rendafixa',this)">💰 Renda Fixa</button>
     </div>
 
     <!-- TABELA COMPACTA -->
@@ -1001,6 +1015,86 @@
         </div>
       </div>
     </div><!-- /chart-opcoes -->
+
+    <!-- RENDA FIXA -->
+    <div id="chart-rendafixa" class="chart-panel">
+      <div class="chart-container">
+        <div class="chart-title">Comparador de Rentabilidade Líquida — CDB, LCI/LCA, Tesouro Direto, Debêntures</div>
+
+        <div class="sec-title">Premissas de mercado</div>
+        <div class="form-grid">
+          <div class="fg"><label>CDI/Selic anual (%)</label><input type="number" id="rf_cdi" value="15.00" step="0.01"></div>
+          <div class="fg"><label>IPCA projetado anual (%)</label><input type="number" id="rf_ipca" value="4.50" step="0.01"></div>
+        </div>
+
+        <div class="sec-title">Adicionar produto para comparar</div>
+        <div class="ticker-row">
+          <div class="fg"><label>Apelido</label><input type="text" id="rf_nome" placeholder="ex: CDB Banco X"></div>
+          <div class="fg">
+            <label>Tipo de produto</label>
+            <select id="rf_tipo" onchange="rfToggleFields()">
+              <option value="cdb">CDB (% do CDI)</option>
+              <option value="lci">LCI/LCA (% do CDI, isento IR)</option>
+              <option value="selic">Tesouro Selic</option>
+              <option value="pre">Tesouro Prefixado (taxa fixa a.a.)</option>
+              <option value="ipca">Tesouro IPCA+ (IPCA + taxa real a.a.)</option>
+              <option value="deb">Debênture comum (% do CDI)</option>
+              <option value="inc">Deb. Incentivada / CRI / CRA (isento IR)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="fg" id="rf_fg_pct"><label>% do CDI</label><input type="number" id="rf_pctcdi" value="100" step="1"></div>
+          <div class="fg" id="rf_fg_taxa" style="display:none;"><label>Taxa fixa a.a. (%)</label><input type="number" id="rf_taxafixa" value="12.50" step="0.01"></div>
+          <div class="fg"><label>Valor investido (R$)</label><input type="number" id="rf_valor" value="10000" step="100"></div>
+          <div class="fg"><label>Prazo (dias corridos)</label><input type="number" id="rf_dias" value="720" step="1"></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-p" onclick="rfAddProduto()">▶ Adicionar à Comparação</button>
+          <button class="btn-s" onclick="rfClearProdutos()">↺ Limpar Comparação</button>
+        </div>
+        <div class="err" id="rf_err"></div>
+
+        <div class="ct-wrap" style="margin-top:0.5rem;">
+          <table class="ct" id="rfTable">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Produto</th>
+                <th style="text-align:left;">Tipo</th>
+                <th>Prazo</th>
+                <th>Taxa bruta a.a.</th>
+                <th>IR pago</th>
+                <th>Rendimento líquido</th>
+                <th>Líquido a.a. (equiv.)</th>
+                <th>Valor final</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="rfTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="rf-note">
+          Cálculo por juros compostos sobre o período informado. IR segue a tabela regressiva (22,5% até 180 dias, 20% até 360, 17,5% até 720, 15% acima de 720). IOF regressivo é aplicado automaticamente se o prazo for menor que 30 dias. LCI/LCA, debênture incentivada e CRI/CRA são tratados como isentos de IR. Tesouro Selic assume rentabilidade igual à taxa CDI/Selic informada. Não considera taxa de administração de fundos nem custódia B3. Resultado é uma estimativa educacional — não constitui recomendação de investimento.
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:1rem;">
+        <div class="chart-title">Simulador de Marcação a Mercado — venda antecipada de Prefixado / IPCA+</div>
+        <div class="form-grid">
+          <div class="fg"><label>Taxa contratada a.a. (%)</label><input type="number" id="rf_mm_taxa" value="12.50" step="0.01"></div>
+          <div class="fg"><label>Prazo restante até vencimento (anos)</label><input type="number" id="rf_mm_prazo" value="3" step="0.1"></div>
+          <div class="fg"><label>Variação esperada na taxa de mercado (p.p.)</label><input type="number" id="rf_mm_delta" value="1.0" step="0.1"></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-p" onclick="rfCalcDuration()">▶ Calcular Impacto no Preço</button>
+        </div>
+        <div class="rf-result-grid" id="rfDurationResult"></div>
+        <div class="rf-note">
+          Aproximação simplificada tratando o título como zero-cupom (duration ≈ prazo restante). Duration modificada = duration / (1 + taxa contratada). Variação estimada de preço ≈ −duration modificada × Δtaxa. Se a taxa de mercado <b>sobe</b>, o preço do papel no secundário <b>cai</b> (e vice-versa) — mas quem segura até o vencimento recebe a taxa contratada, independente dessa oscilação. Não considera convexidade nem cupons intermediários — use apenas como referência educacional.
+        </div>
+      </div>
+    </div><!-- /chart-rendafixa -->
   </div><!-- /chartsSection -->
 
   <!-- RESULTS -->
@@ -1326,6 +1420,7 @@ function switchChartTab(name, el) {
   if (name === 'macro') { ensureMacroLoaded(); startMacroAutoRefresh(); try { renderDICurve(); } catch(e) {} }
   else { stopMacroAutoRefresh(); }
   if (name === 'opcoes') { try { renderOptionsScreener(); } catch(e) { console.warn('Options Screener:', e); } }
+  if (name === 'rendafixa') { try { rfToggleFields(); rfRenderTable(); } catch(e) { console.warn('Renda Fixa:', e); } }
 }
 
 // ============================================================
@@ -4514,6 +4609,168 @@ function renderOptionsScreener(){
   const list = optGetFiltered();
   optRenderChart(list);
   optRenderTable(list);
+}
+
+// ============================================================
+// RENDA FIXA — Comparador de rentabilidade líquida + Marcação a mercado
+// ============================================================
+let rfProdutos = [];
+
+const RF_TIPO_LABEL = {cdb:'CDB', lci:'LCI/LCA', selic:'Tesouro Selic', pre:'Tesouro Prefixado', ipca:'Tesouro IPCA+', deb:'Debênture', inc:'Deb. Incentivada/CRI/CRA'};
+
+// IOF regressivo — % do rendimento tributável pelo IOF conforme dia corrido (dias 1 a 29); a partir do dia 30, alíquota é zero.
+const RF_IOF_TABLE = [96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3,0];
+
+function rfToggleFields() {
+  const tipoEl = document.getElementById('rf_tipo');
+  if (!tipoEl) return;
+  const tipo = tipoEl.value;
+  const usaPct = ['cdb','lci','deb','inc','selic'].includes(tipo);
+  document.getElementById('rf_fg_pct').style.display = usaPct ? '' : 'none';
+  document.getElementById('rf_fg_taxa').style.display = usaPct ? 'none' : '';
+  document.querySelector('#rf_fg_taxa label').textContent = tipo === 'ipca' ? 'Taxa real a.a. (%)' : 'Taxa fixa a.a. (%)';
+}
+
+function rfAliquotaIR(dias) {
+  if (dias <= 180) return 0.225;
+  if (dias <= 360) return 0.20;
+  if (dias <= 720) return 0.175;
+  return 0.15;
+}
+
+function rfAliquotaIOF(dias) {
+  if (dias >= 30) return 0;
+  const idx = Math.max(0, Math.min(29, dias - 1));
+  return (RF_IOF_TABLE[idx] || 0) / 100;
+}
+
+function rfIsento(tipo) {
+  return tipo === 'lci' || tipo === 'inc';
+}
+
+function rfTaxaBrutaAnual(tipo) {
+  const cdi = (parseFloat(document.getElementById('rf_cdi').value) || 0) / 100;
+  const ipca = (parseFloat(document.getElementById('rf_ipca').value) || 0) / 100;
+  if (tipo === 'cdb' || tipo === 'lci' || tipo === 'deb' || tipo === 'inc' || tipo === 'selic') {
+    const pct = (parseFloat(document.getElementById('rf_pctcdi').value) || 0) / 100;
+    return cdi * pct;
+  }
+  if (tipo === 'pre') {
+    return (parseFloat(document.getElementById('rf_taxafixa').value) || 0) / 100;
+  }
+  if (tipo === 'ipca') {
+    const real = (parseFloat(document.getElementById('rf_taxafixa').value) || 0) / 100;
+    return (1 + ipca) * (1 + real) - 1;
+  }
+  return 0;
+}
+
+function rfFmtMoeda(v) {
+  return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+function rfFmtPct(v) {
+  return (v * 100).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+}
+
+function rfAddProduto() {
+  const err = document.getElementById('rf_err');
+  err.style.display = 'none';
+  const tipo = document.getElementById('rf_tipo').value;
+  const nome = document.getElementById('rf_nome').value.trim() || RF_TIPO_LABEL[tipo];
+  const valor = parseFloat(document.getElementById('rf_valor').value);
+  const dias = parseInt(document.getElementById('rf_dias').value);
+
+  if (!valor || valor <= 0 || !dias || dias <= 0) {
+    err.textContent = 'Preencha valor investido e prazo (dias) válidos.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const taxaAnual = rfTaxaBrutaAnual(tipo);
+  const rentBrutaPeriodo = Math.pow(1 + taxaAnual, dias / 365) - 1;
+  const rendimentoBruto = valor * rentBrutaPeriodo;
+
+  const isento = rfIsento(tipo);
+  const aliqIOF = rfAliquotaIOF(dias);
+  const iof = rendimentoBruto * aliqIOF;
+  const rendApósIOF = rendimentoBruto - iof;
+
+  const aliqIR = isento ? 0 : rfAliquotaIR(dias);
+  const ir = isento ? 0 : rendApósIOF * aliqIR;
+  const rendimentoLiquido = rendApósIOF - ir;
+  const valorFinal = valor + rendimentoLiquido;
+
+  const rentLiqPeriodo = rendimentoLiquido / valor;
+  const rentLiqAnualizada = Math.pow(1 + rentLiqPeriodo, 365 / dias) - 1;
+
+  rfProdutos.push({
+    nome, tipo, valor, dias, taxaAnual, rendimentoBruto,
+    iof, ir, rendimentoLiquido, valorFinal, rentLiqAnualizada, isento
+  });
+
+  rfRenderTable();
+}
+
+function rfRemoveProduto(idx) {
+  rfProdutos.splice(idx, 1);
+  rfRenderTable();
+}
+
+function rfClearProdutos() {
+  rfProdutos = [];
+  rfRenderTable();
+}
+
+function rfRenderTable() {
+  const tbody = document.getElementById('rfTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (!rfProdutos.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:1rem;">Nenhum produto adicionado ainda.</td></tr>';
+    return;
+  }
+  let bestIdx = 0;
+  rfProdutos.forEach((p, i) => { if (p.rentLiqAnualizada > rfProdutos[bestIdx].rentLiqAnualizada) bestIdx = i; });
+
+  rfProdutos.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    if (i === bestIdx && rfProdutos.length > 1) tr.classList.add('rf-best');
+    tr.innerHTML = `
+      <td style="text-align:left;">${p.nome}</td>
+      <td style="text-align:left;"><span class="rf-badge ${p.isento ? 'isento' : 'tributado'}">${p.isento ? 'Isento' : 'Tributado'}</span>${RF_TIPO_LABEL[p.tipo]}</td>
+      <td>${p.dias}d</td>
+      <td>${rfFmtPct(p.taxaAnual)}</td>
+      <td>${rfFmtMoeda(p.ir)}</td>
+      <td>${rfFmtMoeda(p.rendimentoLiquido)}</td>
+      <td style="color:var(--accent);font-weight:700;">${rfFmtPct(p.rentLiqAnualizada)}</td>
+      <td>${rfFmtMoeda(p.valorFinal)}</td>
+      <td><button class="btn-s" style="padding:0.2rem 0.5rem;font-size:0.6rem;" onclick="rfRemoveProduto(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function rfCalcDuration() {
+  const taxa = (parseFloat(document.getElementById('rf_mm_taxa').value) || 0) / 100;
+  const prazo = parseFloat(document.getElementById('rf_mm_prazo').value);
+  const delta = parseFloat(document.getElementById('rf_mm_delta').value) / 100;
+  const resultDiv = document.getElementById('rfDurationResult');
+
+  if (!taxa || !prazo || prazo <= 0 || isNaN(delta)) {
+    resultDiv.innerHTML = '<div class="rf-result-card"><div class="lbl">Erro</div><div class="val neg">Preencha os campos corretamente</div></div>';
+    return;
+  }
+
+  const durationModificada = prazo / (1 + taxa);
+  const variacaoPreco = -durationModificada * delta;
+  const cls = variacaoPreco >= 0 ? 'pos' : 'neg';
+  const sinalDelta = delta >= 0 ? 'sobe' : 'cai';
+
+  resultDiv.innerHTML = `
+    <div class="rf-result-card"><div class="lbl">Duration modificada</div><div class="val">${durationModificada.toFixed(2)} anos</div></div>
+    <div class="rf-result-card"><div class="lbl">Se a taxa de mercado ${sinalDelta} ${Math.abs(delta*100).toFixed(2)} p.p.</div><div class="val ${cls}">${(variacaoPreco*100).toFixed(2)}%</div></div>
+    <div class="rf-result-card"><div class="lbl">No vencimento (segurando o papel)</div><div class="val pos">${(taxa*100).toFixed(2)}% a.a. garantido</div></div>
+  `;
 }
 </script>
 
