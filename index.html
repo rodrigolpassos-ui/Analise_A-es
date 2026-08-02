@@ -1108,7 +1108,6 @@
       </div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <button class="btn-p" onclick="gerarRelatorio()" id="btnReport" style="padding:0.55rem 0.95rem;font-size:0.72rem;">📄 Gerar Relatório</button>
-        <button class="btn-s" onclick="runAIOnAll()" id="btnAI">⚡ Análise IA (todos)</button>
         <button class="btn-s" onclick="clearAll()">✕ Limpar</button>
       </div>
     </div>
@@ -1138,22 +1137,22 @@
         <table id="mainTable">
           <thead>
             <tr>
-              <th onclick="sortBy('ativo')">Ativo</th>
-              <th onclick="sortBy('ultimo')">Último</th>
-              <th onclick="sortBy('variacao')">Var%</th>
-              <th onclick="sortBy('variacao_pts')">Var pts</th>
-              <th onclick="sortBy('abertura')">Abertura</th>
-              <th onclick="sortBy('maximo')">Máx</th>
-              <th onclick="sortBy('minimo')">Mín</th>
-              <th onclick="sortBy('fech_ant')">Fech.Ant</th>
-              <th onclick="sortBy('volume')">Volume</th>
-              <th onclick="sortBy('negocios')">Negócios</th>
-              <th onclick="sortBy('vol_hist')">Vol.Hist%</th>
-              <th onclick="sortBy('ifr')">RSI</th>
-              <th onclick="sortBy('semana')">Semana%</th>
-              <th onclick="sortBy('mes')">Mês%</th>
-              <th onclick="sortBy('ano')">Ano%</th>
-              <th>Sinal IA</th>
+              <th onclick="sortBy('ativo', event)">Ativo</th>
+              <th onclick="sortBy('ultimo', event)">Último</th>
+              <th onclick="sortBy('variacao', event)">Var%</th>
+              <th onclick="sortBy('variacao_pts', event)">Var pts</th>
+              <th onclick="sortBy('abertura', event)">Abertura</th>
+              <th onclick="sortBy('maximo', event)">Máx</th>
+              <th onclick="sortBy('minimo', event)">Mín</th>
+              <th onclick="sortBy('fech_ant', event)">Fech.Ant</th>
+              <th onclick="sortBy('volume', event)">Volume</th>
+              <th onclick="sortBy('negocios', event)">Negócios</th>
+              <th onclick="sortBy('vol_hist', event)">Vol.Hist%</th>
+              <th onclick="sortBy('ifr', event)">RSI</th>
+              <th onclick="sortBy('semana', event)">Semana%</th>
+              <th onclick="sortBy('mes', event)">Mês%</th>
+              <th onclick="sortBy('ano', event)">Ano%</th>
+              <th>Sinal</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -1164,14 +1163,13 @@
     <!-- DETAIL CARD -->
     <div id="detailCard">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
-        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;">Detalhes & Análise IA</div>
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;">Detalhes do Ativo</div>
         <button class="close-btn" onclick="document.getElementById('detailCard').style.display='none'">✕ Fechar</button>
       </div>
       <div id="detailContent"></div>
     </div>
   </div>
 
-  <div class="loading" id="loadingGlobal"><div class="spinner"></div><span id="loadingMsg">Analisando com IA...</span></div>
   <div class="err" id="err-global"></div>
 </div>
 
@@ -1813,6 +1811,7 @@ function renderMacroBox() {
 // FORMAT HELPERS
 // ============================================================
 function fmtVol(v) {
+  if (typeof v !== 'number' || isNaN(v)) return '—';
   if (v >= 1e9) return (v/1e9).toFixed(2)+'B';
   if (v >= 1e6) return (v/1e6).toFixed(1)+'M';
   if (v >= 1e3) return (v/1e3).toFixed(0)+'K';
@@ -2293,7 +2292,7 @@ function renderCompact() {
 
   document.getElementById('ctCount').textContent = `${filtered.length} ativos${favOnly ? ' · só favoritos' : ''}${onlyAcoes ? ' · só ações' : ''}`;
 
-  const maxVol = Math.max(...rows.map(r => r.volume || 0), 1);
+  const maxVol = Math.max(...filtered.map(r => r.volume || 0), 1);
 
   document.getElementById('ctBody').innerHTML = ctRowsHtml(sortedMain, maxVol);
   document.getElementById('ctBodyBaixa').innerHTML = ctRowsHtml(sortedBaixa, maxVol);
@@ -2493,12 +2492,13 @@ function renderRankingChart() {
 // ============================================================
 // TABLE
 // ============================================================
-function sortBy(col) {
+function sortBy(col, ev) {
   if (sortCol === col) sortAsc = !sortAsc;
   else { sortCol = col; sortAsc = col === 'ativo'; }
   renderTable();
-  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
-  event.target.classList.add('sorted');
+  document.querySelectorAll('#mainTable th').forEach(th => th.classList.remove('sorted'));
+  const th = (ev && ev.currentTarget) || (typeof event !== 'undefined' && event.target);
+  if (th) th.classList.add('sorted');
 }
 
 function renderTable() {
@@ -2791,17 +2791,6 @@ function openTradingView(tvTicker, ativo) {
     'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvTicker);
 
   // widget oficial (Advanced Chart) embutido via iframe
-  const cfg = {
-    symbol: tvTicker,
-    interval: 'D',
-    timezone: 'America/Sao_Paulo',
-    theme: 'dark',
-    style: '1',
-    locale: 'br',
-    hide_side_toolbar: false,
-    allow_symbol_change: true,
-    autosize: true
-  };
   const src = 'https://s.tradingview.com/widgetembed/?' +
     'frameElementId=tv_widget&symbol=' + encodeURIComponent(tvTicker) +
     '&interval=D&theme=dark&style=1&locale=br&timezone=America/Sao_Paulo' +
@@ -2908,10 +2897,6 @@ function showDetail(ticker) {
   const nx = (80 + 55 * Math.cos(rad)).toFixed(1);
   const ny = (80 + 55 * Math.sin(rad)).toFixed(1);
 
-  const aiNote = r.analise
-    ? `<span class="ai-badge"><span class="dot-ai"></span>Análise IA</span>`
-    : `<span style="font-size:0.62rem;color:var(--muted);">Análise automática (local)</span>`;
-
   const tvTicker = 'BMFBOVESPA:' + r.ativo;
   const tvUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tvTicker)}`;
 
@@ -2920,7 +2905,6 @@ function showDetail(ticker) {
       <span class="dc-ticker">${r.ativo}</span>
       <span class="sinal-pill ${sinalClass}">${r.sinal || '—'}</span>
       ${r.setor ? `<span style="font-size:0.65rem;color:var(--blue);background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2);border-radius:4px;padding:0.15rem 0.5rem;">${r.setor}</span>` : ''}
-      ${aiNote}
       <div style="margin-left:auto;display:flex;gap:6px;">
         <button onclick="openCenarios('${r.ativo}')"
            style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(0,229,180,0.08);border:1px solid rgba(0,229,180,0.3);border-radius:6px;padding:0.28rem 0.7rem;font-size:0.68rem;font-family:var(--mono);color:var(--accent);cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;"
@@ -2995,8 +2979,7 @@ function showDetail(ticker) {
       </div>
     </div>
 
-    <button class="btn-p" onclick="runAIOnOne('${r.ativo}')" style="margin-top:0.5rem;" id="btn-ai-${r.ativo}">⚡ Aprofundar análise com IA</button>
-    <button class="btn-s" onclick="gerarRelatorio('${r.ativo}')" style="margin-top:0.5rem;margin-left:0.5rem;">📄 Gerar Relatório de ${r.ativo}</button>
+    <button class="btn-p" onclick="gerarRelatorio('${r.ativo}')" style="margin-top:0.5rem;margin-left:0.5rem;">📄 Gerar Relatório de ${r.ativo}</button>
     <div class="disc">⚠ Análise automática baseada nos indicadores fornecidos. Não constitui recomendação de investimento.</div>
   `;
 
@@ -3103,103 +3086,6 @@ function showDetail(ticker) {
 }
 
 // ============================================================
-// AI — INDIVIDUAL
-// ============================================================
-async function runAIOnOne(ticker) {
-  const r = rows.find(x => x.ativo === ticker);
-  if (!r) return;
-  const btn = document.getElementById('btn-ai-' + ticker);
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analisando...'; }
-  hideErr('err-global');
-
-  const prompt = `Você é um analista técnico da B3. Com base nos dados reais abaixo, gere uma análise técnica detalhada.
-
-Ativo: ${r.ativo} | Setor: ${r.setor || 'não informado'}
-Último: R$ ${r.ultimo.toFixed(2)} | Var: ${r.variacao.toFixed(2)}% (${r.variacao_pts>=0?'+':''}${r.variacao_pts.toFixed(2)} pts)
-Abertura: R$ ${r.abertura.toFixed(2)} | Máx: R$ ${r.maximo.toFixed(2)} | Mín: R$ ${r.minimo.toFixed(2)} | Fech.Ant: R$ ${r.fech_ant.toFixed(2)}
-Volume: R$ ${fmtVol(r.volume)} | Negócios: ${r.negocios.toLocaleString('pt-BR')}
-Of.Compra: R$ ${r.of_compra.toFixed(2)} | Of.Venda: R$ ${r.of_venda.toFixed(2)}
-Vol. Histórica: ${r.vol_hist.toFixed(2)}% | RSI: ${r.ifr.toFixed(1)}
-Semana: ${r.semana.toFixed(2)}% | Mês: ${r.mes.toFixed(2)}% | Ano: ${r.ano.toFixed(2)}%
-
-Responda APENAS com JSON (sem markdown):
-{"sinal":"ALTA ou BAIXA ou NEUTRO","score":número 0-100,"suporte":número,"resistencia":número,"analise":"5-6 frases cobrindo tendência, volume, RSI, amplitude, performance e perspectiva.","pontos_atencao":["ponto 1","ponto 2","ponto 3"]}`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:900,
-        messages:[{role:'user',content:prompt}] })
-    });
-    const data = await resp.json();
-    const txt = (data.content||[]).map(i=>i.text||'').join('');
-    const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
-    r.sinal = parsed.sinal || r.sinal;
-    r.score = parsed.score ?? r.score;
-    r.analise = parsed.analise;
-    r.suporte = parsed.suporte;
-    r.resistencia = parsed.resistencia;
-    r._aiPoints = parsed.pontos_atencao;
-    renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
-    showDetail(ticker);
-    saveState();
-  } catch(err) {
-    showErr('err-global','Erro ao chamar IA: ' + err.message);
-    if (btn) { btn.disabled=false; btn.textContent='⚡ Aprofundar análise com IA'; }
-  }
-}
-
-// ============================================================
-// AI — ALL
-// ============================================================
-async function runAIOnAll() {
-  if (!rows.length) return;
-  const loading = document.getElementById('loadingGlobal');
-  const btn = document.getElementById('btnAI');
-  btn.disabled = true;
-  hideErr('err-global');
-
-  const batchSize = 5;
-  for (let i = 0; i < rows.length; i += batchSize) {
-    const batch = rows.slice(i, i+batchSize);
-    document.getElementById('loadingMsg').textContent =
-      `Analisando com IA... (${Math.min(i+batchSize,rows.length)}/${rows.length})`;
-    loading.classList.add('active');
-
-    const batchText = batch.map(r =>
-      `${r.ativo}: R$${r.ultimo.toFixed(2)} Var${r.variacao.toFixed(2)}% RSI${r.ifr.toFixed(0)} Sem${r.semana.toFixed(2)}% Mês${r.mes.toFixed(2)}% Ano${r.ano.toFixed(2)}% VolH${r.vol_hist.toFixed(1)}%`
-    ).join('\n');
-
-    const prompt = `Você é analista técnico B3. Analise os ativos abaixo e responda APENAS com JSON (sem markdown):
-{"ativos":[{"ticker":"...","sinal":"ALTA ou BAIXA ou NEUTRO","score":0-100,"analise":"2-3 frases"}]}
-
-Ativos:\n${batchText}`;
-
-    try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
-          messages:[{role:'user',content:prompt}] })
-      });
-      const data = await resp.json();
-      const txt = (data.content||[]).map(i=>i.text||'').join('');
-      const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
-      (parsed.ativos||[]).forEach(a => {
-        const row = rows.find(r=>r.ativo===a.ticker);
-        if (row) { row.sinal=a.sinal||row.sinal; row.score=a.score??row.score; row.analise=a.analise||row.analise; }
-      });
-    } catch(err) { /* continue */ }
-  }
-
-  loading.classList.remove('active');
-  btn.disabled = false;
-  renderTable(); renderKPIs(); populateSetorFilter(); renderCompact();
-  saveState();
-}
-
-// ============================================================
 // GERAR RELATÓRIO — documento imprimível / salvar em PDF
 // ============================================================
 function gerarRelatorio(ticker) {
@@ -3243,7 +3129,7 @@ function gerarRelatorio(ticker) {
 
   const detalhes = alvo.map(r => {
     const analise = r.analise || autoAnalise(r);
-    const pontos = (r._aiPoints && r._aiPoints.length) ? r._aiPoints : autoPoints(r);
+    const pontos = autoPoints(r);
     return `
       <div class="asset">
         <div class="asset-head">
